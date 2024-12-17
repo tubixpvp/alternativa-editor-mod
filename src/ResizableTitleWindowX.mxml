@@ -2,8 +2,7 @@
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
                xmlns:s="library://ns.adobe.com/flex/spark" 
                xmlns:mx="library://ns.adobe.com/flex/mx" 
-               width="300" height="200" title="Resizable Title Window"
-               addedToStage="onAddedToStage(event)">
+               width="300" height="200">
 
     <fx:Script>
         <![CDATA[
@@ -21,10 +20,6 @@
             private var prevHeight:Number;
             
             private var _defaultResizeHandler:Group;
-
-            private function init():void {
-                partAdded("resizeHandle", resizeHandle);
-            }
 
             private function resizeHandle_mouseDownHandler(event:MouseEvent):void {
                 if (enabled && !clickOffset) {
@@ -74,25 +69,6 @@
                 path.data = "M 4 13 L 13 4 L 13 13 L 4 13";
                 path.fill = new SolidColor(0x000000);
                 return path;
-            }
-
-            override protected function partAdded(partName:String, instance:Object):void {
-                super.partAdded(partName, instance);
-                if (partName == "resizeHandle" && instance is Group) {
-                    resizeHandle = instance as Group;
-                    resizeHandle.addEventListener(MouseEvent.MOUSE_DOWN, resizeHandle_mouseDownHandler);
-                }
-            }
-
-            override protected function partRemoved(partName:String, instance:Object):void {
-                if (instance == resizeHandle) {
-                    resizeHandle.removeEventListener(MouseEvent.MOUSE_DOWN, resizeHandle_mouseDownHandler);
-                }
-                super.partRemoved(partName, instance);
-            }
-
-            private function onAddedToStage(event:Event):void {
-                init();
             }
         ]]>
     </fx:Script>

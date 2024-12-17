@@ -567,7 +567,6 @@ package alternativa.editor
       
       private function onEnterFrame(param1:Event) : void
       {
-         return;
          this.cursorScene.containerController.yawLeft(this.keyMapper.keyPressed(0));
          this.cursorScene.containerController.yawRight(this.keyMapper.keyPressed(1));
          this.cursorScene.containerController.pitchDown(this.keyMapper.keyPressed(6));

@@ -150,7 +150,10 @@ package alternativa.editor.prop
       protected function initBitmapData() : void
       {
          this._material = Mesh(this._object).surfaces.peek().material;
-         this.bitmapData = TextureMaterial(this._material).texture.bitmapData;
+         if(_material is TextureMaterial)
+         {
+            this.bitmapData = TextureMaterial(this._material).texture.bitmapData;
+         }
       }
       
       public function calculate() : void
