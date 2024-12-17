@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:fx="http://ns.adobe.com/mxml/2009"
+       xmlns:mx="library://ns.adobe.com/flex/mx"
+       width="240" height="50"
+       creationComplete="onCreationComplete()">
+
+    <fx:Script>
+        <![CDATA[
+            import mx.controls.ProgressBar;
+            import mx.controls.ProgressBarMode;
+            import mx.events.FlexEvent;
+            import mx.managers.PopUpManager;
+
+            private function onCreationComplete():void {
+                PopUpManager.centerPopUp(this);
+                progressBar.mode = ProgressBarMode.MANUAL;
+            }
+
+            public function setProgress(value:Number, maxValue:Number):void {
+                progressBar.setProgress(value, maxValue);
+            }
+
+            public function setLabel(label:String):void {
+                progressBar.label = label;
+            }
+        ]]>
+    </fx:Script>
+
+    <!-- ProgressBar -->
+    <mx:ProgressBar id="progressBar"
+                   width="200"
+                   label="Loading"
+                   labelPlacement="top"
+                   minimum="0"
+                   maximum="100"
+                   indeterminate="false"
+                   direction="right"
+                   visible="true"/>
+
+</mx:Box>

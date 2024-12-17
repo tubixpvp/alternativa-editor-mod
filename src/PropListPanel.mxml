@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="library://ns.adobe.com/flex/mx"
+        xmlns:fx="http://ns.adobe.com/mxml/2009"
+          title="Props"
+          width="100%" height="100%"
+          focusEnabled="false">
+
+    <fx:Script>
+        <![CDATA[
+            import mx.collections.ArrayCollection;
+            import mx.containers.Canvas;
+            import mx.containers.Accordion;
+            import mx.controls.TileList;
+            import mx.core.ClassFactory;
+            import mx.core.ScrollPolicy;
+            import mx.events.ListEvent;
+            import gui.events.PropListEvent;
+            import alternativa.editor.ImageItemRenderer;
+            
+            private var _groupName:Array = [];
+            private var _group:Array = [];
+            private var dataProviders:Array = [];
+            public var selectedItem:* = null;
+
+            public function addProp(groupName:String, label:String, image:DisplayObject, obj:* = null):void {
+                var canvas:Canvas;
+                var dataProvider:ArrayCollection;
+                var tileList:TileList;
+                var groupIndex:int = _groupName.indexOf(groupName);
+                
+                if (groupIndex >= 0) {
+                    dataProvider = dataProviders[groupIndex];
+                } else {
+                    canvas = new Canvas();
+                    canvas.label = groupName;
+                    canvas.autoLayout = true;
+                    canvas.percentHeight = canvas.percentWidth = 100;
+                    canvas.horizontalScrollPolicy = ScrollPolicy.OFF;
+                    accordion.addChild(canvas);
+                    
+                    tileList = new TileList();
+                    tileList.percentHeight = tileList.percentWidth = 100;
+                    tileList.focusEnabled = false;
+                    dataProvider = new ArrayCollection();
+                    dataProviders.push(dataProvider);
+                    tileList.dataProvider = dataProvider;
+                    tileList.itemRenderer = new ClassFactory(ImageItemRenderer);
+                    tileList.addEventListener(ListEvent.ITEM_CLICK, changeSelected);
+                    _group.push(tileList);
+                    _groupName.push(groupName);
+                    canvas.addChild(tileList);
+                }
+
+                var sprite:Sprite = new Sprite();
+                sprite.addChild(image);
+                dataProvider.addItem({
+                    "label": label,
+                    "image": sprite,
+                    "obj": obj
+                });
+            }
+
+            public function deleteAllProps():void {
+                var tileList:TileList;
+                for (var i:int = 0; i < _group.length; i++) {
+                    tileList = _group[i] as TileList;
+                    tileList.removeEventListener(ListEvent.ITEM_CLICK, changeSelected);
+                }
+                while (accordion.numChildren > 0) {
+                    accordion.removeChildAt(0);
+                }
+                dataProviders = [];
+                _group = [];
+                _groupName = [];
+            }
+
+            private function changeSelected(event:ListEvent):void {
+                dispatchEvent(new PropListEvent(0, event.itemRenderer.data.obj));
+                selectedItem = event.itemRenderer.data.obj;
+            }
+        ]]>
+    </fx:Script>
+
+    <!-- Accordion -->
+    <mx:Accordion id="accordion" percentWidth="100" percentHeight="100"/>
+
+</mx:Panel>

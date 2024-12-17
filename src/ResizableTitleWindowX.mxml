@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+               xmlns:s="library://ns.adobe.com/flex/spark" 
+               xmlns:mx="library://ns.adobe.com/flex/mx" 
+               width="300" height="200" title="Resizable Title Window"
+               addedToStage="onAddedToStage(event)">
+
+    <fx:Script>
+        <![CDATA[
+            import flash.events.Event;
+            import flash.events.MouseEvent;
+            import flash.geom.Point;
+            import mx.events.SandboxMouseEvent;
+            import spark.components.Group;
+            import spark.primitives.Path;
+            import mx.graphics.SolidColor;
+            import mx.events.PropertyChangeEvent;
+            
+            private var clickOffset:Point;
+            private var prevWidth:Number;
+            private var prevHeight:Number;
+            
+            private var _defaultResizeHandler:Group;
+
+            private function init():void {
+                partAdded("resizeHandle", resizeHandle);
+            }
+
+            private function resizeHandle_mouseDownHandler(event:MouseEvent):void {
+                if (enabled && !clickOffset) {
+                    clickOffset = new Point(event.stageX, event.stageY);
+                    prevWidth = width;
+                    prevHeight = height;
+                    var loc:DisplayObject = systemManager.getSandboxRoot();
+                    loc.addEventListener(MouseEvent.MOUSE_MOVE, resizeHandle_mouseMoveHandler, true);
+                    loc.addEventListener(MouseEvent.MOUSE_UP, resizeHandle_mouseUpHandler, true);
+                    loc.addEventListener(SandboxMouseEvent.MOUSE_UP_SOMEWHERE, resizeHandle_mouseUpHandler);
+                }
+            }
+
+            private function resizeHandle_mouseMoveHandler(event:MouseEvent):void {
+                event.stopImmediatePropagation();
+                if (!clickOffset) return;
+
+                width = prevWidth + (event.stageX - clickOffset.x);
+                height = prevHeight + (event.stageY - clickOffset.y);
+                event.updateAfterEvent();
+            }
+
+            private function resizeHandle_mouseUpHandler(event:Event):void {
+                clickOffset = null;
+                prevWidth = NaN;
+                prevHeight = NaN;
+                var loc:DisplayObject = systemManager.getSandboxRoot();
+                loc.removeEventListener(MouseEvent.MOUSE_MOVE, resizeHandle_mouseMoveHandler, true);
+                loc.removeEventListener(MouseEvent.MOUSE_UP, resizeHandle_mouseUpHandler, true);
+                loc.removeEventListener(SandboxMouseEvent.MOUSE_UP_SOMEWHERE, resizeHandle_mouseUpHandler);
+            }
+
+            private function createResizeHandler():Group {
+                var handler:Group = new Group();
+                handler.right = 1;
+                handler.bottom = 1;
+                handler.width = 15;
+                handler.height = 15;
+                handler.mxmlContent = [createPath()];
+                handler.id = "defaultResizeHandler";
+                _defaultResizeHandler = handler;
+                return handler;
+            }
+
+            private function createPath():Path {
+                var path:Path = new Path();
+                path.data = "M 4 13 L 13 4 L 13 13 L 4 13";
+                path.fill = new SolidColor(0x000000);
+                return path;
+            }
+
+            override protected function partAdded(partName:String, instance:Object):void {
+                super.partAdded(partName, instance);
+                if (partName == "resizeHandle" && instance is Group) {
+                    resizeHandle = instance as Group;
+                    resizeHandle.addEventListener(MouseEvent.MOUSE_DOWN, resizeHandle_mouseDownHandler);
+                }
+            }
+
+            override protected function partRemoved(partName:String, instance:Object):void {
+                if (instance == resizeHandle) {
+                    resizeHandle.removeEventListener(MouseEvent.MOUSE_DOWN, resizeHandle_mouseDownHandler);
+                }
+                super.partRemoved(partName, instance);
+            }
+
+            private function onAddedToStage(event:Event):void {
+                init();
+            }
+        ]]>
+    </fx:Script>
+
+    <!-- Content and other components can go here -->
+    <s:Group id="contentGroup" width="100%" height="100%" />
+    
+    <!-- Resize handle part -->
+    <s:Group id="resizeHandle" right="1" bottom="1" width="15" height="15" 
+             mouseDown="resizeHandle_mouseDownHandler(event)">
+        <s:Path data="M 4 13 L 13 4 L 13 13 L 4 13">
+            <s:fill>
+                <mx:SolidColor color="#000000"/>
+            </s:fill>
+        </s:Path>
+    </s:Group>
+
+</s:TitleWindow>

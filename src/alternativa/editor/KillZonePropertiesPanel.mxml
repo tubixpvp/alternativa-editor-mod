@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+         xmlns:spark="http://www.adobe.com/2006/spark" 
+         xmlns:flash="http://www.adobe.com/flash" creationComplete="onCreationComplete()">
+   <mx:Panel id="bonusTypesPanel" title="Bonus types" percentHeight="100" percentWidth="50" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
+      <mx:Tile direction="vertical" percentHeight="100">
+         <!-- You can add elements for this Tile container as needed -->
+      </mx:Tile>
+      <mx:NumericStepper id="kbscaleX" maximum="50" keyDown="action_keyDownHandler(event)" change="scaleChanged(event)" />
+      <mx:NumericStepper id="kbscaleY" maximum="50" keyDown="action_keyDownHandler(event)" change="scaleChanged(event)" />
+      <mx:NumericStepper id="kbscaleZ" maximum="50" keyDown="action_keyDownHandler(event)" change="scaleChanged(event)" />
+      <mx:ComboBox id="action" editable="true" 
+         dataProvider="{KillBox.typesProvider}" 
+         keyDown="action_keyDownHandler(event)" 
+         change="actionChanged()" />
+   </mx:Panel>
+   
+   <mx:CheckBox id="typeCheckBoxes" />
+   <mx:CheckBox id="gameModeCheckBoxes" />
+
+   <mx:Script>
+      <![CDATA[
+         import alternativa.editor.prop.KillBox;
+         import alternativa.types.Set;
+         import mx.collections.ArrayCollection;
+         import mx.events.NumericStepperEvent;
+         import mx.events.ListEvent;
+         import flash.events.KeyboardEvent;
+         import flash.ui.Keyboard;
+
+         private var killBox:KillBox;
+         
+         private function onCreationComplete():void
+         {
+            setFields();
+         }
+         
+         private function setFields():void
+         {
+            if(this.killBox != null)
+            {
+               setCBValue(this.action, this.killBox.action);
+               this.kbscaleX.value = this.killBox.scaleX;
+               this.kbscaleY.value = this.killBox.scaleY;
+               this.kbscaleZ.value = this.killBox.scaleZ;
+            }
+         }
+         
+         private function scaleChanged(event:NumericStepperEvent):void
+         {
+            this.killBox.scaleX = this.kbscaleX.value;
+            this.killBox.scaleY = this.kbscaleY.value;
+            this.killBox.scaleZ = this.kbscaleZ.value;
+         }
+         
+         private function setCBValue(cb:ComboBox, value:Object):void
+         {
+            var i:int = 0;
+            while (i < cb.dataProvider.length)
+            {
+               if (cb.dataProvider[i] == value)
+               {
+                  cb.selectedIndex = i;
+                  return;
+               }
+               i++;
+            }
+            var collection:ArrayCollection = cb.dataProvider as ArrayCollection;
+            if (collection)
+            {
+               collection.addItemAt(value, i);
+               cb.selectedIndex = i + 1;
+            }
+         }
+         
+         private function actionChanged():void
+         {
+            this.killBox.action = this.action.value.toString();
+         }
+         
+         private function action_keyDownHandler(event:KeyboardEvent):void
+         {
+            switch(event.keyCode)
+            {
+               case Keyboard.ENTER:
+               case Keyboard.ESCAPE:
+               case Keyboard.TAB:
+                  return;
+               default:
+                  event.stopPropagation();
+                  return;
+            }
+         }
+
+         public function setBonusRegion(killBox:KillBox):void
+         {
+            this.killBox = killBox;
+            setFields();
+         }
+         
+         private static function setupCheckBoxes(param1:Object, param2:Set):void
+         {
+            var loc3:String = null;
+            var loc4:CheckBox = null;
+            for (loc3 in param1)
+            {
+               loc4 = param1[loc3];
+               loc4.selected = param2[loc3];
+            }
+         }
+         
+      ]]>
+   </mx:Script>
+</mx:HBox>

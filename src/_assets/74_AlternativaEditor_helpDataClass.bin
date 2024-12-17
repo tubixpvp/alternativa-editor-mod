@@ -1,0 +1,18 @@
+Esc — clear selection
+Delete, C — delete selected prop
+X, Z — rotate selected prop or cursor
+K – switch half cell snapping
+Ctrl + = – zoom in
+Ctrl + - – zoom out
+Ctrl + 0 – reset camera direction
+Drag, arrows — moving selected prop or cursor
+Shift + drag — copy and moving selected prop
+V + drag, W, S — vertical moving
+Space — paste prop 
+F — mirror texture
+Q — select conflict props
+Middle mouse button + drag — panning
+Alt + middle — rotate camera
+Link domination spawn point: Ctrl+Click on spawn point, then Ctrl+Click on check point
+Drag&Drop folder on editor window – load prop libs from all subfolders
+Drag&Drop map.xml – load map

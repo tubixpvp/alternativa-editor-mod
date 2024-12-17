@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+                title="Layers"
+                width="150" height="200"
+                showCloseButton="true"
+                xmlns:local="*">
+
+    <!-- Main VBox container -->
+    <mx:VBox id="mainBox"/>
+
+</mx:TitleWindow>

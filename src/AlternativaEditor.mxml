@@ -1,0 +1,816 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" xmlns:local="*"
+    xmlns:local1="alternativa.editor.*" applicationComplete="onApplicationComplete()"
+    backgroundAlpha="0">
+
+    <mx:Script>
+        <![CDATA[
+            import alternativa.editor.FunctionalProps;
+            import alternativa.editor.LayersWindow;
+            import alternativa.editor.LibraryManager;
+            import alternativa.editor.MultiPropMode;
+            import alternativa.editor.Preview;
+            import alternativa.editor.SceneContainer;
+            import alternativa.editor.events.EditorProgressEvent;
+            import alternativa.editor.mapexport.ExportManager;
+            import alternativa.editor.mapexport.FileType;
+            import alternativa.editor.mapimport.ImportManager;
+            import alternativa.editor.prop.BonusRegion;
+            import alternativa.editor.prop.CTFFlagBase;
+            import alternativa.editor.prop.ControlPoint;
+            import alternativa.editor.prop.FreeBonusRegion;
+            import alternativa.editor.prop.KillBox;
+            import alternativa.editor.prop.MeshProp;
+            import alternativa.editor.prop.Prop;
+            import alternativa.editor.prop.SpawnPoint;
+            import alternativa.editor.prop.Sprite3DProp;
+            import alternativa.editor.scene.CursorScene;
+            import alternativa.editor.scene.MainScene;
+            import alternativa.utils.KeyboardUtils;
+            import flash.desktop.*;
+            import flash.display.*;
+            import flash.events.*;
+            import flash.filesystem.*;
+            import flash.utils.*;
+            import gui.events.PropListEvent;
+            import mx.binding.*;
+            import mx.containers.ControlBar;
+            import mx.containers.HDividedBox;
+            import mx.containers.Panel;
+            import mx.containers.VBox;
+            import mx.containers.VDividedBox;
+            import mx.controls.Alert;
+            import mx.controls.Button;
+            import mx.controls.ComboBox;
+            import mx.controls.FlexNativeMenu;
+            import mx.controls.Label;
+            import mx.core.UIComponentDescriptor;
+            import mx.core.WindowedApplication;
+            import mx.events.CloseEvent;
+            import mx.events.FlexEvent;
+            import mx.events.FlexNativeMenuEvent;
+            import mx.events.ListEvent;
+            import mx.events.PropertyChangeEvent;
+            import mx.managers.PopUpManager;
+            
+            public static var preview:Preview;
+            
+            private static var helpDataClass:Class = AlternativaEditor_helpDataClass;
+            
+            private static const helpText:String = ByteArray(new helpDataClass()).toString().split(/\r/).join("");
+            
+            public static const DEFAULT_SELECTABLE_TYPES:Array = [KillBox, MeshProp, Sprite3DProp, SpawnPoint, Prop, FreeBonusRegion, ControlPoint, CTFFlagBase];
+            
+            private var progressBar:PopUpProgressBar;
+            
+            private var mainScene:MainScene;
+            
+            private var cursorScene:CursorScene;
+            
+            private var importManager:ImportManager;
+            
+            private var exportManager:ExportManager;
+            
+            private var miVisulaGeometry:NativeMenuItem;
+            
+            private var miCollisionGeometry:NativeMenuItem;
+            
+            private var miLock:NativeMenuItem;
+            
+            private var miLockGroup:NativeMenuItem;
+            
+            private var miUnlock:NativeMenuItem;
+            
+            private var miSnap:NativeMenuItem;
+            
+            private var miShowGrid:NativeMenuItem;
+            
+            private var miShowLayers:NativeMenuItem;
+            
+            private var propertyPanel:Panel;
+            
+            private var libraryManager:LibraryManager;
+            
+            private var showCollisionGeometry:Boolean;
+            
+            private var snappingEnabled:Boolean;
+            
+            private var showGrid:Boolean = true;
+            
+            private var batchSelector:File = new File();
+            
+            private var batchProcessor:BatchProcessor;
+            
+            private var layersWindow:LayersWindowBase;
+            
+            private static function onPreviewPanelResize(param1:Event):void
+            {
+                preview.onResize();
+            }
+            
+            private function onApplicationComplete():void
+            {
+                var loc1:NativeMenuItem = null;
+                var loc2:NativeMenuItem = null;
+                this.createPropPreview();
+                this.initPropList();
+                this.mainScene = this.sceneContainer.mainScene;
+                this.createPropertyPanel();
+                this.cursorScene = this.sceneContainer.cursorScene;
+                stage.addEventListener(KeyboardEvent.KEY_DOWN, this.onKeyDown);
+                this.createLibraryManager();
+                this.createImportManager();
+                this.exportManager = new ExportManager(this.mainScene);
+                loc1 = this.getMenuItemByLabel("Export Tanks map 1.x");
+                loc1.keyEquivalent = null;
+                loc1 = this.getMenuItemByLabel("File");
+                loc2 = loc1.submenu.addItemAt(new NativeMenuItem("Export Tanks map 1.x.Full"), 3);
+                loc2.keyEquivalent = "t";
+                loc2.addEventListener(Event.SELECT, this.onExportToTanksV1FullClick);
+                loc2 = loc1.submenu.addItemAt(new NativeMenuItem("Import Specials"), 5);
+                loc2.addEventListener(Event.SELECT, this.specialAppendFromXMLClick);
+                this.initMenuItems();
+                this.setSnapping(true);
+                this.initFunctionalLibrary();
+                this.batchProcessor = new BatchProcessor(this.mainScene, this.libraryManager);
+                this.batchProcessor.addEventListener(Event.COMPLETE, this.onBatchProcessingComplete);
+                this.batchProcessor.addEventListener(EditorProgressEvent.PROGRESS, this.onBatchProcessingProgress);
+                this.batchSelector.addEventListener(Event.SELECT, this.onBatchFileSelect);
+                addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, this.fileHoverHandler);
+                addEventListener(NativeDragEvent.NATIVE_DRAG_DROP, this.fileDroppedHandler);
+            }
+            
+            private function fileHoverHandler(param1:NativeDragEvent):void
+            {
+                NativeDragManager.acceptDragDrop(this);
+            }
+            
+            private function fileDroppedHandler(param1:NativeDragEvent):void
+            {
+                var loc2:Array = param1.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+                if (loc2.length == 1 && !File(loc2[0]).isDirectory && File(loc2[0]).name.indexOf(".xml") > 0)
+                {
+                    this.onImportStart(null);
+                    this.importManager.clearScene();
+                    this.importManager.startImport(File(loc2[0]));
+                }
+                else
+                {
+                    this.libraryManager.loadGivenLibraries(loc2);
+                }
+            }
+            
+            private function onBatchProcessingComplete(param1:Event):void
+            {
+                this.hideProgressBar();
+            }
+            
+            private function onBatchProcessingProgress(param1:EditorProgressEvent):void
+            {
+                this.progressBar.setProgress(param1.progress, 1);
+            }
+            
+            private function initFunctionalLibrary():void
+            {
+                this.libraryManager.addLibrary(FunctionalProps.getFunctionalLibrary());
+                this.cbPropLibNames.selectedItem = "Functional";
+                this.onComboBoxChange(null);
+            }
+            
+            private function initMenuItems():void
+            {
+                this.miVisulaGeometry = this.getMenuItem(2, 0);
+                this.miCollisionGeometry = this.getMenuItem(2, 1);
+                this.miShowGrid = this.getMenuItem(2, 4);
+                this.miSnap = this.getMenuItem(4, 1);
+                this.miUnlock = this.getMenuItemByLabel("All intersections allowed");
+                this.miLockGroup = this.getMenuItemByLabel("Same props intersections denied");
+                this.miLock = this.getMenuItemByLabel("All intersections denied");
+                this.miShowLayers = this.getMenuItem(2, 5);
+            }
+            
+            private function getMenuItem(...rest):NativeMenuItem
+            {
+                var loc2:NativeMenuItem = menu.nativeMenu.getItemAt(rest[0]);
+                var loc3:int = 1;
+                while (loc3 < rest.length)
+                {
+                    loc2 = loc2.submenu.getItemAt(rest[loc3]);
+                    loc3++;
+                }
+                return loc2;
+            }
+            
+            private function getMenuItemByLabel(param1:String, param2:NativeMenu = null):NativeMenuItem
+            {
+                var loc4:NativeMenuItem = null;
+                if (!param2)
+                {
+                    param2 = this.menu.nativeMenu;
+                }
+                var loc3:int = 0;
+                while (loc3 < param2.numItems)
+                {
+                    loc4 = param2.getItemAt(loc3);
+                    if (loc4.label == param1)
+                    {
+                        return loc4;
+                    }
+                    if (Boolean(loc4.submenu) && Boolean(this.getMenuItemByLabel(param1, loc4.submenu)))
+                    {
+                        return this.getMenuItemByLabel(param1, loc4.submenu);
+                    }
+                    loc3++;
+                }
+                return null;
+            }
+            
+            private function onPropSelect(param1:PropListEvent):void
+            {
+                preview.showProp(param1.selectedItem);
+                this.workspace.setFocus();
+                this.cursorScene.object = param1.selectedItem.clone();
+            }
+            
+            private function onPropListClick(param1:MouseEvent):void
+            {
+                this.workspace.setFocus();
+            }
+            
+            private function onLibraryManagerChange(param1:Event):void
+            {
+                this.cursorScene.clear();
+                var loc2:Array = this.libraryManager.libraryNames;
+                this.cbPropLibNames.selectedItem = loc2[loc2.length - 1];
+                this.onComboBoxChange(null);
+                this.hideProgressBar();
+            }
+            
+            private function onKeyDown(param1:KeyboardEvent):void
+            {
+                var loc2:Prop = null;
+                switch (param1.keyCode)
+                {
+                    case KeyboardUtils.SPACE:
+                        if (!this.showCollisionGeometry)
+                        {
+                            if (this.cursorScene.visible)
+                            {
+                                loc2 = this.cursorScene.object;
+                                if (loc2)
+                                {
+                                    this.sceneContainer.addProp(loc2);
+                                    break;
+                                }
+                                Alert.show("Select prop for pasting!");
+                                break;
+                            }
+                            if (this.propertyPanel.enabled && this.showPropertyButton.down && this.mainScene.isTexturePanel)
+                            {
+                                this.mainScene.onTexturePanelSelect();
+                            }
+                            break;
+                        }
+                }
+                this.workspace.setFocus();
+            }
+            
+            private function toggleSnapMode():void
+            {
+                this.setSnapping(!this.snappingEnabled);
+            }
+            
+            private function setSnapping(param1:Boolean):void
+            {
+                this.snappingEnabled = param1;
+                this.sceneContainer.snapMode = param1;
+                this.miSnap.checked = param1;
+                this.snapButton.down = param1;
+            }
+            
+            private function toggleGrid():void
+            {
+                this.showGrid = !this.showGrid;
+                this.btnToggleGrid.down = this.showGrid;
+                this.miShowGrid.checked = this.showGrid;
+                if (this.showGrid)
+                {
+                    this.mainScene.showGrid();
+                }
+                else
+                {
+                    this.mainScene.hideGrid();
+                }
+            }
+            
+            private function showPropertyPanel():void
+            {
+                if (this.showPropertyButton.down)
+                {
+                    this.vbox.addChild(this.propertyPanel);
+                }
+                else
+                {
+                    this.vbox.removeChild(this.propertyPanel);
+                }
+            }
+            
+            private function toggleGeometryViewMode():void
+            {
+                this.showCollisionGeometry = !this.showCollisionGeometry;
+                this.viewButton.down = this.showCollisionGeometry;
+                this.miVisulaGeometry.checked = !this.showCollisionGeometry;
+                this.miCollisionGeometry.checked = this.showCollisionGeometry;
+                if (this.showCollisionGeometry)
+                {
+                    this.mainScene.showCollisionBoxes();
+                }
+                else
+                {
+                    this.mainScene.hideCollisionBoxes();
+                }
+            }
+            
+            private function onComboBoxChange(param1:Event):void
+            {
+                var loc2:Array = null;
+                var loc3:int = 0;
+                var loc4:Prop = null;
+                this.proplistPanel.deleteAllProps();
+                if (this.cbPropLibNames.selectedLabel)
+                {
+                    loc2 = this.libraryManager.getPropsByLibName(this.cbPropLibNames.selectedLabel);
+                    loc3 = 0;
+                    while (loc3 < loc2.length)
+                    {
+                        loc4 = loc2[loc3];
+                        this.proplistPanel.addProp(loc4.groupName, loc4.name, loc4.icon, loc4);
+                        loc3++;
+                    }
+                }
+            }
+            
+            private function onSelectionTypeChange(param1:Event):void
+            {
+                switch (this.typeSelecting.selectedIndex)
+                {
+                    case 0:
+                        this.mainScene.selectablePropTypes = DEFAULT_SELECTABLE_TYPES;
+                        break;
+                    case 1:
+                        this.mainScene.selectablePropTypes = [MeshProp];
+                        break;
+                    case 2:
+                        this.mainScene.selectablePropTypes = [Sprite3DProp];
+                        break;
+                    case 3:
+                        this.mainScene.selectablePropTypes = [SpawnPoint, BonusRegion, CTFFlagBase, ControlPoint, FreeBonusRegion];
+                }
+                this.workspace.setFocus();
+            }
+            
+            private function hideSelectedProps():void
+            {
+                this.mainScene.hideSelectedProps();
+            }
+            
+            private function showAll():void
+            {
+                this.mainScene.showAll();
+            }
+            
+            private function onBatchFileSelect(param1:Event):void
+            {
+                this.showProgressBar("Batch processing");
+                this.progressBar.setProgress(0, 1);
+                this.batchProcessor.run(this.batchSelector.getDirectoryListing());
+            }
+            
+            private function menuHandler(param1:FlexNativeMenuEvent):void
+            {
+                var handlerName:String = param1.item.@click;
+
+                var loc2:Function = this[handlerName];
+                //var loc2:Function = param1.item.@click;
+                if (loc2 != null)
+                {
+                    loc2.call(this, param1.nativeMenuItem);
+                }
+                this.workspace.setFocus();
+            }
+            
+            private function onNewLevelClick(param1:NativeMenuItem):void
+            {
+                var item:NativeMenuItem = param1;
+                if (this.mainScene.changed)
+                {
+                    Alert.show("Discard changes?", "Scene has been changed", Alert.YES | Alert.CANCEL, null, function(param1:CloseEvent):void
+                        {
+                            if (param1.detail == Alert.YES)
+                            {
+                                newLevel();
+                            }
+                        });
+                }
+                else
+                {
+                    this.newLevel();
+                }
+            }
+            
+            private function newLevel():void
+            {
+                this.mainScene.clear();
+                this.cursorScene.updateMaterial();
+            }
+            
+            private function onImportFromTanksClick(param1:NativeMenuItem):void
+            {
+                var item:NativeMenuItem = param1;
+                if (this.mainScene.changed)
+                {
+                    Alert.show("Discard changes?", "Scene has been changed", Alert.YES | Alert.CANCEL, null, function(param1:CloseEvent):void
+                        {
+                            if (param1.detail == Alert.YES)
+                            {
+                                importFromXML();
+                            }
+                        });
+                }
+                else
+                {
+                    this.importFromXML();
+                }
+            }
+            
+            private function importFromXML():void
+            {
+                this.importManager.clearScene();
+                this.importManager.importFromXML();
+            }
+            
+            private function appendFromXMLClick(param1:NativeMenuItem):void
+            {
+                this.importManager.importFromXML();
+            }
+            
+            private function specialAppendFromXMLClick(param1:Event):void
+            {
+                this.importManager.importFromXML(true);
+            }
+            
+            private function onImportStart(param1:Event):void
+            {
+                this.showProgressBar("Importing level");
+            }
+            
+            private function onImportProgress(param1:EditorProgressEvent):void
+            {
+                this.progressBar.setProgress(param1.progress, 1);
+            }
+            
+            private function onImportComplete(param1:Event):void
+            {
+                this.hideProgressBar();
+            }
+            
+            private function onExportToTanksV1Click(param1:NativeMenuItem):void
+            {
+                this.exportManager.exportMap(FileType.MAP_XML_VERSION_1_LITE);
+            }
+            
+            private function onExportToTanksV1FullClick(param1:Event):void
+            {
+                this.exportManager.exportMap(FileType.MAP_XML_VERSION_1_FULL);
+            }
+            
+            private function onExportToTanksV3Click(param1:NativeMenuItem):void
+            {
+                this.exportManager.exportMap(FileType.MAP_XML_VERSION_3);
+            }
+            
+            private function onBatchProcessingClick(param1:NativeMenuItem):void
+            {
+                this.batchSelector.browseForDirectory("Levels");
+            }
+            
+            private function onUndoClick(param1:NativeMenuItem):void
+            {
+                this.sceneContainer.undo();
+            }
+            
+            private function onRedoClick(param1:NativeMenuItem):void
+            {
+                this.sceneContainer.redo();
+            }
+            
+            private function onClearLevelClick(param1:NativeMenuItem):void
+            {
+                this.mainScene.clear();
+                this.mainScene.changed = true;
+                this.cursorScene.updateMaterial();
+            }
+            
+            private function onSelectAll(param1:NativeMenuItem):void
+            {
+                this.mainScene.selectAll();
+            }
+            
+            private function onClearAndLoadLibClick(param1:NativeMenuItem):void
+            {
+                this.libraryManager.clearAndLoadLibrary();
+            }
+            
+            private function onLoadLibClick(param1:NativeMenuItem):void
+            {
+                this.libraryManager.loadLibrary();
+            }
+            
+            private function onStartLibLoading(param1:Event):void
+            {
+                this.showProgressBar("Loading libraries");
+            }
+            
+            private function onLibraryLoadingProgress(param1:EditorProgressEvent):void
+            {
+                this.progressBar.setProgress(param1.progress, 1);
+            }
+            
+            public function onToggleIntersectionCheckMode(param1:NativeMenuItem):void
+            {
+                this.getMenuItemByLabel("All intersections allowed").checked = false;
+                this.getMenuItemByLabel("Same props intersections denied").checked = false;
+                this.getMenuItemByLabel("All intersections denied").checked = false;
+                switch (param1)
+                {
+                    case this.getMenuItemByLabel("All intersections allowed"):
+                        this.sceneContainer.multiplePropMode = MultiPropMode.ANY;
+                        break;
+                    case this.getMenuItemByLabel("Same props intersections denied"):
+                        this.sceneContainer.multiplePropMode = MultiPropMode.GROUP;
+                        break;
+                    case this.getMenuItemByLabel("All intersections denied"):
+                        this.sceneContainer.multiplePropMode = MultiPropMode.NONE;
+                }
+                param1.checked = true;
+            }
+            
+            private function onToggleGeometryClick(param1:NativeMenuItem):void
+            {
+                if (param1 == this.miCollisionGeometry && !this.showCollisionGeometry || param1 == this.miVisulaGeometry && this.showCollisionGeometry)
+                {
+                    this.toggleGeometryViewMode();
+                }
+                else
+                {
+                    param1.checked = true;
+                }
+            }
+            
+            private function onSnapClick(param1:NativeMenuItem):void
+            {
+                this.toggleSnapMode();
+            }
+            
+            private function onShowBoundBoxesClick(param1:NativeMenuItem):void
+            {
+                this.sceneContainer.showBoundBoxes = !this.sceneContainer.showBoundBoxes;
+                param1.checked = this.sceneContainer.showBoundBoxes;
+            }
+            
+            private function onShowGridClick(param1:NativeMenuItem):void
+            {
+                this.toggleGrid();
+            }
+            
+            private function onHelpClick(param1:NativeMenuItem):void
+            {
+                Alert.show(helpText, "Help");
+            }
+            
+            private function showProgressBar(param1:String):void
+            {
+                if (this.progressBar == null)
+                {
+                    this.progressBar = PopUpProgressBar(PopUpManager.createPopUp(this, PopUpProgressBar, true));
+                }
+                this.progressBar.setLabel(param1);
+            }
+            
+            private function hideProgressBar():void
+            {
+                if (this.progressBar != null)
+                {
+                    PopUpManager.removePopUp(this.progressBar);
+                    this.progressBar = null;
+                }
+            }
+            
+            private function onObjectGroupCheckboxChange(param1:Event):void
+            {
+            }
+            
+            private function createPropPreview():void
+            {
+                preview = new Preview();
+                this.previewPanel.addChild(preview);
+                this.previewPanel.addEventListener(Event.RESIZE, onPreviewPanelResize);
+            }
+            
+            private function initPropList():void
+            {
+                this.proplistPanel.addEventListener(PropListEvent.SELECT, this.onPropSelect);
+                this.proplistPanel.addEventListener(MouseEvent.CLICK, this.onPropListClick);
+            }
+            
+            private function createPropertyPanel():void
+            {
+                this.propertyPanel = new Panel();
+                this.propertyPanel.title = "Properties";
+                this.propertyPanel.percentWidth = 100;
+                this.propertyPanel.height = 200;
+                this.mainScene.setPropertyPanel(this.propertyPanel);
+            }
+            
+            private function createLibraryManager():void
+            {
+                this.libraryManager = new LibraryManager();
+                this.libraryManager.addEventListener(Event.OPEN, this.onStartLibLoading);
+                this.libraryManager.addEventListener(Event.COMPLETE, this.onLibraryManagerChange);
+                this.libraryManager.addEventListener(EditorProgressEvent.PROGRESS, this.onLibraryLoadingProgress);
+                this.cbPropLibNames.dataProvider = this.libraryManager.libraryNames;
+            }
+            
+            private function createImportManager():void
+            {
+                this.importManager = new ImportManager(this.mainScene, this.libraryManager);
+                this.importManager.addEventListener(Event.COMPLETE, this.onImportComplete);
+                this.importManager.addEventListener(EditorProgressEvent.PROGRESS, this.onImportProgress);
+                this.importManager.addEventListener(Event.OPEN, this.onImportStart);
+            }
+            
+            private function onShowLayersWindow(param1:NativeMenuItem):void
+            {
+                if (param1.checked)
+                {
+                    this.showLayersWindow();
+                }
+                else
+                {
+                    this.closeLayersWindow();
+                }
+            }
+            
+            private function showLayersWindow():void
+            {
+                if (this.layersWindow == null)
+                {
+                    this.layersWindow = LayersWindowBase(PopUpManager.createPopUp(this, LayersWindow));
+                    this.layersWindow.addEventListener(Event.CLOSE, this.closeLayersWindow);
+                    PopUpManager.centerPopUp(this.layersWindow);
+                }
+                this.layersWindow.visible = true;
+            }
+            
+            private function closeLayersWindow(param1:Event = null):void
+            {
+                this.layersWindow.visible = false;
+                this.miShowLayers.checked = false;
+            }
+            
+            private function onClearLibClick(param1:NativeMenuItem):void
+            {
+                this.libraryManager.clearLibraries();
+            }
+        ]]>
+    </mx:Script>
+
+    <!-- Define Menu Data -->
+    <mx:XML id="menuData">
+        <root>
+            <menuitem label="File">
+                <menuitem label="New" keyEquivalent="n" ctrlKey="true" click="onNewLevelClick"/>
+                <menuitem type="separator"/>
+                <menuitem label="Export Tanks map 1.x" keyEquivalent="t" ctrlKey="true" click="onExportToTanksV1Click"/>
+                <menuitem label="Export Tanks map 3.x" keyEquivalent="t" ctrlKey="true" shiftKey="true" click="onExportToTanksV3Click"/>
+                <menuitem label="Import Tanks map" keyEquivalent="i" ctrlKey="true" click="onImportFromTanksClick"/>
+                <menuitem label="Append Tanks map" keyEquivalent="a" ctrlKey="true" click="appendFromXMLClick"/>
+                <menuitem label="Batch processing" click="onBatchProcessingClick"/>
+            </menuitem>
+            <menuitem label="Edit">
+                <menuitem label="Undo" keyEquivalent="z" ctrlKey="true" click="onUndoClick"/>
+                <menuitem label="Redo" keyEquivalent="y" ctrlKey="true" click="onRedoClick"/>
+                <menuitem label="Clear" keyEquivalent="c" ctrlKey="true" altKey="true" click="onClearLevelClick"/>
+                <menuitem label="Select all" keyEquivalent="a" ctrlKey="true" click="onSelectAll"/>
+            </menuitem>
+            <menuitem label="View">
+                <menuitem label="Visual geometry" type="check" toggled="true" keyEquivalent="1" ctrlKey="true" click="onToggleGeometryClick"/>
+                <menuitem label="Collision geometry" type="check" keyEquivalent="2" ctrlKey="true" click="onToggleGeometryClick"/>
+                <menuitem type="separator"/>
+                <menuitem label="Show bound boxes" type="check" keyEquivalent="b" ctrlKey="true" click="onShowBoundBoxesClick"/>
+                <menuitem label="Show grid" type="check" toggled="true" keyEquivalent="g" click="onShowGridClick"/>
+                <menuitem label="Show layers" type="check" toggled="false" keyEquivalent="l" click="onShowLayersWindow"/>
+            </menuitem>
+            <menuitem label="Library">
+                <menuitem label="Clear" keyEquivalent="l" ctrlKey="true" altKey="true" click="onClearLibClick"/>
+                <menuitem label="Clear and load" keyEquivalent="l" ctrlKey="true" altKey="true" click="onClearAndLoadLibClick"/>
+                <menuitem label="Load" keyEquivalent="l" ctrlKey="true" click="onLoadLibClick()"/>
+            </menuitem>
+            <menuitem label="Options">
+                <menuitem label="Props intersection check">
+                    <menuitem label="All intersections allowed" type="check" click="onToggleIntersectionCheckMode"/>
+                    <menuitem label="Same props intersections denied" type="check" click="onToggleIntersectionCheckMode"/>
+                    <menuitem label="All intersections denied" type="check" toggled="true" click="onToggleIntersectionCheckMode"/>
+                </menuitem>
+                <menuitem label="Snap" keyEquivalent="n" click="onSnapClick()"/>
+            </menuitem>
+            <menuitem label="Help">
+                <menuitem label="Show help" click="onHelpClick()"/>
+            </menuitem>
+        </root>
+    </mx:XML>
+
+    <!-- Flex Native Menu -->
+    <mx:menu>
+        <mx:FlexNativeMenu dataProvider="{menuData}" 
+            labelField="@label" 
+            showRoot="false"
+            keyEquivalentField="@keyEquivalent" 
+            itemClick="menuHandler(event);"
+            id="menu"/>
+    </mx:menu>
+
+    <mx:ControlBar percentWidth="100" height="26" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
+        <local:ModeButton id="snapButton"
+            click="toggleSnapMode();"
+            width="24" height="24"
+            upToolTip="Enable snapping"
+            downToolTip="Disable snapping"
+            upModeIcon="@Embed(source='icons/editor/snap_icon_on.png')"
+            downModeIcon="@Embed(source='icons/editor/snap_icon.png')"/>
+
+        <local:ModeButton id="viewButton"
+            click="toggleGeometryViewMode();"
+            width="24" height="24"
+            upToolTip="Show collision geometry"
+            downToolTip="Show visual geometry"
+            upModeIcon="@Embed(source='icons/editor/boxes_icon_on.png')"
+            downModeIcon="@Embed(source='icons/editor/boxes_icon.png')"/>
+
+        <local:ModeButton id="btnToggleGrid"
+            click="toggleGrid();"
+            width="24" height="24"
+            upToolTip="Show grid"
+            downToolTip="Hide grid"
+            down="true"
+            upModeIcon="@Embed(source='icons/editor/grid_icon_on.png')"
+            downModeIcon="@Embed(source='icons/editor/grid_icon.png')"/>
+
+        <local:ModeButton id="showPropertyButton"
+            click="showPropertyPanel()"
+            width="24" height="24"
+            upToolTip="Show property panel"
+            downToolTip="Hide property panel"
+            upModeIcon="@Embed(source='icons/editor/textures_icon_on.png')"
+            downModeIcon="@Embed(source='icons/editor/textures_icon.png')"/>
+
+        <mx:Button id="hideSelectedButton"
+            click="hideSelectedProps()"
+            width="24" height="24"
+            toolTip="Hide selected props"
+            icon="@Embed(source='icons/editor/hide_selected.png')"/>
+
+        <mx:Button id="showAllButton"
+            click="showAll();"
+            width="24" height="24"
+            toolTip="Show all"
+            icon="@Embed(source='icons/editor/show_all.png')"/>
+
+        <mx:Label text="Selecting prop:" width="89"/>
+
+        <mx:ComboBox id="typeSelecting"
+            change="onSelectionTypeChange(event);"
+            width="130"/>
+    </mx:ControlBar>
+
+    <mx:HDividedBox percentWidth="100" percentHeight="100" y="26">
+        <!-- Left VBox Section -->
+        <mx:VBox id="vbox" percentWidth="100" percentHeight="100">
+            <mx:HDividedBox percentWidth="100" percentHeight="100">
+                <mx:Panel id="workspace" title="Workspace" percentWidth="100" percentHeight="100" layout="absolute" horizontalScrollPolicy="off">
+                    <local1:SceneContainer id="sceneContainer" percentWidth="100" percentHeight="100"/>
+                </mx:Panel>
+            </mx:HDividedBox>
+        </mx:VBox>
+
+        <!-- Right VDividedBox Section -->
+        <mx:VDividedBox width="300" percentHeight="100">
+            <mx:Panel id="previewPanel" title="Preview" percentWidth="100" height="300"/>
+
+            <mx:VBox percentWidth="100" percentHeight="100">
+                <mx:ComboBox id="cbPropLibNames" change="onComboBoxChange(event);" percentWidth="100"/>
+                <local:PropListPanel id="proplistPanel"/>
+            </mx:VBox>
+        </mx:VDividedBox>
+    </mx:HDividedBox>
+</mx:WindowedApplication>

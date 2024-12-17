@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark"
+        xmlns:mx="library://ns.adobe.com/flex/mx"
+    creationComplete="onCreationComplete()" width="100%" height="100%">
+  
+    <fx:Script>
+        <![CDATA[
+        import alternativa.editor.events.LayerContentChangeEvent;
+        import alternativa.editor.prop.FreeBonusRegion;
+        import alternativa.types.Set;
+        import flash.events.*;
+        import flash.ui.*;
+        import mx.containers.HBox;
+        import mx.containers.Tile;
+        import mx.containers.VBox;
+        import mx.controls.Label;
+        import mx.controls.NumericStepper;
+        import mx.core.UIComponentDescriptor;
+        import mx.events.FlexEvent;
+        import mx.events.NumericStepperEvent;
+        import mx.events.PropertyChangeEvent;
+
+        private var typeCheckBoxes:Object = {};
+        private var gameModeCheckBoxes:Object = {};
+        private var bonusRegion:FreeBonusRegion;
+
+        private function onCreationComplete():void {
+            createCheckBoxes(BonusTypes.types, typeCheckBoxes, bonusTypesTile, onBonusTypeChange);
+            createCheckBoxes(GameModes.modes, gameModeCheckBoxes, gameModesTile, onGameModeChange);
+            setupAllCheckBoxes();
+            setFields();
+        }
+
+        private function setupCheckBoxes(param1:Object, param2:Set):void {
+            var loc3:String;
+            var loc4:CheckBox;
+            for (loc3 in param1) {
+                loc4 = param1[loc3];
+                loc4.selected = param2[loc3];
+            }
+        }
+
+        private function createCheckBoxes(param1:Array, param2:Object, param3:mx.containers.Tile, param4:Function):void {
+            var loc5:String;
+            for each (loc5 in param1) {
+                createCheckBox(loc5, param2, param3, param4);
+            }
+        }
+
+        private function createCheckBox(param1:String, param2:Object, param3:mx.containers.Tile, param4:Function):void {
+            var checkBox:CheckBox = new CheckBox();
+            checkBox.label = param1;
+            checkBox.addEventListener(Event.CHANGE, param4);
+            param3.addChild(checkBox);
+            param2[param1] = checkBox;
+        }
+
+        private function scaleChanged(event:NumericStepperEvent):void {
+            if (bonusRegion != null) {
+                bonusRegion.scaleX = kbscaleX.value;
+                bonusRegion.scaleY = kbscaleY.value;
+                bonusRegion.scaleZ = kbscaleZ.value;
+            }
+        }
+
+        private function action_keyDownHandler(event:KeyboardEvent):void {
+            switch (event.keyCode) {
+                case Keyboard.ENTER:
+                case Keyboard.ESCAPE:
+                case Keyboard.TAB:
+                    return;
+                default:
+                    event.stopPropagation();
+                    return;
+            }
+        }
+
+        private function parachuteChanged(param1:Event) : void
+      {
+         this.bonusRegion.parachute = this.parachute.selected;
+      }
+
+        private function setFields():void {
+            if (bonusRegion != null) {
+                kbscaleX.value = bonusRegion.scaleX;
+                kbscaleY.value = bonusRegion.scaleY;
+                kbscaleZ.value = bonusRegion.scaleZ;
+                parachute.selected = bonusRegion.parachute;
+            }
+        }
+
+        private function onBonusTypeChange(event:Event):void {
+            var checkBox:CheckBox = CheckBox(event.target);
+            if (bonusRegion != null) {
+                if (checkBox.selected) {
+                    bonusRegion.typeNames.add(checkBox.label);
+                } else {
+                    bonusRegion.typeNames.remove(checkBox.label);
+                }
+            }
+        }
+
+        private function onGameModeChange(event:Event):void {
+            var checkBox:CheckBox = CheckBox(event.target);
+            if (bonusRegion != null) {
+                if (checkBox.selected) {
+                    bonusRegion.gameModes.add(checkBox.label);
+                    GlobalEventDispatcher.dispatch(new LayerContentChangeEvent(bonusRegion, checkBox.label, true));
+                } else {
+                    bonusRegion.gameModes.remove(checkBox.label);
+                    GlobalEventDispatcher.dispatch(new LayerContentChangeEvent(bonusRegion, checkBox.label, false));
+                }
+            }
+        }
+
+        public function setBonusRegion(region:FreeBonusRegion):void {
+            this.bonusRegion = region;
+            setupAllCheckBoxes();
+        }
+
+        private function setupAllCheckBoxes() : void
+      {
+         if(this.bonusRegion != null)
+         {
+            setupCheckBoxes(this.typeCheckBoxes,this.bonusRegion.typeNames);
+            setupCheckBoxes(this.gameModeCheckBoxes,this.bonusRegion.gameModes);
+         }
+      }
+    ]]>
+    </fx:Script>
+
+    <!-- Bonus Types Panel -->
+    <mx:VBox id="bonusTypesPanel" width="150" percentHeight="100" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
+        <mx:Label text="Bonus types"/>
+        <mx:Tile id="bonusTypesTile" direction="vertical" height="200"/>
+    </mx:VBox>
+
+    <!-- Game Modes Panel -->
+    <mx:VBox id="gameModesPanel" width="150" percentHeight="100" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
+        <mx:Label text="Game modes"/>
+        <mx:Tile id="gameModesTile" direction="horizontal" percentWidth="100"/>
+    </mx:VBox>
+
+    <!-- Scale Panel -->
+    <mx:VBox id="scalePanel" width="150" percentHeight="100" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
+        <mx:Label text="Size"/>
+        <mx:NumericStepper id="kbscaleX" stepSize="0.1" minimum="1" maximum="50" change="scaleChanged(event)" keyDown="action_keyDownHandler(event)"/>
+        <mx:NumericStepper id="kbscaleY" stepSize="0.1" minimum="1" maximum="50" change="scaleChanged(event)" keyDown="action_keyDownHandler(event)"/>
+        <mx:NumericStepper id="kbscaleZ" stepSize="0.1" minimum="1" maximum="50" change="scaleChanged(event)" keyDown="action_keyDownHandler(event)"/>
+
+        <mx:HBox>
+            <mx:CheckBox id="parachute" label="Parachute" change="parachuteChanged(event)"/>
+        </mx:HBox>
+    </mx:VBox>
+
+</mx:HBox>
