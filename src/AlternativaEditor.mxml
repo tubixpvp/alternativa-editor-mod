@@ -714,7 +714,7 @@
             <menuitem label="Library">
                 <menuitem label="Clear" keyEquivalent="l" ctrlKey="true" altKey="true" click="onClearLibClick"/>
                 <menuitem label="Clear and load" keyEquivalent="l" ctrlKey="true" altKey="true" click="onClearAndLoadLibClick"/>
-                <menuitem label="Load" keyEquivalent="l" ctrlKey="true" click="onLoadLibClick()"/>
+                <menuitem label="Load" keyEquivalent="l" ctrlKey="true" click="onLoadLibClick"/>
             </menuitem>
             <menuitem label="Options">
                 <menuitem label="Props intersection check">

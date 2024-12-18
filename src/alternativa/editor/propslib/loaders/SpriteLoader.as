@@ -44,7 +44,7 @@ package alternativa.editor.propslib.loaders
       
       private function onLoadingComplete(param1:Event) : void
       {
-         this.sprite = new Sprite3D(100,150);
+         this.sprite = new Sprite3D(100,100);
          //this.sprite.material = new SpriteTextureMaterial(new Texture(this.loader.bitmapData),1,true,BlendMode.NORMAL,this.originX,this.originY);
          this.sprite.material = new TextureMaterial(this.loader.bitmapData);
          this.sprite.originX = this.originX;

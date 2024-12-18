@@ -26,7 +26,7 @@ package alternativa.engine3d.objects
         public var clipping:int = 2;
         public var sorting:int = 1;
         public var threshold:Number = 0.01;
-        alternativa3d var vertexList:Vertex;
+        public var vertexList:Vertex;
         public var faceList:Face;
         alternativa3d var vertexBuffer:VertexBufferResource;
         alternativa3d var indexBuffer:IndexBufferResource;
@@ -2962,7 +2962,7 @@ package alternativa.engine3d.objects
             };
         }
 
-        alternativa3d function deleteResources():void
+        public function deleteResources():void
         {
             if (this.vertexBuffer != null)
             {

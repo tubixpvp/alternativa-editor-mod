@@ -248,7 +248,7 @@ package alternativa.engine3d.core
             this.shadows = new Dictionary();
         }
 
-        public function render():void
+        public function render(present:Boolean = true):void
         {
             var _local_1:int;
             var _local_2:int;
@@ -791,7 +791,10 @@ package alternativa.engine3d.core
                     {
                         this.onRender();
                     };
-                    this.view.present();
+                    if(present)
+                    {
+                        this.view.present();
+                    }
                 } else
                 {
                     this.view.clearArea();
@@ -799,7 +802,10 @@ package alternativa.engine3d.core
                     {
                         this.onRender();
                     };
-                    this.view.present();
+                    if(present)
+                    {
+                        this.view.present();
+                    }
                 };
                 this.device = null;
             };

@@ -206,6 +206,7 @@ package alternativa.editor
          //this.cursorScene.occupyMap = this.mainScene.occupyMap;
          addChild(this.mainScene.view);
          //addChild(this.cursorScene.view);
+         addChild(this.mainScene.camera.diagram);
          this.boundBoxesOverlay = new Shape();
          addChild(this.boundBoxesOverlay);
          this.dominationOverlay = new Shape();
@@ -577,6 +578,10 @@ package alternativa.editor
       
       private function onEnterFrame(param1:Event) : void
       {
+         if(!this.mainScene.view.visible)
+         {
+            return;
+         }
          this.cursorScene.containerController.yawLeft(this.keyMapper.keyPressed(0));
          this.cursorScene.containerController.yawRight(this.keyMapper.keyPressed(1));
          this.cursorScene.containerController.pitchDown(this.keyMapper.keyPressed(6));

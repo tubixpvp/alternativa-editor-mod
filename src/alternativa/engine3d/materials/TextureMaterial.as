@@ -53,11 +53,12 @@ package alternativa.engine3d.materials
             this.smooth = _arg_3;
             this._mipMapping = _arg_4;
             this.resolution = _arg_5;
-            if (_arg_1 != null)
+            this.bitmap = _arg_1;
+            /*if (_arg_1 != null)
             {
                 this.bitmap = _arg_1;
                 this.textureResource = TextureResourcesRegistry.getTextureResource(_arg_1, (this._mipMapping > 0), _arg_2, this._hardwareMipMaps);
-            };
+            };*/
         }
 
         public function get texture():BitmapData
@@ -66,7 +67,7 @@ package alternativa.engine3d.materials
             {
                 return (this.textureResource.bitmapData);
             };
-            return (null);
+            return this.bitmap;
         }
 
         public function set texture(_arg_1:BitmapData):void
@@ -81,9 +82,10 @@ package alternativa.engine3d.materials
                 };
                 if (_arg_1 != null)
                 {
-                    this.textureResource = TextureResourcesRegistry.getTextureResource(_arg_1, (this._mipMapping > 0), this.repeat, this._hardwareMipMaps);
+                    //this.textureResource = TextureResourcesRegistry.getTextureResource(_arg_1, (this._mipMapping > 0), this.repeat, this._hardwareMipMaps);
                 };
             };
+            this.bitmap = _arg_1;
         }
 
         public function get textureATF():ByteArray
@@ -140,7 +142,7 @@ package alternativa.engine3d.materials
             this._mipMapping = _arg_1;
             if (this.bitmap != null)
             {
-                this.textureResource = TextureResourcesRegistry.getTextureResource(this.bitmap, (this._mipMapping > 0), this.repeat, this._hardwareMipMaps);
+                //this.textureResource = TextureResourcesRegistry.getTextureResource(this.bitmap, (this._mipMapping > 0), this.repeat, this._hardwareMipMaps);
             };
         }
 
@@ -168,6 +170,14 @@ package alternativa.engine3d.materials
                     this.textureResource.calculateMipMapsUsingGPU = this._hardwareMipMaps;
                 };
             };
+        }
+
+        private function createResourceIfNeeded() : void
+        {
+            if(this.textureResource == null && this.bitmap != null)
+            {
+                this.textureResource = TextureResourcesRegistry.getTextureResource(this.bitmap, (this._mipMapping > 0), this.repeat, this._hardwareMipMaps);
+            }
         }
 
         override public function clone():Material
@@ -214,6 +224,8 @@ package alternativa.engine3d.materials
             {
                 return;
             };
+            this.createResourceIfNeeded();
+
             var _local_8:Device = _arg_1.device;
             var _local_9:Boolean = (_arg_6 is Decal);
             var _local_10:Boolean = ((!(_local_9)) && (zOffset));
@@ -344,6 +356,8 @@ package alternativa.engine3d.materials
             {
                 return;
             };
+            this.createResourceIfNeeded();
+            
             var _local_9:Device = _arg_1.device;
             var _local_10:Boolean = zOffset;
             var _local_11:Boolean = ((_arg_1.fogAlpha > 0) && (_arg_1.fogStrength > 0));

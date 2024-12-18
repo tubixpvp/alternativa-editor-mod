@@ -14,6 +14,10 @@ package alternativa.editor.propslib.loaders
    import alternativa.engine3d.core.Face;
    import alternativa.editor.engine3d.loaders.TextureMapsBatchLoader;
    import alternativa.engine3d.core.Object3D;
+   import alternativa.editor.engine3d.loaders.TextureMapsInfo;
+   import mx.controls.Alert;
+   import flash.display.BitmapData;
+   import alternativa.engine3d.materials.FillMaterial;
    
    public class MeshLoader extends ObjectLoader
    {
@@ -34,13 +38,16 @@ package alternativa.editor.propslib.loaders
       private var texturesLoader:TextureMapsBatchLoader;
       
       private var loaderContext:LoaderContext;
+
+      private var baseUrl:String;
       
-      public function MeshLoader(param1:String, param2:String, param3:Map)
+      public function MeshLoader(param1:String, param2:String, param3:Map, baseUrl:String)
       {
          super();
          this.url = param1;
          this.objectName = param2;
          this.textures = param3;
+         this.baseUrl = baseUrl;
       }
       
       override public function load(param1:LoaderContext) : void
@@ -60,6 +67,12 @@ package alternativa.editor.propslib.loaders
       private function on3DSLoadingComplete(param1:Event) : void
       {
          this.parser3DS.parse(this.loader3DS.data);
+
+         this.loader3DS.removeEventListener(Event.COMPLETE,this.on3DSLoadingComplete);
+         this.loader3DS.removeEventListener(IOErrorEvent.IO_ERROR,onErrorEvent);
+         this.loader3DS.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,onErrorEvent);
+         this.loader3DS = null;
+
          if(this.objectName != null)
          {
             this.object = this.parser3DS.getObjectByName(this.objectName) as Mesh;
@@ -73,10 +86,14 @@ package alternativa.editor.propslib.loaders
          this.objects = this.parser3DS.objects.concat();
          this.objects.removeAt(this.objects.indexOf(this.object));
 
-         this.loader3DS.removeEventListener(Event.COMPLETE,this.on3DSLoadingComplete);
-         this.loader3DS.removeEventListener(IOErrorEvent.IO_ERROR,onErrorEvent);
-         this.loader3DS.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,onErrorEvent);
-         this.loader3DS = null;
+         if(this.textures == null && this.parser3DS.textureMaterials.length > 0)
+         {
+            var defaultMaterial:TextureMaterial = this.parser3DS.textureMaterials[0];
+            this.textures = new Map();
+            var opacityUrl:String = (defaultMaterial.opacityMapURL != null ? this.baseUrl + defaultMaterial.opacityMapURL.toLowerCase() : null);
+            this.textures.add("DEFAULT", new TextureMapsInfo(this.baseUrl+defaultMaterial.diffuseMapURL.toLowerCase(), opacityUrl));
+         }
+         
          if(this.textures != null)
          {
             this.texturesLoader = new TextureMapsBatchLoader();
@@ -109,6 +126,22 @@ package alternativa.editor.propslib.loaders
          this.texturesLoader.removeEventListener(Event.COMPLETE,this.onTexturesLoadingComplete);
          this.texturesLoader.removeEventListener(IOErrorEvent.IO_ERROR,onErrorEvent);
          this.texturesLoader = null;
+
+         if(this.object.faceList.material is FillMaterial)
+         {
+            this.object.setMaterialToAllFaces(null);
+         }
+
+         var defaultTexture:BitmapData = this.bitmaps["DEFAULT"];
+         if(defaultTexture != null)
+         {
+            this.object.setMaterialToAllFaces(new TextureMaterial(defaultTexture));
+         }
+         else if(this.bitmaps.length == 0)
+         {
+            Alert.show("no textures: " + toString());
+         }
+
          complete();
       }
       

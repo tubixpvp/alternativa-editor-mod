@@ -199,7 +199,7 @@ package alternativa.editor.propslib
          }
          var loc4:ObjectLoaderPair = new ObjectLoaderPair();
          loc4.propObject = new PropLibMesh(param1.@name);
-         loc4.loader = new MeshLoader(this.url + loc2.attribute("file").toString().toLowerCase(),xmlReadAttrString(loc2,"object"),loc3);
+         loc4.loader = new MeshLoader(this.url + loc2.attribute("file").toString().toLowerCase(),xmlReadAttrString(loc2,"object"),loc3,this.url);
          return loc4;
       }
       

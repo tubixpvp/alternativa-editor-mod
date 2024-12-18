@@ -43,7 +43,7 @@ package alternativa.engine3d.core
       
       alternativa3d var index:int;
       
-      alternativa3d var next:Vertex;
+      public var next:Vertex;
       
       alternativa3d var value:Vertex;
       

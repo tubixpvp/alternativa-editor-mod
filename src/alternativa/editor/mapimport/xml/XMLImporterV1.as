@@ -155,6 +155,7 @@ package alternativa.editor.mapimport.xml
                      for(tName in loc5)
                      {
                         tile.textureName = tName;
+                        break;//
                      }
                      Alert.show("Tile " + tile.name + ": texture " + textureName + " not found");
                   }
@@ -202,7 +203,7 @@ package alternativa.editor.mapimport.xml
          if(loc3 != null)
          {
             this.scene.addProp(loc3,new Point3D(Number(param1.x),Number(param1.y),Number(param1.z)),0,true,false);
-            this.scene.calculate();
+            //this.scene.calculate();
          }
       }
       
@@ -258,7 +259,7 @@ package alternativa.editor.mapimport.xml
                   {
                      this.scene.occupyMap.occupy(loc6);
                   }
-                  this.scene.calculate();
+                  //this.scene.calculate();
                }
                loc3++;
             }
@@ -295,7 +296,7 @@ package alternativa.editor.mapimport.xml
             {
                this.scene.occupyMap.occupy(loc3);
             }
-            this.scene.calculate();
+            //this.scene.calculate();
          }
          return SpawnPoint(loc3);
       }
@@ -324,7 +325,7 @@ package alternativa.editor.mapimport.xml
                   this.scene.occupyMap.occupy(loc6);
                }
                this.loadDominationPointSpawns(loc4,ControlPoint(loc6));
-               this.scene.calculate();
+               //this.scene.calculate();
             }
          }
       }

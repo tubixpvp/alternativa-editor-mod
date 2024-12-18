@@ -70,6 +70,7 @@ package alternativa.gfx.core{
             this.backBufferAntiAlias = -1;
             this.backBufferEnableDepthAndStencil = false;
             var _local_2:Context3D = this._stage3D.context3D;
+            //_local_2.ignoreResourceLimits = true;
             _local_2.enableErrorChecking = this._enableErrorChecking;
             for (_local_3 in this.resourcesToUpload)
             {

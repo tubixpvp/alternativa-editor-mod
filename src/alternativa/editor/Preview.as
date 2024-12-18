@@ -17,6 +17,9 @@ package alternativa.editor
    import flash.geom.Point;
    import mx.core.UIComponent;
    import alternativa.engine3d.core.Object3DContainer;
+   import alternativa.engine3d.objects.Mesh;
+   import alternativa.engine3d.materials.Material;
+   import alternativa.engine3d.materials.TextureMaterial;
    
    public class Preview extends UIComponent
    {
@@ -74,10 +77,16 @@ package alternativa.editor
       
       private function calculateOptimalCameraPosition(param1:Prop) : void
       {
+         var storedPoint:Point = this.propDistance[param1];
+         if(storedPoint != null)
+         {
+            return;
+         }
+
          var loc7:BitmapData = null;
-         var loc8:Vector.<Vertex> = null;
-         var loc9:int = 0;
-         var loc10:int = 0;
+         //var loc8:Vector.<Vertex> = null;
+         //var loc9:int = 0;
+         //var loc10:int = 0;
          var loc11:Point3D = new Point3D();
          var loc12:Number = NaN;
          var loc13:Number = NaN;
@@ -96,9 +105,32 @@ package alternativa.editor
          }
          else
          {
-            loc8 = param1.vertices;
-            loc9 = int(loc8.length);
-            loc10 = 0;
+            var vertex:Vertex = (param1.object as Mesh).vertexList;
+            //loc8 = param1.vertices;
+            //loc9 = int(loc8.length);
+            while(vertex != null)
+            {
+               loc11.copyFromVertex(vertex);
+               loc12 = loc11.x - param1.x;
+               loc13 = loc11.y - param1.y;
+               loc14 = loc11.z - param1.z;
+               loc15 = loc12 * loc12 + loc13 * loc13 + loc14 * loc14;
+               if(loc15 > loc2)
+               {
+                  loc2 = loc15;
+               }
+               if(loc11.z < loc4)
+               {
+                  loc4 = loc11.z;
+               }
+               if(loc11.z > loc3)
+               {
+                  loc3 = loc11.z;
+               }
+
+               vertex = vertex.next;
+            }
+            /*loc10 = 0;
             while(loc10 < loc9)
             {
                loc11.copyFromVertex(loc8[loc10]);
@@ -119,12 +151,14 @@ package alternativa.editor
                   loc3 = loc11.z;
                }
                loc10++;
-            }
+            }*/
             loc2 = 2 * Math.sqrt(loc2);
          }
          var loc6:Number = loc2 * (Math.SQRT2 / (2 * Math.tan(this.camera.fov / 2)) + 0.5);
          this.propDistance.add(param1,new Point(loc6,(loc3 - loc4) / 2));
       }
+      
+      private const tmpMatrix:Matrix = new Matrix();
       
       public function getPropIcon(param1:Prop) : Bitmap
       {
@@ -132,9 +166,22 @@ package alternativa.editor
          this.calculateOptimalCameraPosition(param1);
          this.setCameraCoords(param1);
          this.scene.root.addChild(param1);
-         this.scene.calculate();
+         this.scene.calculate(false);
+         
+         var mesh:Mesh = (param1.object as Mesh);
+         if(mesh != null)
+         {
+            mesh.deleteResources();
+
+            var currMaterial:Material = mesh.faceList.material;
+            if(currMaterial is TextureMaterial)
+            {
+               (currMaterial as TextureMaterial).disposeResource();
+            }
+         }
+
          var loc2:BitmapData = new BitmapData(ICON_SIZE,ICON_SIZE,false,0);
-         var loc3:Matrix = new Matrix();
+         var loc3:Matrix = tmpMatrix;
          loc3.a = ICON_SIZE / this.view.width;
          loc3.d = loc3.a;
          loc2.draw(this.view,loc3);

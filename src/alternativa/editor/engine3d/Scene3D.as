@@ -25,9 +25,9 @@ package alternativa.editor.engine3d
         }
 
 
-        public function calculate() : void
+        public function calculate(present:Boolean = true) : void
         {
-            var child:Object3D = _root.childrenList;
+            /*var child:Object3D = _root.childrenList;
             while(child != null)
             {
                 if(child is Prop)
@@ -36,9 +36,9 @@ package alternativa.editor.engine3d
                 }
 
                 child = child.next;
-            }
+            }*/
 
-            this.camera.render();
+            this.camera.render(present);
         }
     }
 }
