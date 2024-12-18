@@ -72,6 +72,8 @@ package alternativa.engine3d.core{
         public var offsetX:Number = 0;
         public var offsetY:Number = 0;
 
+        private var _interactive:Boolean = false;
+
         public function View(width:Number, height:Number, constrainedMode:Boolean=false){
             super();
             this._width = width;
@@ -123,11 +125,43 @@ package alternativa.engine3d.core{
             this.device = staticDevice;
         }
 
+        public function get interactive() : Boolean
+      {
+         return this._interactive;
+      }
+      
+      public function set interactive(param1:Boolean) : void
+      {
+         if(this._interactive == param1)
+         {
+            return;
+         }
+         this._interactive = param1;
+         if(this._interactive)
+         {
+            addEventListener(MouseEvent.MOUSE_DOWN,this.onMouseDown);
+            addEventListener(MouseEvent.MOUSE_UP,this.onMouseUp);
+            addEventListener(MouseEvent.MOUSE_MOVE,this.onMouseMove);
+            addEventListener(MouseEvent.MOUSE_WHEEL,this.onMouseWheel);
+            addEventListener(MouseEvent.MOUSE_OUT,this.onMouseOut);
+         }
+         else
+         {
+            removeEventListener(MouseEvent.MOUSE_DOWN,this.onMouseDown);
+            removeEventListener(MouseEvent.MOUSE_UP,this.onMouseUp);
+            removeEventListener(MouseEvent.MOUSE_MOVE,this.onMouseMove);
+            removeEventListener(MouseEvent.MOUSE_WHEEL,this.onMouseWheel);
+            removeEventListener(MouseEvent.MOUSE_OUT,this.onMouseOut);
+            this.pressedTarget = this.overedTarget = this.clickedTarget = null;
+         }
+      }
+
         private function onRemoveFromStage(_arg_1:Event):void{
             stage.removeEventListener(KeyboardEvent.KEY_DOWN, this.onKeyDown);
             stage.removeEventListener(KeyboardEvent.KEY_UP, this.onKeyUp);
             addEventListener(Event.ADDED_TO_STAGE, this.onAddToStage);
             removeEventListener(Event.REMOVED_FROM_STAGE, this.onRemoveFromStage);
+            this.interactive = false;
             this.canvas.graphics.clear();
             var _local_2:int = views.indexOf(this);
             while (_local_2 < (views.length - 1))
@@ -190,6 +224,15 @@ package alternativa.engine3d.core{
             };
             this.pressedTarget = this.target;
             this.target = null;
+        }
+
+        private function onMouseUp(_arg_1:MouseEvent):void{
+            this.onMouse(_arg_1);
+            if (this.pressedTarget != null)
+            {
+                this.propagateEvent(MouseEvent3D.MOUSE_UP, this.pressedTarget, this.branchToVector(this.pressedTarget, branch));
+                this.pressedTarget = null;
+            }
         }
 
         private function onMouseWheel(_arg_1:MouseEvent):void{

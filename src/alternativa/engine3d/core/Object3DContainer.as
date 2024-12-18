@@ -71,7 +71,8 @@ package alternativa.engine3d.core
             };
             if (_arg_1._parent != this)
             {
-                throw (new ArgumentError("The supplied Object3D must be a child of the caller."));
+                return null;
+                //throw (new ArgumentError("The supplied Object3D must be a child of the caller."));
             };
             _local_3 = this.childrenList;
             while (_local_3 != null)

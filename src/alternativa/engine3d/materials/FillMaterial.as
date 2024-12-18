@@ -23,7 +23,7 @@ package alternativa.engine3d.materials
             this.alpha = _arg_2;
             this.lineThickness = _arg_3;
             this.lineColor = _arg_4;
-            //_texture = new BitmapData(1,1,true,(alpha * 255 << 24) + color);
+            super(new BitmapData(1,1,true,(alpha * 255 << 24) + color));
         }
 
         override alternativa3d function get transparent():Boolean

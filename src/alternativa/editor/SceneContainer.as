@@ -201,11 +201,11 @@ package alternativa.editor
       {
          removeEventListener(Event.ADDED_TO_STAGE,this.onAddedToStage);
          this.keyMapper.startListening(stage);
-         this.cursorScene = new CursorScene(stage,this);
          this.mainScene = new MainScene();
-         this.cursorScene.occupyMap = this.mainScene.occupyMap;
+         this.cursorScene = new CursorScene(stage,this,this.mainScene);
+         //this.cursorScene.occupyMap = this.mainScene.occupyMap;
          addChild(this.mainScene.view);
-         addChild(this.cursorScene.view);
+         //addChild(this.cursorScene.view);
          this.boundBoxesOverlay = new Shape();
          addChild(this.boundBoxesOverlay);
          this.dominationOverlay = new Shape();
@@ -214,7 +214,7 @@ package alternativa.editor
          addChild(this.selectionRectOverlay);
          this.initListeners();
          this.eventJournal = new EventJournal();
-         var loc2:Object3D = this.cursorScene.camera;
+         var loc2:Object3D = this.mainScene.camera;
          this.cameraDistance = Math.sqrt(loc2.x * loc2.x + loc2.y * loc2.y + loc2.z * loc2.z);
       }
       
@@ -416,7 +416,7 @@ package alternativa.editor
             }
             else if(this.middleDown)
             {
-               loc9 = this.cursorScene.camera.transformation;
+               loc9 = this.mainScene.camera.transformation;
                loc10 = new Point3D(loc9.a,loc9.e,loc9.i);
                loc11 = new Point3D(loc9.b,loc9.f,loc9.j);
                loc10.multiply(10 * (this.prevMoveX - param1.stageX));
@@ -500,13 +500,13 @@ package alternativa.editor
          if(this.mainScene.selectedProp)
             loc2.copyFromObject3D(this.mainScene.selectedProp)
          else
-            loc2.copyFromVector3D(this.cursorScene.camera.localToGlobal(cameraPointV3));
+            loc2.copyFromVector3D(this.mainScene.camera.localToGlobal(cameraPointV3));
          var loc3:Point3D = new Point3D().copyFromVector3D(this.cursorScene.container.localToGlobal(this.cursorScene.cameraController.coords3D));
          var loc4:Point3D = loc3.clone();
          var loc5:Point3D = Point3D.difference(loc2,loc3);
          if(loc5.length < 500)
          {
-            loc5 = Point3D.difference(new Point3D().copyFromVector3D(this.cursorScene.camera.localToGlobal(cameraPointV3)),loc3);
+            loc5 = Point3D.difference(new Point3D().copyFromVector3D(this.mainScene.camera.localToGlobal(cameraPointV3)),loc3);
          }
          loc5.normalize();
          loc5.multiply(param1 * 100);
@@ -553,7 +553,7 @@ package alternativa.editor
             }
             else
             {
-               loc2 = new Point3D().copyFromVector3D(this.cursorScene.camera.localToGlobal(new Vector3D(0,0,this.cameraDistance)));
+               loc2 = new Point3D().copyFromVector3D(this.mainScene.camera.localToGlobal(new Vector3D(0,0,this.cameraDistance)));
             }
             loc4 = this.cursorScene.containerController.coords.clone();
             loc4.subtract(loc2);
@@ -588,14 +588,14 @@ package alternativa.editor
          this.cursorScene.containerController.moveBack(this.keyMapper.keyPressed(5));
          this.cursorScene.cameraController.processInput();
          this.cursorScene.containerController.processInput();
-         this.cursorScene.calculate();
-         this.cameraTransformation = this.cursorScene.camera.transformation;
+         //this.cursorScene.calculate();
+         this.cameraTransformation = this.mainScene.camera.transformation;
          cameraOffset.x = this.cameraTransformation.d;
          cameraOffset.y = this.cameraTransformation.h;
          cameraOffset.z = this.cameraTransformation.l;
          this.cursorScene.drawAxis(this.cameraTransformation);
-         var loc2:Point3D = this.cameraTransformation.getRotations();
-         this.mainScene.setCameraPosition(cameraOffset,loc2.x,loc2.y,loc2.z);
+         //var loc2:Point3D = this.cameraTransformation.getRotations();
+         //this.mainScene.setCameraPosition(cameraOffset,loc2.x,loc2.y,loc2.z);
          this.mainScene.calculate();
          if(this._showBoundBoxes)
          {
@@ -631,9 +631,9 @@ package alternativa.editor
          }
          getMeshBounds(loc2,this.min,this.max);
          fillBBPoints(this.min,this.max,this.bbPoints);
-         var loc3:Number = this.cursorScene.camera.focalLength;
-         var loc6:Number = 0.5 * this.cursorScene.view.width;
-         var loc7:Number = 0.5 * this.cursorScene.view.height;
+         var loc3:Number = this.mainScene.camera.focalLength;
+         var loc6:Number = 0.5 * this.mainScene.view.width;
+         var loc7:Number = 0.5 * this.mainScene.view.height;
          loc5 = 0;
          while(loc5 < 8)
          {
@@ -703,9 +703,9 @@ package alternativa.editor
             case Keyboard.NUMBER_0:
                if(param1.ctrlKey)
                {
-                  this.cursorScene.camera.rotationX = this.cursorScene.camera.rotationX = this.cursorScene.camera.rotationX = -2.0943951023931953;
+                  this.mainScene.camera.rotationX = this.mainScene.camera.rotationX = this.mainScene.camera.rotationX = -2.0943951023931953;
                   this.cursorScene.cameraController.coords = new Point3D(250,-7800,4670);
-                  loc5 = this.cursorScene.camera;
+                  loc5 = this.mainScene.camera;
                   this.cameraDistance = Math.sqrt(loc5.x * loc5.x + loc5.y * loc5.y + loc5.z * loc5.z);
                }
                break;
@@ -889,7 +889,7 @@ package alternativa.editor
          this.eventJournal.addEvent(EventJournal.ADD,loc3);
          setTimeout(this.cursorScene.updateMaterial,200);
          loc2.addEventListener(MouseEvent3D.MOUSE_DOWN,this.onPropMouseDown);
-         if(this._snapMode && !this.cursorScene.freeState && (this.multiplePropMode == MultiPropMode.NONE && this.cursorScene.occupyMap.isConflict(loc2) || this.multiplePropMode == MultiPropMode.GROUP && this.cursorScene.occupyMap.isConflictGroup(loc2)))
+         if(this._snapMode && !this.cursorScene.freeState && (this.multiplePropMode == MultiPropMode.NONE && this.mainScene.occupyMap.isConflict(loc2) || this.multiplePropMode == MultiPropMode.GROUP && this.mainScene.occupyMap.isConflictGroup(loc2)))
          {
             Alert.show("This location is occupied. Continue?","",Alert.YES | Alert.NO,this,this.alertConflict,null,Alert.YES);
          }

@@ -8,42 +8,68 @@ package alternativa.editor.engine3d.loaders
    import flash.events.ProgressEvent;
    import flash.system.LoaderContext;
    
-   [Event(name="ioError",type="flash.events.IOErrorEvent")]
-   [Event(name="complete",type="flash.events.Event")]
-   [Event(name="loadingComplete",type="alternativa.engine3d.loaders.events.LoaderEvent")]
-   [Event(name="loadingProgress",type="alternativa.engine3d.loaders.events.LoaderProgressEvent")]
-   [Event(name="loadingStart",type="alternativa.engine3d.loaders.events.LoaderEvent")]
    public class TextureMapsBatchLoader extends EventDispatcher
    {
       public static var stubBitmapData:BitmapData;
       
       private var loader:TextureMapsLoader;
       
-      private var _textures:Map;
-      
-      private var totalFiles:int;
-      
       private var loaderContext:LoaderContext;
       
       private var baseUrl:String;
       
+      private var batch:Map;
+      
       private var materialNames:Array;
+      
+      private var totalFiles:int;
+      
+      private var currFileIndex:int;
       
       private var materialIndex:int;
       
-      private var batch:Map;
-      
-      private var currentFileNumber:int;
+      private var _textures:Map;
       
       public function TextureMapsBatchLoader()
       {
          super();
       }
       
-      private function loadNextTextureFile() : void
+      public function get textures() : Map
       {
-         var info:TextureMapsInfo = this.batch[this.materialNames[this.materialIndex]];
-         this.loader.load(this.baseUrl + info.diffuseMapFileName,info.opacityMapFileName == null ? null : this.baseUrl + info.opacityMapFileName,this.loaderContext);
+         return this._textures;
+      }
+      
+      private function getStubBitmapData() : BitmapData
+      {
+         var loc1:uint = 0;
+         var loc2:uint = 0;
+         var loc3:uint = 0;
+         if(stubBitmapData == null)
+         {
+            loc1 = 20;
+            stubBitmapData = new BitmapData(loc1,loc1,false,0);
+            loc2 = 0;
+            while(loc2 < loc1)
+            {
+               loc3 = 0;
+               while(loc3 < loc1)
+               {
+                  stubBitmapData.setPixel(!!(loc2 % 2) ? int(loc3) : loc3 + 1,loc2,16711935);
+                  loc3 += 2;
+               }
+               loc2++;
+            }
+         }
+         return stubBitmapData;
+      }
+      
+      public function close() : void
+      {
+         if(this.loader != null)
+         {
+            this.loader.close();
+         }
       }
       
       private function clean() : void
@@ -53,28 +79,18 @@ package alternativa.editor.engine3d.loaders
          this.materialNames = null;
       }
       
-      public function get textures() : Map
+      public function unload() : void
       {
-         return this._textures;
+         this._textures = null;
       }
       
-      private function onTextureLoadingStart(e:Event) : void
+      public function load(param1:String, param2:Map, param3:LoaderContext) : void
       {
-         dispatchEvent(e);
-      }
-      
-      private function onProgress(e:ProgressEvent) : void
-      {
-         dispatchEvent(new LoaderProgressEvent(LoaderProgressEvent.LOADING_PROGRESS,LoadingStage.TEXTURE,this.totalFiles,this.currentFileNumber,e.bytesLoaded,e.bytesTotal));
-      }
-      
-      public function load(baseURL:String, batch:Map, loaderContext:LoaderContext) : void
-      {
-         var materialName:String = null;
-         var info:TextureMapsInfo = null;
-         this.baseUrl = baseURL;
-         this.batch = batch;
-         this.loaderContext = loaderContext;
+         var loc4:String = null;
+         var loc5:TextureMapsInfo = null;
+         this.baseUrl = param1;
+         this.batch = param2;
+         this.loaderContext = param3;
          if(this.loader == null)
          {
             this.loader = new TextureMapsLoader();
@@ -90,24 +106,58 @@ package alternativa.editor.engine3d.loaders
          }
          this.totalFiles = 0;
          this.materialNames = new Array();
-         for(materialName in batch)
+         for(loc4 in param2)
          {
-            this.materialNames.push(materialName);
-            info = batch[materialName];
-            this.totalFiles += info.opacityMapFileName == null ? 1 : 2;
+            this.materialNames.push(loc4);
+            loc5 = param2[loc4];
+            this.totalFiles += loc5.opacityMapFileName == null ? 1 : 2;
          }
-         this.currentFileNumber = 1;
+         this.currFileIndex = 0;
          this.materialIndex = 0;
          this._textures = new Map();
          this.loadNextTextureFile();
       }
       
-      private function onMaterialTexturesLoadingComplete(e:Event) : void
+      private function loadNextTextureFile() : void
       {
-         if(e is IOErrorEvent)
+         var loc1:TextureMapsInfo = this.batch[this.materialNames[this.materialIndex]];
+         this.loader.load(this.baseUrl + loc1.diffuseMapFileName,loc1.opacityMapFileName == null ? null : this.baseUrl + loc1.opacityMapFileName,this.loaderContext);
+      }
+      
+      private function onTextureLoadingStart(param1:Event) : void
+      {
+         dispatchEvent(param1);
+      }
+      
+      private function onTextureLoadingComplete(param1:Event) : void
+      {
+         dispatchEvent(param1);
+         ++this.currFileIndex;
+      }
+      
+      private function onProgress(param1:ProgressEvent) : void
+      {
+         dispatchEvent(new LoaderProgressEvent(LoaderProgressEvent.LOADING_PROGRESS,LoadingStage.TEXTURE,this.totalFiles,this.currFileIndex,param1.bytesLoaded,param1.bytesTotal));
+      }
+      
+      private function onMaterialTexturesLoadingComplete(param1:Event) : void
+      {
+         var loc2:IOErrorEvent = null;
+         var loc3:TextureMapsInfo = null;
+         if(param1 is IOErrorEvent)
          {
             this._textures.add(this.materialNames[this.materialIndex],this.getStubBitmapData());
-            dispatchEvent(e);
+            loc2 = IOErrorEvent(param1);
+            loc3 = this.batch[this.materialNames[this.materialIndex]];
+            if(loc3.diffuseMapFileName)
+            {
+               loc2.text += this.baseUrl + loc3.diffuseMapFileName;
+            }
+            if(loc3.opacityMapFileName)
+            {
+               loc2.text += this.baseUrl + loc3.opacityMapFileName;
+            }
+            dispatchEvent(loc2);
          }
          else
          {
@@ -122,45 +172,6 @@ package alternativa.editor.engine3d.loaders
          {
             this.loadNextTextureFile();
          }
-      }
-      
-      public function close() : void
-      {
-         if(this.loader != null)
-         {
-            this.loader.close();
-         }
-      }
-      
-      private function onTextureLoadingComplete(e:Event) : void
-      {
-         dispatchEvent(e);
-         ++this.currentFileNumber;
-      }
-      
-      private function getStubBitmapData() : BitmapData
-      {
-         var size:uint = 0;
-         var i:uint = 0;
-         var j:uint = 0;
-         if(stubBitmapData == null)
-         {
-            size = 20;
-            stubBitmapData = new BitmapData(size,size,false,0);
-            for(i = 0; i < size; i++)
-            {
-               for(j = 0; j < size; j += 2)
-               {
-                  stubBitmapData.setPixel(Boolean(i % 2) ? int(j) : j + 1,i,16711935);
-               }
-            }
-         }
-         return stubBitmapData;
-      }
-      
-      public function unload() : void
-      {
-         this._textures = null;
       }
    }
 }

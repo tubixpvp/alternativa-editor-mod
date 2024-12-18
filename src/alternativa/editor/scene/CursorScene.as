@@ -5,28 +5,23 @@ package alternativa.editor.scene
    import alternativa.editor.prop.Prop;
    import alternativa.editor.prop.Sprite3DProp;
    import alternativa.editor.engine3d.controllers.WalkController;
-   import alternativa.engine3d.core.Camera3D;
-   import alternativa.engine3d.core.Object3D;
-   import alternativa.engine3d.core.View;
    import alternativa.engine3d.materials.Material;
    import alternativa.types.Matrix4;
    import alternativa.types.Point3D;
    import alternativa.types.Set;
-   import alternativa.types.Texture;
-   import alternativa.utils.MathUtils;
    import flash.display.BitmapData;
    import flash.display.BlendMode;
    import flash.display.DisplayObject;
    import flash.display.Graphics;
    import flash.display.Shape;
    import flash.geom.Matrix;
-   import flash.geom.Point;
    import alternativa.engine3d.core.Object3DContainer;
    import flash.geom.Vector3D;
    import alternativa.engine3d.materials.TextureMaterial;
    import flash.display.Sprite;
+   import mx.controls.Alert;
    
-   public class CursorScene extends EditorScene
+   public class CursorScene
    {
       private static var redClass:Class = CursorScene_redClass;
       
@@ -61,11 +56,14 @@ package alternativa.editor.scene
       private var axisIndicatorSize:Number = 30;
       
       private var _visible:Boolean = false;
+
+      private var mainScene:MainScene;
       
-      public function CursorScene(param1:DisplayObject, container:Sprite)
+      public function CursorScene(param1:DisplayObject, container:Sprite, mainScene:MainScene)
       {
          super();
          this.eventSourceObject = param1;
+         this.mainScene = mainScene;
          this.initControllers();
          container.addChild(this.axisIndicatorOverlay = new Shape());
       }
@@ -73,17 +71,17 @@ package alternativa.editor.scene
       private function initControllers() : void
       {
          this.cameraController = new WalkController(this.eventSourceObject);
-         this.cameraController.object = camera;
+         this.cameraController.object = this.mainScene.camera;
          this.cameraController.speedMultiplier = 4;
          this.cameraController.speedThreshold = 1;
          this.cameraController.mouseEnabled = false;
          this.cameraController.coords = new Point3D(250,-7800,4670);
          this.container = new Object3DContainer();
-         root.addChild(this.container);
+         this.mainScene.root.addChild(this.container);
          this.containerController = new WalkController(this.eventSourceObject);
          this.containerController.object = this.container;
          this.containerController.mouseEnabled = false;
-         this.container.addChild(camera);
+         this.container.addChild(this.mainScene.camera);
       }
       
       public function set object(param1:Prop) : void
@@ -94,7 +92,7 @@ package alternativa.editor.scene
             loc2 = new Vector3D(this._object.x,this._object.y,this._object.z);
             if(this._visible)
             {
-               root.removeChild(this._object);
+               this.mainScene.root.removeChild(this._object);
             }
          }
          this._object = param1;
@@ -107,7 +105,7 @@ package alternativa.editor.scene
          }
          if(this._visible)
          {
-            root.addChild(this._object);
+            this.mainScene.root.addChild(this._object);
          }
          if(this._snapMode || this._object is MeshProp && !(this._object is Sprite3DProp))
          {
@@ -145,6 +143,11 @@ package alternativa.editor.scene
       
       private function createMaterials() : void
       {
+         if(_object.bitmapData == null)
+         {
+            Alert.show("No texture on " + _object.name + ", " + _object.groupName + ", " + _object.libraryName + ", " + (_object as MeshProp).textureName);
+            return;
+         }
          var loc1:BitmapData = this._object.bitmapData.clone();
          var loc2:BitmapData = loc1.clone();
          var loc3:Matrix = new Matrix();
@@ -172,7 +175,7 @@ package alternativa.editor.scene
          var loc1:Vector3D = null;
          if(this._object)
          {
-            loc1 = camera.projectGlobal(new Vector3D(view.mouseX,view.mouseY,this._object.z));
+            loc1 = this.mainScene.camera.projectGlobal(new Vector3D(this.mainScene.view.mouseX,this.mainScene.view.mouseY,this._object.z));
             this._object.x = loc1.x;
             this._object.y = loc1.y;
             if(this._snapMode || this._object is MeshProp && !(this._object is Sprite3DProp))
@@ -188,28 +191,13 @@ package alternativa.editor.scene
          return this._freeState;
       }
       
-      override protected function initScene() : void
-      {
-         root = new Object3DContainer();
-         camera = new Camera3D();
-         camera.rotationX = -MathUtils.DEG90 - MathUtils.DEG30;
-         view = new View(100,100);
-         camera.view = view;
-         //view.interactive = false;
-         view.mouseEnabled = false;
-         view.mouseChildren = false;
-         view.graphics.beginFill(16777215);
-         view.graphics.drawRect(0,0,1,1);
-         view.graphics.endFill();
-      }
-      
       public function updateMaterial() : void
       {
          if(this._object)
          {
             if(this._snapMode)
             {
-               if(occupyMap.isConflict(this._object))
+               if(this.mainScene.occupyMap.isConflict(this._object))
                {
                   this._freeState = false;
                   this._object.setMaterial(this.redMaterial);
@@ -231,9 +219,9 @@ package alternativa.editor.scene
       {
          if(this._object)
          {
-            if(root.getChildByName(this._object.name))
+            if(this.mainScene.root.getChildByName(this._object.name))
             {
-               root.removeChild(this._object);
+               this.mainScene.root.removeChild(this._object);
             }
             this._object = null;
             this._visible = false;
@@ -265,12 +253,12 @@ package alternativa.editor.scene
             {
                if(this._visible)
                {
-                  root.addChild(this._object);
+                  this.mainScene.root.addChild(this._object);
                   this.updateMaterial();
                }
                else
                {
-                  root.removeChild(this._object);
+                  this.mainScene.root.removeChild(this._object);
                }
             }
          }
@@ -283,25 +271,25 @@ package alternativa.editor.scene
       
       public function moveByArrows(param1:uint) : void
       {
-         move(this._object,param1);
+         this.mainScene.move(this._object,param1);
          this.updateMaterial();
       }
       
-      override public function viewResize(param1:Number, param2:Number) : void
+      public function viewResize(param1:Number, param2:Number) : void
       {
-         super.viewResize(param1,param2);
-         this.axisIndicatorOverlay.y = view.height - this.axisIndicatorSize;
+         //super.viewResize(param1,param2);
+         this.axisIndicatorOverlay.y = this.mainScene.view.height - this.axisIndicatorSize;
       }
       
       public function rotateCursorCounterClockwise() : void
       {
-         rotatePropsCounterClockwise(this.getCursorObjectSet());
+         this.mainScene.rotatePropsCounterClockwise(this.getCursorObjectSet());
          this.snapCursorToGrid();
       }
       
       public function rotateCursorClockwise() : void
       {
-         rotatePropsClockwise(this.getCursorObjectSet());
+         this.mainScene.rotatePropsClockwise(this.getCursorObjectSet());
          this.snapCursorToGrid();
       }
       

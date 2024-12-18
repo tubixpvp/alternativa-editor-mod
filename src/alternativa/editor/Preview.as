@@ -61,9 +61,9 @@ package alternativa.editor
          this.view = new View(100,100);
          this.camera.view = this.view;
          addChild(this.view);
-         this.view.graphics.beginFill(16777215);
-         this.view.graphics.drawRect(0,0,1,1);
-         this.view.graphics.endFill();
+         //this.view.graphics.beginFill(16777215);
+         //this.view.graphics.drawRect(0,0,1,1);
+         //this.view.graphics.endFill();
       }
       
       private function onEnterFrame(param1:Event) : void

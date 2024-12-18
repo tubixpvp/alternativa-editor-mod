@@ -15,6 +15,7 @@ package alternativa.editor.prop
    import alternativa.engine3d.core.Object3DContainer;
    import alternativa.engine3d.core.Vertex;
    import flash.geom.Vector3D;
+   import alternativa.engine3d.materials.FillMaterial;
    
    public class Prop extends Object3DContainer
    {
@@ -153,7 +154,7 @@ package alternativa.editor.prop
       protected function initBitmapData() : void
       {
          this._material = Mesh(this._object).faceList.material;
-         if(_material is TextureMaterial)
+         if(_material is TextureMaterial && !(_material is FillMaterial))
          {
             this.bitmapData = TextureMaterial(this._material).texture;
          }

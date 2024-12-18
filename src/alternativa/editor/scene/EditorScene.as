@@ -68,10 +68,10 @@ package alternativa.editor.scene
          this.camera = new Camera3D();
          this.camera.rotationX = -MathUtils.DEG90 - MathUtils.DEG30;
          this.camera.setPositionXYZ(250,-7800,4670);
-         root.addChild(this.camera);
+         //root.addChild(this.camera);
          this.view = new View(100,100);
          this.camera.view = view;
-         //this.view.interactive = true;
+         this.view.interactive = true;
          this.view.buttonMode = true;
          this.view.useHandCursor = false;
          this.view.graphics.beginFill(16777215);
@@ -97,7 +97,7 @@ package alternativa.editor.scene
          return CameraFacing.X;
       }
       
-      protected function move(param1:Prop, param2:uint) : void
+      public function move(param1:Prop, param2:uint) : void
       {
          var loc3:Point = null;
          var loc4:CameraFacing = null;
@@ -199,7 +199,7 @@ package alternativa.editor.scene
          return new Point((loc3 + loc2) / 2,(loc5 + loc4) / 2);
       }
       
-      protected function rotatePropsCounterClockwise(param1:Set) : void
+      public function rotatePropsCounterClockwise(param1:Set) : void
       {
          var loc3:* = undefined;
          var loc4:Prop = null;
@@ -217,7 +217,7 @@ package alternativa.editor.scene
          }
       }
       
-      protected function rotatePropsClockwise(param1:Set) : void
+      public function rotatePropsClockwise(param1:Set) : void
       {
          var loc3:* = undefined;
          var loc4:Prop = null;

@@ -99,8 +99,8 @@ package alternativa.editor.scene
          this.selectedProps = new Set();
          this.selectablePropTypes = AlternativaEditor.DEFAULT_SELECTABLE_TYPES;
          var loc2:Number = 15 * hBase2;
-         this.grid = new Plane(loc2,loc2,15,15);
-         this.grid.setMaterialToAllFaces(new WireMaterial(1,loc2,loc2,15,9474192));
+         this.grid = new Plane(loc2,loc2);
+         this.grid.setMaterialToAllFaces(new WireMaterial(10,loc2,loc2,15,9474192));
          root.addChild(this.grid);
          this.grid.x = hBase;
          this.grid.y = hBase;
@@ -837,7 +837,7 @@ package alternativa.editor.scene
          this.selectedProps.clear();
          occupyMap.clear();
          this.layers.clear();
-         //view.interactive = true;
+         view.interactive = true;
          this.dominationPoints = new Dictionary();
       }
       

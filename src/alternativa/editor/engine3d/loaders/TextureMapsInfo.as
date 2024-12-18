@@ -2,15 +2,20 @@ package alternativa.editor.engine3d.loaders
 {
    public class TextureMapsInfo
    {
-      public var opacityMapFileName:String;
-      
       public var diffuseMapFileName:String;
       
-      public function TextureMapsInfo(diffuseMapFileName:String = null, opacityMapFileName:String = null)
+      public var opacityMapFileName:String;
+      
+      public function TextureMapsInfo(param1:String = null, param2:String = null)
       {
          super();
-         this.diffuseMapFileName = diffuseMapFileName;
-         this.opacityMapFileName = opacityMapFileName;
+         this.diffuseMapFileName = param1;
+         this.opacityMapFileName = param2;
+      }
+      
+      public function toString() : String
+      {
+         return "[Object TextureMapsInfo, diffuseMapFileName:" + this.diffuseMapFileName + ", opacityMapFileName: " + this.opacityMapFileName + "]";
       }
    }
 }
