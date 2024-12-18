@@ -2,10 +2,7 @@
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
          xmlns:spark="http://www.adobe.com/2006/spark" 
          xmlns:flash="http://www.adobe.com/flash" creationComplete="onCreationComplete()">
-   <mx:Panel id="bonusTypesPanel" title="Bonus types" percentHeight="100" percentWidth="50" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
-      <mx:Tile direction="vertical" percentHeight="100">
-         <!-- You can add elements for this Tile container as needed -->
-      </mx:Tile>
+   <mx:Panel id="bonusTypesPanel" percentHeight="100" percentWidth="50" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
       <mx:NumericStepper id="kbscaleX" maximum="50" keyDown="action_keyDownHandler(event)" change="scaleChanged(event)" />
       <mx:NumericStepper id="kbscaleY" maximum="50" keyDown="action_keyDownHandler(event)" change="scaleChanged(event)" />
       <mx:NumericStepper id="kbscaleZ" maximum="50" keyDown="action_keyDownHandler(event)" change="scaleChanged(event)" />
@@ -15,8 +12,8 @@
          change="actionChanged()" />
    </mx:Panel>
    
-   <mx:CheckBox id="typeCheckBoxes" />
-   <mx:CheckBox id="gameModeCheckBoxes" />
+   <!-- <mx:CheckBox id="typeCheckBoxes" />
+   <mx:CheckBox id="gameModeCheckBoxes" /> -->
 
    <mx:Script>
       <![CDATA[
@@ -98,7 +95,7 @@
             setFields();
          }
          
-         private static function setupCheckBoxes(param1:Object, param2:Set):void
+         /*private static function setupCheckBoxes(param1:Object, param2:Set):void
          {
             var loc3:String = null;
             var loc4:CheckBox = null;
@@ -107,7 +104,7 @@
                loc4 = param1[loc3];
                loc4.selected = param2[loc3];
             }
-         }
+         }*/
          
       ]]>
    </mx:Script>
