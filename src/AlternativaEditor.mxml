@@ -722,10 +722,10 @@
                     <menuitem label="Same props intersections denied" type="check" click="onToggleIntersectionCheckMode"/>
                     <menuitem label="All intersections denied" type="check" toggled="true" click="onToggleIntersectionCheckMode"/>
                 </menuitem>
-                <menuitem label="Snap" keyEquivalent="n" click="onSnapClick()"/>
+                <menuitem label="Snap" keyEquivalent="n" click="onSnapClick"/>
             </menuitem>
             <menuitem label="Help">
-                <menuitem label="Show help" click="onHelpClick()"/>
+                <menuitem label="Show help" click="onHelpClick"/>
             </menuitem>
         </root>
     </mx:XML>
