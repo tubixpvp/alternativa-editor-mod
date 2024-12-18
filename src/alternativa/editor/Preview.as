@@ -4,9 +4,9 @@ package alternativa.editor
    import alternativa.editor.prop.Sprite3DProp;
    import alternativa.engine3d.core.Camera3D;
    import alternativa.engine3d.core.Object3D;
-   import alternativa.engine3d.core.Scene3D;
+   import alternativa.editor.engine3d.Scene3D;
    import alternativa.engine3d.core.Vertex;
-   import alternativa.engine3d.display.View;
+   import alternativa.engine3d.core.View;
    import alternativa.types.Map;
    import alternativa.types.Point3D;
    import alternativa.utils.MathUtils;
@@ -16,6 +16,7 @@ package alternativa.editor
    import flash.geom.Matrix;
    import flash.geom.Point;
    import mx.core.UIComponent;
+   import alternativa.engine3d.core.Object3DContainer;
    
    public class Preview extends UIComponent
    {
@@ -27,7 +28,7 @@ package alternativa.editor
       
       private var camera:Camera3D;
       
-      private var cameraContainer:Object3D;
+      private var cameraContainer:Object3DContainer;
       
       private var propDistance:Map;
       
@@ -50,14 +51,15 @@ package alternativa.editor
       private function initScene() : void
       {
          this.scene = new Scene3D();
-         this.scene.root = new Object3D();
-         this.camera = new Camera3D();
+         this.scene.root = new Object3DContainer();
+         this.camera = this.scene.camera = new Camera3D();
          this.camera.rotationX = -MathUtils.DEG90 - MathUtils.DEG30;
-         this.cameraContainer = new Object3D();
+         this.cameraContainer = new Object3DContainer();
          this.cameraContainer.addChild(this.camera);
-         this.camera.coords = new Point3D(0,-100,40);
+         this.camera.setPositionXYZ(0,-100,40);
          this.scene.root.addChild(this.cameraContainer);
-         this.view = new View(this.camera);
+         this.view = new View(100,100);
+         this.camera.view = this.view;
          addChild(this.view);
          this.view.graphics.beginFill(16777215);
          this.view.graphics.drawRect(0,0,1,1);
@@ -73,10 +75,10 @@ package alternativa.editor
       private function calculateOptimalCameraPosition(param1:Prop) : void
       {
          var loc7:BitmapData = null;
-         var loc8:Array = null;
+         var loc8:Vector.<Vertex> = null;
          var loc9:int = 0;
          var loc10:int = 0;
-         var loc11:Point3D = null;
+         var loc11:Point3D = new Point3D();
          var loc12:Number = NaN;
          var loc13:Number = NaN;
          var loc14:Number = NaN;
@@ -94,12 +96,12 @@ package alternativa.editor
          }
          else
          {
-            loc8 = param1.vertices.toArray(true);
+            loc8 = param1.vertices;
             loc9 = int(loc8.length);
             loc10 = 0;
             while(loc10 < loc9)
             {
-               loc11 = Vertex(loc8[loc10]).coords;
+               loc11.copyFromVertex(loc8[loc10]);
                loc12 = loc11.x - param1.x;
                loc13 = loc11.y - param1.y;
                loc14 = loc11.z - param1.z;
@@ -151,9 +153,9 @@ package alternativa.editor
       
       private function clearScene() : void
       {
-         var loc1:* = undefined;
+         var loc1:Object3D;
          var loc2:Prop = null;
-         for(loc1 in this.scene.root.children)
+         for each(loc1 in this.scene.root.children)
          {
             loc2 = loc1 as Prop;
             if(loc2 != null)

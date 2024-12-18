@@ -1,6 +1,9 @@
 package alternativa.types
 {
    import flash.geom.Point;
+   import flash.geom.Vector3D;
+   import alternativa.engine3d.core.Vertex;
+   import alternativa.engine3d.core.Object3D;
    
    public final class Point3D
    {
@@ -16,6 +19,42 @@ package alternativa.types
          this.x = param1;
          this.y = param2;
          this.z = param3;
+      }
+
+      public function toVector3D() : Vector3D
+      {
+         return new Vector3D(this.x,this.y,this.z);
+      }
+      public function copyToVector3D(vec:Vector3D) : Vector3D
+      {
+         vec.x = this.x;
+         vec.y = this.y;
+         vec.z = this.z;
+         return vec;
+      }
+
+      public function copyFromVector3D(vec:Vector3D) : Point3D
+      {
+         this.x = vec.x;
+         this.y = vec.y;
+         this.z = vec.z;
+         return this;
+      }
+
+      public function copyFromVertex(v:Vertex) : Point3D
+      {
+         this.x = v.x;
+         this.y = v.y;
+         this.z = v.z;
+         return this;
+      }
+
+      public function copyFromObject3D(obj:Object3D) : Point3D
+      {
+         this.x = obj.x;
+         this.y = obj.y;
+         this.z = obj.z;
+         return this;
       }
       
       public static function cross(param1:Point3D, param2:Point3D) : Point3D
@@ -102,7 +141,7 @@ package alternativa.types
          z = loc4;
       }
       
-      public function transformOrientation(param1:Matrix3D) : void
+      public function transformOrientation(param1:Matrix4) : void
       {
          var loc2:Number = x;
          var loc3:Number = y;
@@ -159,7 +198,7 @@ package alternativa.types
          this.z = param3;
       }
       
-      public function createSkewSymmetricMatrix(param1:Matrix3D) : void
+      public function createSkewSymmetricMatrix(param1:Matrix4) : void
       {
          param1.a = param1.f = param1.k = param1.d = param1.h = param1.l = 0;
          param1.b = -z;
@@ -205,7 +244,7 @@ package alternativa.types
          z = -z;
       }
       
-      public function inverseTransform(param1:Matrix3D) : void
+      public function inverseTransform(param1:Matrix4) : void
       {
          x -= param1.d;
          y -= param1.h;
@@ -247,7 +286,7 @@ package alternativa.types
          return "[Point3D X: " + x.toFixed(3) + " Y:" + y.toFixed(3) + " Z:" + z.toFixed(3) + "]";
       }
       
-      public function transformTranspose(param1:Matrix3D) : void
+      public function transformTranspose(param1:Matrix4) : void
       {
          var loc2:Number = x * param1.a + y * param1.e + z * param1.i;
          var loc3:Number = x * param1.b + y * param1.f + z * param1.j;
@@ -257,7 +296,7 @@ package alternativa.types
          z = loc4;
       }
       
-      public function transform(param1:Matrix3D) : void
+      public function transform(param1:Matrix4) : void
       {
          var loc2:Number = x;
          var loc3:Number = y;
@@ -291,6 +330,10 @@ package alternativa.types
       public function equals(param1:Point3D, param2:Number = 0) : Boolean
       {
          return x - param1.x <= param2 && x - param1.x >= -param2 && y - param1.y <= param2 && y - param1.y >= -param2 && z - param1.z <= param2 && z - param1.z >= -param2;
+      }
+      public function equalsXYZ(vX:Number,vY:Number,vZ:Number, epsilon:Number = 0) : Boolean
+      {
+         return x - vZ <= epsilon && x - vZ >= -epsilon && y - vY <= epsilon && y - vY >= -epsilon && z - vZ <= epsilon && z - vZ >= -epsilon;
       }
    }
 }

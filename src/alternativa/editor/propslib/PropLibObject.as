@@ -6,13 +6,16 @@ package alternativa.editor.propslib
    {
       public var name:String;
       
-      public var object3d:Object3D;
+      public var mainObject:Object3D;
+
+      public var objects:Vector.<Object3D>;
       
-      public function PropLibObject(param1:String, param2:Object3D = null)
+      public function PropLibObject(param1:String, param2:Object3D = null, objects:Vector.<Object3D> = null)
       {
          super();
          this.name = param1;
-         this.object3d = param2;
+         this.mainObject = param2;
+         this.objects = objects;
       }
    }
 }

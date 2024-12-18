@@ -1,7 +1,7 @@
 package alternativa.editor.mapexport
 {
-   import alternativa.engine3d.core.Mesh;
-   import alternativa.types.Matrix3D;
+   import alternativa.engine3d.objects.Mesh;
+   import alternativa.types.Matrix4;
    
    public class CollisionPrimitive
    {
@@ -11,11 +11,11 @@ package alternativa.editor.mapexport
       
       public var id:int;
       
-      public var transform:Matrix3D;
+      public var transform:Matrix4;
       
       public function CollisionPrimitive(param1:int, param2:Mesh = null)
       {
-         this.transform = new Matrix3D();
+         this.transform = new Matrix4();
          super();
          this.id = param1;
          if(param2 != null)
@@ -28,7 +28,7 @@ package alternativa.editor.mapexport
       {
       }
       
-      public function getXml(param1:Matrix3D) : XML
+      public function getXml(param1:Matrix4) : XML
       {
          return new XML();
       }

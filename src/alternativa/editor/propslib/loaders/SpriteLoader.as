@@ -1,13 +1,13 @@
 package alternativa.editor.propslib.loaders
 {
-   import alternativa.engine3d.core.Sprite3D;
-   import alternativa.engine3d.loaders.TextureMapsLoader;
-   import alternativa.engine3d.materials.SpriteTextureMaterial;
+   import alternativa.engine3d.objects.Sprite3D;
+   import alternativa.editor.engine3d.loaders.TextureMapsLoader;
    import alternativa.types.Texture;
    import flash.display.BlendMode;
    import flash.events.Event;
    import flash.events.IOErrorEvent;
    import flash.system.LoaderContext;
+   import alternativa.engine3d.materials.TextureMaterial;
    
    public class SpriteLoader extends ObjectLoader
    {
@@ -44,8 +44,12 @@ package alternativa.editor.propslib.loaders
       
       private function onLoadingComplete(param1:Event) : void
       {
-         this.sprite = new Sprite3D();
-         this.sprite.material = new SpriteTextureMaterial(new Texture(this.loader.bitmapData),1,true,BlendMode.NORMAL,this.originX,this.originY);
+         this.sprite = new Sprite3D(100,150);
+         //this.sprite.material = new SpriteTextureMaterial(new Texture(this.loader.bitmapData),1,true,BlendMode.NORMAL,this.originX,this.originY);
+         this.sprite.material = new TextureMaterial(this.loader.bitmapData);
+         this.sprite.originX = this.originX;
+         this.sprite.originY = this.originY;
+
          this.sprite.scaleX = this.scale;
          this.sprite.scaleY = this.scale;
          this.sprite.scaleZ = this.scale;

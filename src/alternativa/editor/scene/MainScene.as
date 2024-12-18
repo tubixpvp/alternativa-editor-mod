@@ -26,9 +26,8 @@ package alternativa.editor.scene
    import alternativa.editor.prop.SpawnPoint;
    import alternativa.editor.prop.Sprite3DProp;
    import alternativa.engine3d.core.Object3D;
-   import alternativa.engine3d.events.MouseEvent3D;
-   import alternativa.engine3d.materials.WireMaterial;
-   import alternativa.engine3d.physics.EllipsoidCollider;
+   import alternativa.engine3d.core.MouseEvent3D;
+   import alternativa.editor.engine3d.materials.WireMaterial;
    import alternativa.engine3d.primitives.Plane;
    import alternativa.types.Map;
    import alternativa.types.Point3D;
@@ -41,10 +40,14 @@ package alternativa.editor.scene
    import flash.utils.getQualifiedClassName;
    import gui.events.PropListEvent;
    import mx.containers.Panel;
+   import alternativa.engine3d.core.EllipsoidCollider;
+   import flash.geom.Vector3D;
+   import alternativa.engine3d.core.Object3DContainer;
    
    public class MainScene extends EditorScene
    {
       public static var collider:EllipsoidCollider;
+      private static var __root:Object3DContainer;
       
       public var selectedProp:Prop;
       
@@ -97,7 +100,7 @@ package alternativa.editor.scene
          this.selectablePropTypes = AlternativaEditor.DEFAULT_SELECTABLE_TYPES;
          var loc2:Number = 15 * hBase2;
          this.grid = new Plane(loc2,loc2,15,15);
-         this.grid.cloneMaterialToAllSurfaces(new WireMaterial(1,9474192));
+         this.grid.setMaterialToAllFaces(new WireMaterial(1,loc2,loc2,15,9474192));
          root.addChild(this.grid);
          this.grid.x = hBase;
          this.grid.y = hBase;
@@ -106,18 +109,17 @@ package alternativa.editor.scene
          this.exporters[FileType.MAP_XML_VERSION_1_FULL] = new TanksXmlExporterV1Full(root);
          this.exporters[FileType.MAP_XML_VERSION_3] = new TanksXmlExporterV3(root);
          this.createControlPointNameTextField();
-         collider = new EllipsoidCollider(this,30,30,30);
+         collider = new EllipsoidCollider(30,30,30);
+         __root = root;
          GlobalEventDispatcher.addListener(LayerVisibilityChangeEvent.VISIBILITY_CHANGED,this.onLayerVisibilityChange);
          GlobalEventDispatcher.addListener(LayerContentChangeEvent.LAYER_CONTENT_CHANGED,this.onLayerContentChange);
          GlobalEventDispatcher.addListener(DominationSpawnLinkStartEvent.DOMINATION_SPAWN_LINK_START,this.onDominationLinkStart);
          GlobalEventDispatcher.addListener(DominationSpawnLinkEndEvent.DOMINATION_SPAWN_LINK_END,this.onDominationLinkEnd);
       }
       
-      public static function getProjectedPoint(param1:Point3D) : Point3D
+      public static function getProjectedPoint(param1:Vector3D) : Vector3D
       {
-         var loc2:Point3D = new Point3D();
-         collider.calculateDestination(param1,new Point3D(0,0,-10000),loc2);
-         return loc2;
+         return collider.calculateDestination(param1,new Vector3D(0,0,-10000),__root);
       }
       
       private static function snapPropsToGrid(param1:Set) : void
@@ -163,7 +165,7 @@ package alternativa.editor.scene
          }
       }
       
-      override public function set root(param1:Object3D) : void
+      override public function set root(param1:Object3DContainer) : void
       {
          var loc2:FileExporter = null;
          super.root = param1;
@@ -216,7 +218,7 @@ package alternativa.editor.scene
                {
                   loc4 = loc3;
                   loc4.deselect();
-                  this.addProp(loc4,loc4.coords,loc4.rotationZ,false);
+                  this.addProp(loc4,new Point3D(loc4.x,loc4.y,loc4.z),loc4.rotationZ,false);
                }
                break;
             case EventJournal.MOVE:
@@ -247,13 +249,13 @@ package alternativa.editor.scene
          {
             case EventJournal.ADD:
                loc3 = loc2.peek();
-               this.addProp(loc3,loc3.coords,loc3.rotationZ,false);
+               this.addProp(loc3,new Point3D(loc3.x,loc3.y,loc3.z),loc3.rotationZ,false);
                break;
             case EventJournal.COPY:
                for(loc4 in loc2)
                {
                   loc3 = loc4;
-                  this.addProp(loc3,loc3.coords,loc3.rotationZ,false);
+                  this.addProp(loc3,new Point3D(loc3.x,loc3.y,loc3.z),loc3.rotationZ,false);
                }
                break;
             case EventJournal.DELETE:
@@ -280,7 +282,7 @@ package alternativa.editor.scene
       
       public function setCameraPosition(param1:Point3D, param2:Number, param3:Number, param4:Number) : void
       {
-         camera.coords = param1;
+         camera.setPositionXYZ(param1.x,param1.y,param1.z);
          camera.rotationX = param2;
          camera.rotationY = param3;
          camera.rotationZ = param4;
@@ -288,9 +290,9 @@ package alternativa.editor.scene
       
       public function showCollisionBoxes() : void
       {
-         var loc1:* = undefined;
+         var loc1:Object3D;
          var loc2:MeshProp = null;
-         for(loc1 in root.children)
+         for each(loc1 in root.children)
          {
             loc2 = loc1 as MeshProp;
             if(loc2)
@@ -302,9 +304,9 @@ package alternativa.editor.scene
       
       public function hideCollisionBoxes() : void
       {
-         var loc1:* = undefined;
+         var loc1:Object3D;
          var loc2:MeshProp = null;
-         for(loc1 in root.children)
+         for each(loc1 in root.children)
          {
             loc2 = loc1 as MeshProp;
             if(loc2)
@@ -326,9 +328,9 @@ package alternativa.editor.scene
       
       public function showPlaneBounds() : void
       {
-         var loc1:* = undefined;
+         var loc1:Object3D;
          var loc2:MeshProp = null;
-         for(loc1 in root.children)
+         for each(loc1 in root.children)
          {
             loc2 = loc1 as MeshProp;
             if(Boolean(loc2) && loc2.height == 0)
@@ -340,9 +342,9 @@ package alternativa.editor.scene
       
       public function hidePlaneBounds() : void
       {
-         var loc1:* = undefined;
+         var loc1:Object3D;
          var loc2:MeshProp = null;
-         for(loc1 in root.children)
+         for each(loc1 in root.children)
          {
             loc2 = loc1 as MeshProp;
             if(Boolean(loc2) && loc2.height == 0)
@@ -354,9 +356,9 @@ package alternativa.editor.scene
       
       public function set selectablePropTypes(param1:Array) : void
       {
-         var loc4:* = undefined;
+         var loc4:Object3D;
          var loc5:Prop = null;
-         var loc6:* = undefined;
+         var loc6:Object3D;
          var loc7:Object3D = null;
          this._selectablePropTypes.clear();
          var loc2:int = int(param1.length);
@@ -366,13 +368,13 @@ package alternativa.editor.scene
             this._selectablePropTypes.add(getQualifiedClassName(param1[loc3]));
             loc3++;
          }
-         for(loc4 in root.children)
+         for each(loc4 in root.children)
          {
             loc5 = loc4 as Prop;
             if(loc5)
             {
                loc5.mouseEnabled = this.isSelectableProp(loc5);
-               for(loc6 in loc5.children)
+               for each(loc6 in loc5.children)
                {
                   loc7 = loc6 as Object3D;
                   loc7.mouseEnabled = loc5.mouseEnabled;
@@ -406,7 +408,7 @@ package alternativa.editor.scene
       public function moveSelectedPropsByMouse(param1:Boolean) : void
       {
          var loc2:Point = null;
-         var loc3:Point3D = null;
+         var loc3:Vector3D = null;
          var loc4:* = undefined;
          var loc5:Number = NaN;
          var loc6:Number = NaN;
@@ -428,13 +430,13 @@ package alternativa.editor.scene
                loc8 = getCameraFacing();
                if(loc8 == CameraFacing.Y || loc8 == CameraFacing.NEGATIVE_Y)
                {
-                  loc3 = view.projectViewPointToPlane(loc2,ynormal,this.selectedProp.y);
+                  loc3 = camera.projectGlobal(new Vector3D(loc2.x,loc2.y,this.selectedProp.y));
                   loc5 = loc3.x - this.selectedProp.x;
                   this.selectedProp.x = loc3.x;
                }
                else
                {
-                  loc3 = view.projectViewPointToPlane(loc2,xnormal,this.selectedProp.x);
+                  loc3 = camera.projectGlobal(new Vector3D(loc2.x,loc2.y,this.selectedProp.x));
                   loc6 = loc3.y - this.selectedProp.y;
                   this.selectedProp.y = loc3.y;
                }
@@ -443,7 +445,7 @@ package alternativa.editor.scene
             }
             else
             {
-               loc3 = view.projectViewPointToPlane(loc2,znormal,this.selectedProp.z);
+               loc3 = camera.projectGlobal(new Vector3D(loc2.x,loc2.y,this.selectedProp.z));
                loc5 = loc3.x - this.selectedProp.x;
                loc6 = loc3.y - this.selectedProp.y;
                this.selectedProp.x = loc3.x;
@@ -510,7 +512,7 @@ package alternativa.editor.scene
          var loc3:Boolean = false;
          if(!param1.ctrlKey)
          {
-            loc2 = param1.object as Prop;
+            loc2 = param1.relatedObject as Prop;
             if(this.isSelectableProp(loc2))
             {
                loc3 = loc2.selected;
@@ -621,16 +623,16 @@ package alternativa.editor.scene
       
       public function getPropsUnderRect(param1:Point, param2:Number, param3:Number, param4:Boolean) : Set
       {
-         var loc6:* = undefined;
+         var loc6:Object3D;
          var loc7:Prop = null;
-         var loc8:Point3D = null;
+         var loc8:Vector3D = null;
          var loc5:Set = new Set();
-         for(loc6 in root.children)
+         for each(loc6 in root.children)
          {
             loc7 = loc6 as Prop;
             if((Boolean(loc7)) && this.isSelectableProp(loc7))
             {
-               loc8 = view.projectPoint(loc7.coords);
+               loc8 = camera.projectGlobal(new Vector3D(loc7.x,loc7.y,loc7.z));
                if(loc8.x >= param1.x && loc8.x <= param1.x + param2 && loc8.y >= param1.y && loc8.y <= param1.y + param3)
                {
                   if(param4)
@@ -654,7 +656,7 @@ package alternativa.editor.scene
       public function addProp(param1:Prop, param2:Point3D, param3:Number, param4:Boolean = true, param5:Boolean = true) : Prop
       {
          var loc6:Prop = null;
-         var loc7:* = undefined;
+         var loc7:Object3D;
          var loc8:Object3D = null;
          if(param4)
          {
@@ -687,7 +689,7 @@ package alternativa.editor.scene
             occupyMap.occupy(loc6);
          }
          loc6.mouseEnabled = this.isSelectableProp(loc6);
-         for(loc7 in loc6.children)
+         for each(loc7 in loc6.children)
          {
             loc8 = loc7 as Object3D;
             loc8.mouseEnabled = loc6.mouseEnabled;
@@ -821,9 +823,9 @@ package alternativa.editor.scene
       
       public function clear() : void
       {
-         var loc1:* = undefined;
+         var loc1:Object3D;
          var loc2:Prop = null;
-         for(loc1 in root.children)
+         for each(loc1 in root.children)
          {
             loc2 = loc1 as Prop;
             if(loc2)
@@ -835,7 +837,7 @@ package alternativa.editor.scene
          this.selectedProps.clear();
          occupyMap.clear();
          this.layers.clear();
-         view.interactive = true;
+         //view.interactive = true;
          this.dominationPoints = new Dictionary();
       }
       
@@ -1108,12 +1110,12 @@ package alternativa.editor.scene
       private function drawDominationPointLinks(param1:Graphics, param2:ControlPoint) : void
       {
          var loc4:SpawnPoint = null;
-         var loc5:Point3D = null;
+         var loc5:Point3D = new Point3D();
          param1.lineStyle(0,65280);
-         var loc3:Point3D = view.projectPoint(param2.coords);
+         var loc3:Point3D = new Point3D().copyFromVector3D(camera.projectGlobal(new Vector3D(param2.x,param2.y,param2.z)));
          for each(loc4 in param2.getSpawnPoints())
          {
-            loc5 = view.projectPoint(loc4.coords);
+            loc5.copyFromVector3D(camera.projectGlobal(new Vector3D(loc4.x,loc4.y,loc4.z)));
             GraphicUtils.drawLine(param1,loc3,loc5);
          }
       }

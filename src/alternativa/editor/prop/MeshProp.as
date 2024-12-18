@@ -2,19 +2,19 @@ package alternativa.editor.prop
 {
    import alternativa.editor.InvisibleTexture;
    import alternativa.engine3d.alternativa3d;
-   import alternativa.engine3d.core.Mesh;
+   import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.core.Object3D;
-   import alternativa.engine3d.core.Surface;
    import alternativa.engine3d.materials.TextureMaterial;
-   import alternativa.engine3d.materials.WireMaterial;
    import alternativa.types.Map;
-   import alternativa.types.Matrix3D;
+   import alternativa.types.Matrix4;
    import alternativa.types.Point3D;
    import alternativa.types.Set;
-   import alternativa.types.Texture;
    import flash.display.BitmapData;
    import flash.geom.Matrix;
    import mx.controls.Alert;
+   import alternativa.engine3d.core.Face;
+   import alternativa.editor.engine3d.materials.WireMaterial;
+   import alternativa.engine3d.core.Vertex;
    
    use namespace alternativa3d;
    
@@ -31,12 +31,15 @@ package alternativa.editor.prop
       private var collisionBoxes:Set;
       
       private var bound:Mesh;
+
+      private var _objects:Vector.<Object3D>;
       
-      public function MeshProp(param1:Object3D, param2:String, param3:String, param4:String, param5:Boolean = true)
+      public function MeshProp(mainObject:Object3D, objects:Vector.<Object3D>, param2:String, param3:String, param4:String, param5:Boolean = true)
       {
-         super(param1,param2,param3,param4,param5);
+         super(mainObject,param2,param3,param4,param5);
+         _objects = objects;
          type = Prop.TILE;
-         this.parseCollisionData(param1);
+         this.parseCollisionData(mainObject, objects);
       }
       
       private static function getMirrorBitmapData(param1:BitmapData) : BitmapData
@@ -46,17 +49,17 @@ package alternativa.editor.prop
          return loc2;
       }
       
-      private function parseCollisionData(param1:Object3D) : void
+      private function parseCollisionData(mainObject:Object3D, objects:Vector.<Object3D>) : void
       {
-         var loc2:* = undefined;
+         var loc2:Object3D;
          var loc3:Mesh = null;
          this.collisionBoxes = new Set();
-         for(loc2 in param1.children)
+         for each(loc2 in objects)
          {
             loc3 = loc2 as Mesh;
             if(loc3)
             {
-               loc3.cloneMaterialToAllSurfaces(null);
+               loc3.setMaterialToAllFaces(null);
                if(loc3.name.substr(0,3) != "occ")
                {
                   this.collisionBoxes.add(loc3);
@@ -64,7 +67,7 @@ package alternativa.editor.prop
             }
             else
             {
-               Alert.show(param1.name + " include invalid collision mesh " + Object3D(loc2).name);
+               Alert.show(mainObject.name + " include invalid collision mesh " + Object3D(loc2).name);
             }
          }
          this.collisionMaterial = new CustomFillMaterial(new Point3D(-10000000000,-7000000000,4000000000),16744319);
@@ -77,7 +80,7 @@ package alternativa.editor.prop
          for(loc1 in this.collisionBoxes)
          {
             loc2 = loc1 as Mesh;
-            loc2.cloneMaterialToAllSurfaces(this.collisionMaterial);
+            loc2.setMaterialToAllFaces(this.collisionMaterial);
          }
          setMaterial(null);
       }
@@ -89,7 +92,7 @@ package alternativa.editor.prop
          for(loc1 in this.collisionBoxes)
          {
             loc2 = loc1 as Mesh;
-            loc2.cloneMaterialToAllSurfaces(null);
+            loc2.setMaterialToAllFaces(null);
          }
          setMaterial(_material);
       }
@@ -115,7 +118,7 @@ package alternativa.editor.prop
          {
             bitmapData = this._isMirror ? getMirrorBitmapData(this.bitmaps[param1]) : this.bitmaps[param1];
          }
-         _material = new TextureMaterial(new Texture(bitmapData));
+         _material = new TextureMaterial(bitmapData);
          if(_selected)
          {
             _selectBitmapData.dispose();
@@ -135,7 +138,7 @@ package alternativa.editor.prop
       {
          this._isMirror = !this._isMirror;
          bitmapData = getMirrorBitmapData(bitmapData);
-         (_material as TextureMaterial).texture = new Texture(bitmapData);
+         (_material as TextureMaterial).texture = bitmapData;
          if(selected)
          {
             _selectBitmapData.dispose();
@@ -150,8 +153,15 @@ package alternativa.editor.prop
       override public function clone() : Object3D
       {
          var loc1:Mesh = _object.clone() as Mesh;
-         loc1.cloneMaterialToAllSurfaces(_material as TextureMaterial);
-         var loc2:MeshProp = new MeshProp(loc1,name,_libraryName,_groupName,false);
+         loc1.setMaterialToAllFaces(_material as TextureMaterial);
+
+         var objectsCopy:Vector.<Object3D> = new Vector.<Object3D>();
+         for each(var obj:Object3D in _objects)
+         {
+            objectsCopy.push(obj.clone());
+         }
+         
+         var loc2:MeshProp = new MeshProp(loc1,objectsCopy,name,_libraryName,_groupName,false);
          loc2.distancesX = distancesX.clone();
          loc2.distancesY = distancesY.clone();
          loc2.distancesZ = distancesZ.clone();
@@ -165,12 +175,12 @@ package alternativa.editor.prop
       
       public function showBound() : void
       {
-         var loc1:Matrix3D = null;
+         var loc1:Matrix4 = null;
          var loc2:Point3D = null;
          var loc3:Point3D = null;
          var loc4:Point3D = null;
          var loc5:Point3D = null;
-         var loc6:Surface = null;
+         var loc6:Face = null;
          if(!this.bound)
          {
             this.bound = new Mesh();
@@ -184,12 +194,13 @@ package alternativa.editor.prop
             loc4.transform(loc1);
             loc3.transform(loc1);
             loc2.transform(loc1);
-            this.bound.createFace([this.bound.createVertex(loc2.x,loc2.y,loc2.z,3),this.bound.createVertex(loc3.x,loc3.y,loc3.z,2),this.bound.createVertex(loc4.x,loc4.y,loc4.z,1),this.bound.createVertex(loc5.x,loc5.y,loc5.z,0)],0);
-            loc6 = this.bound.createSurface([0],0);
-            loc6.material = new WireMaterial(4,255);
+            this.bound.addFace(Vector.<Vertex>([this.bound.addVertex(loc2.x,loc2.y,loc2.z,3),this.bound.addVertex(loc3.x,loc3.y,loc3.z,2),this.bound.addVertex(loc4.x,loc4.y,loc4.z,1),this.bound.addVertex(loc5.x,loc5.y,loc5.z,0)]));
+            //loc6 = this.bound.createSurface([0],0);
+            //loc6.material = new WireMaterial(4,255);
+            this.bound.setMaterialToAllFaces(new WireMaterial(4,128,128,5,255));
             addChild(this.bound);
             this.bound.z = 0.1;
-            this.bound.mobility = -100;
+            //this.bound.mobility = -100;
             this.bound.mouseEnabled = false;
          }
       }

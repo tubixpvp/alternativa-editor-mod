@@ -793,19 +793,19 @@
             width="130"/>
     </mx:ControlBar>
 
-    <mx:HDividedBox percentWidth="100" percentHeight="100" y="26">
+    <mx:HDividedBox percentWidth="100" percentHeight="100" y="26" backgroundAlpha="0">
         <!-- Left VBox Section -->
-        <mx:VBox id="vbox" percentWidth="100" percentHeight="100">
-            <mx:HDividedBox percentWidth="100" percentHeight="100">
-                <mx:Panel id="workspace" title="Workspace" percentWidth="100" percentHeight="100" layout="absolute" horizontalScrollPolicy="off">
+        <mx:VBox id="vbox" percentWidth="100" percentHeight="100" backgroundAlpha="0">
+            <mx:HDividedBox percentWidth="100" percentHeight="100" backgroundAlpha="0">
+                <mx:Panel id="workspace" title="Workspace" percentWidth="100" percentHeight="100" layout="absolute" horizontalScrollPolicy="off" backgroundAlpha="0">
                     <local1:SceneContainer id="sceneContainer" percentWidth="100" percentHeight="100"/>
                 </mx:Panel>
             </mx:HDividedBox>
         </mx:VBox>
 
         <!-- Right VDividedBox Section -->
-        <mx:VDividedBox width="300" percentHeight="100">
-            <mx:Panel id="previewPanel" title="Preview" percentWidth="100" height="300"/>
+        <mx:VDividedBox width="300" percentHeight="100" backgroundAlpha="0">
+            <mx:Panel id="previewPanel" title="Preview" percentWidth="100" height="300" backgroundAlpha="0"/>
 
             <mx:VBox percentWidth="100" percentHeight="100">
                 <mx:ComboBox id="cbPropLibNames" change="onComboBoxChange(event);" percentWidth="100"/>

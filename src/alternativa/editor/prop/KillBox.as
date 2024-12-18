@@ -1,10 +1,9 @@
 package alternativa.editor.prop
 {
-   import alternativa.engine3d.core.Mesh;
+   import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.core.Object3D;
    import alternativa.engine3d.materials.TextureMaterial;
    import alternativa.engine3d.primitives.Box;
-   import alternativa.types.Texture;
    import flash.display.BitmapData;
    import mx.collections.ArrayCollection;
    
@@ -22,7 +21,7 @@ package alternativa.editor.prop
       
       private static const BASE_HEIGHT:Number = 300;
       
-      private static const texture:Texture = new Texture(new BitmapData(1,1,false,15732981));
+      private static const texture:BitmapData = new BitmapData(1,1,false,15732981);
       
       public static const typesProvider:ArrayCollection = new ArrayCollection([KICK,KILL,BLOCK]);
       
@@ -36,8 +35,9 @@ package alternativa.editor.prop
          loc5.z = BASE_HEIGHT / 2;
          _object = loc5;
          var loc6:TextureMaterial = new TextureMaterial(texture);
-         loc6.alpha = 0.5;
-         loc5.cloneMaterialToAllSurfaces(loc6);
+         //loc6.alpha = 0.5;
+         loc5.alpha = 0.5;
+         loc5.setMaterialToAllFaces(loc6);
          super(object,param1,param2,param3,param4);
          type = Prop.KILL_GEOMETRY;
       }
@@ -45,7 +45,7 @@ package alternativa.editor.prop
       override public function clone() : Object3D
       {
          var loc1:Mesh = _object.clone() as Mesh;
-         loc1.cloneMaterialToAllSurfaces(_material as TextureMaterial);
+         loc1.setMaterialToAllFaces(_material as TextureMaterial);
          var loc2:KillBox = new KillBox(name,_libraryName,_groupName,false);
          loc2.action = this.action;
          loc2.scaleX = scaleX;

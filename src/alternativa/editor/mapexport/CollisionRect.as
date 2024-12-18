@@ -2,8 +2,8 @@ package alternativa.editor.mapexport
 {
    import alternativa.engine3d.alternativa3d;
    import alternativa.engine3d.core.Face;
-   import alternativa.engine3d.core.Mesh;
-   import alternativa.types.Matrix3D;
+   import alternativa.engine3d.objects.Mesh;
+   import alternativa.types.Matrix4;
    import alternativa.types.Point3D;
    
    public class CollisionRect extends CollisionPrimitive
@@ -59,9 +59,9 @@ package alternativa.editor.mapexport
          transform.translate(param1.alternativa3d::_coords.x,param1.alternativa3d::_coords.y,param1.alternativa3d::_coords.z);
       }
       
-      override public function getXml(param1:Matrix3D) : XML
+      override public function getXml(param1:Matrix4) : XML
       {
-         var loc2:Matrix3D = null;
+         var loc2:Matrix4 = null;
          if(param1 == null)
          {
             loc2 = transform;

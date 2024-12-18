@@ -9,10 +9,10 @@ package alternativa.editor
    import alternativa.editor.scene.MainScene;
    import alternativa.editor.scene.OccupyMap;
    import alternativa.engine3d.alternativa3d;
-   import alternativa.engine3d.core.Mesh;
+   import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.core.Vertex;
-   import alternativa.engine3d.events.MouseEvent3D;
-   import alternativa.types.Matrix3D;
+   import alternativa.engine3d.core.MouseEvent3D;
+   import alternativa.types.Matrix4;
    import alternativa.types.Point3D;
    import alternativa.types.Set;
    import alternativa.utils.KeyboardUtils;
@@ -27,6 +27,8 @@ package alternativa.editor
    import mx.controls.Alert;
    import mx.core.UIComponent;
    import mx.events.CloseEvent;
+   import alternativa.engine3d.core.Object3D;
+   import flash.geom.Vector3D;
    
    use namespace alternativa3d;
    
@@ -50,7 +52,7 @@ package alternativa.editor
       
       private var eventJournal:EventJournal;
       
-      private var cameraTransformation:Matrix3D;
+      private var cameraTransformation:Matrix4;
       
       private var _snapMode:Boolean;
       
@@ -111,13 +113,13 @@ package alternativa.editor
       
       private static function getMeshBounds(param1:Mesh, param2:Point3D, param3:Point3D) : void
       {
-         var loc4:Vertex = null;
+         /*var loc4:Vertex = null;
          var loc5:Point3D = null;
          param2.reset(10000000000,10000000000,10000000000);
          param3.reset(-10000000000,-10000000000,-10000000000);
-         for each(loc4 in param1.alternativa3d::_vertices)
+         for each(loc4 in param1.vertices)
          {
-            loc5 = loc4.alternativa3d::globalCoords;
+            loc5 = loc4.globalCoords;
             if(loc5.x < param2.x)
             {
                param2.x = loc5.x;
@@ -142,7 +144,10 @@ package alternativa.editor
             {
                param3.z = loc5.z;
             }
-         }
+         }*/
+        param1.calculateBounds();
+        param2.reset(param1.boundMaxX,param1.boundMaxY,param1.boundMaxZ);
+        param3.reset(param1.boundMinX,param1.boundMinY,param1.boundMinZ);
       }
       
       private static function fillBBPoints(param1:Point3D, param2:Point3D, param3:Array) : void
@@ -196,7 +201,7 @@ package alternativa.editor
       {
          removeEventListener(Event.ADDED_TO_STAGE,this.onAddedToStage);
          this.keyMapper.startListening(stage);
-         this.cursorScene = new CursorScene(stage);
+         this.cursorScene = new CursorScene(stage,this);
          this.mainScene = new MainScene();
          this.cursorScene.occupyMap = this.mainScene.occupyMap;
          addChild(this.mainScene.view);
@@ -209,7 +214,7 @@ package alternativa.editor
          addChild(this.selectionRectOverlay);
          this.initListeners();
          this.eventJournal = new EventJournal();
-         var loc2:Point3D = this.cursorScene.camera.coords;
+         var loc2:Object3D = this.cursorScene.camera;
          this.cameraDistance = Math.sqrt(loc2.x * loc2.x + loc2.y * loc2.y + loc2.z * loc2.z);
       }
       
@@ -240,7 +245,7 @@ package alternativa.editor
          {
             if(this.mainScene.selectedProp != null)
             {
-               this.startSelectionCoords = this.mainScene.selectedProp.coords;
+               this.startSelectionCoords = new Point3D().copyFromObject3D(this.mainScene.selectedProp);
                this.cursorScene.visible = false;
             }
          }
@@ -268,9 +273,9 @@ package alternativa.editor
                {
                   this.eventJournal.addEvent(EventJournal.COPY,loc3.clone());
                }
-               else if(!this.startSelectionCoords.equals(loc2.coords))
+               else if(!this.startSelectionCoords.equalsXYZ(loc2.x,loc2.y,loc2.z))
                {
-                  loc5 = loc2.coords;
+                  loc5 = new Point3D().copyFromObject3D(loc2);
                   loc5.difference(loc5,this.startSelectionCoords);
                   this.eventJournal.addEvent(EventJournal.MOVE,loc3.clone(),loc5);
                   loc4 = true;
@@ -367,7 +372,7 @@ package alternativa.editor
          var loc6:Set = null;
          var loc7:Point3D = null;
          var loc8:Prop = null;
-         var loc9:Matrix3D = null;
+         var loc9:Matrix4 = null;
          var loc10:Point3D = null;
          var loc11:Point3D = null;
          var loc12:Point3D = null;
@@ -385,9 +390,9 @@ package alternativa.editor
             {
                if(param1.shiftKey && !this.copy)
                {
-                  if(!this.startSelectionCoords.equals(loc4.coords))
+                  if(!this.startSelectionCoords.equalsXYZ(loc4.x,loc4.y,loc4.z))
                   {
-                     loc7 = loc4.coords;
+                     loc7 = new Point3D().copyFromObject3D(loc4);
                      loc7.difference(loc7,this.startSelectionCoords);
                      this.eventJournal.addEvent(EventJournal.MOVE,loc5.clone(),loc7);
                   }
@@ -395,7 +400,7 @@ package alternativa.editor
                   for(loc2 in loc5)
                   {
                      loc3 = loc2 as Prop;
-                     loc8 = this.mainScene.addProp(loc3,loc3.coords,loc3.rotationZ);
+                     loc8 = this.mainScene.addProp(loc3,new Point3D().copyFromObject3D(loc3),loc3.rotationZ);
                      if(loc3 == loc4)
                      {
                         loc4 = loc8;
@@ -404,7 +409,7 @@ package alternativa.editor
                   }
                   this.mainScene.selectProps(loc6);
                   this.mainScene.selectedProp = loc4;
-                  this.startSelectionCoords = loc4.coords;
+                  this.startSelectionCoords = new Point3D().copyFromObject3D(loc4);
                   this.copy = true;
                }
                this.mainScene.moveSelectedPropsByMouse(this.verticalMoving);
@@ -419,7 +424,7 @@ package alternativa.editor
                loc12 = new Point3D(loc9.d,loc9.h,loc9.l);
                loc12.add(loc10);
                loc12.add(loc11);
-               this.cursorScene.cameraController.coords = this.cursorScene.container.globalToLocal(loc12);
+               this.cursorScene.cameraController.setObjectPos(this.cursorScene.container.globalToLocal(loc12.toVector3D()));
             }
             else if(this.mouseDown)
             {
@@ -490,18 +495,23 @@ package alternativa.editor
       
       private function zoom(param1:int) : void
       {
-         var loc2:Point3D = !!this.mainScene.selectedProp ? this.mainScene.selectedProp.coords : this.cursorScene.camera.localToGlobal(cameraPoint);
-         var loc3:Point3D = this.cursorScene.container.localToGlobal(this.cursorScene.cameraController.coords);
+         var loc2:Point3D = new Point3D();
+         var cameraPointV3:Vector3D = cameraPoint.toVector3D();
+         if(this.mainScene.selectedProp)
+            loc2.copyFromObject3D(this.mainScene.selectedProp)
+         else
+            loc2.copyFromVector3D(this.cursorScene.camera.localToGlobal(cameraPointV3));
+         var loc3:Point3D = new Point3D().copyFromVector3D(this.cursorScene.container.localToGlobal(this.cursorScene.cameraController.coords3D));
          var loc4:Point3D = loc3.clone();
          var loc5:Point3D = Point3D.difference(loc2,loc3);
          if(loc5.length < 500)
          {
-            loc5 = Point3D.difference(this.cursorScene.camera.localToGlobal(cameraPoint),loc3);
+            loc5 = Point3D.difference(new Point3D().copyFromVector3D(this.cursorScene.camera.localToGlobal(cameraPointV3)),loc3);
          }
          loc5.normalize();
          loc5.multiply(param1 * 100);
          loc3.add(loc5);
-         this.cursorScene.cameraController.coords = this.cursorScene.container.globalToLocal(loc3);
+         this.cursorScene.cameraController.setObjectPos(this.cursorScene.container.globalToLocal(loc3.toVector3D()));
       }
       
       private function onMouseOut(param1:MouseEvent) : void
@@ -543,13 +553,13 @@ package alternativa.editor
             }
             else
             {
-               loc2 = this.cursorScene.camera.localToGlobal(new Point3D(0,0,this.cameraDistance));
+               loc2 = new Point3D().copyFromVector3D(this.cursorScene.camera.localToGlobal(new Vector3D(0,0,this.cameraDistance)));
             }
             loc4 = this.cursorScene.containerController.coords.clone();
             loc4.subtract(loc2);
-            loc5 = this.cursorScene.container.localToGlobal(this.cursorScene.cameraController.coords);
+            loc5 = new Point3D().copyFromVector3D(this.cursorScene.container.localToGlobal(this.cursorScene.cameraController.coords3D));
             loc5.add(loc4);
-            this.cursorScene.cameraController.coords = this.cursorScene.container.globalToLocal(loc5);
+            this.cursorScene.cameraController.setObjectPos(this.cursorScene.container.globalToLocal(loc5.toVector3D()));
             this.cursorScene.containerController.coords = loc2;
             this.cursorScene.containerController.setMouseLook(true);
          }
@@ -596,16 +606,17 @@ package alternativa.editor
       
       private function drawBoundBoxes() : void
       {
-         var loc1:* = undefined;
          var loc2:MeshProp = null;
          this.boundBoxesOverlay.graphics.clear();
-         for(loc1 in this.mainScene.root.alternativa3d::_children)
+         var loc1:Object3D = this.mainScene.root.childrenList;
+         while(loc1 != null)
          {
             loc2 = loc1 as MeshProp;
             if(loc2 != null && !loc2.hidden)
             {
                this.drawPropBoundBox(loc2);
             }
+            loc1 = loc1.next;
          }
       }
       
@@ -684,7 +695,7 @@ package alternativa.editor
          var loc2:Prop = null;
          var loc3:Point3D = null;
          var loc4:Point3D = null;
-         var loc5:Point3D = null;
+         var loc5:Object3D = null;
          var loc6:Prop = null;
          var loc7:Set = null;
          switch(param1.keyCode)
@@ -694,7 +705,7 @@ package alternativa.editor
                {
                   this.cursorScene.camera.rotationX = this.cursorScene.camera.rotationX = this.cursorScene.camera.rotationX = -2.0943951023931953;
                   this.cursorScene.cameraController.coords = new Point3D(250,-7800,4670);
-                  loc5 = this.cursorScene.camera.coords;
+                  loc5 = this.cursorScene.camera;
                   this.cameraDistance = Math.sqrt(loc5.x * loc5.x + loc5.y * loc5.y + loc5.z * loc5.z);
                }
                break;
@@ -708,9 +719,9 @@ package alternativa.editor
                   break;
                }
                loc2 = this.mainScene.selectedProp;
-               loc4 = loc2.coords;
+               loc4 = new Point3D().copyFromObject3D(loc2);
                this.mainScene.moveByArrows(param1.keyCode);
-               loc3 = loc2.coords;
+               loc3 = new Point3D().copyFromObject3D(loc2);
                loc3.difference(loc3,loc4);
                this.eventJournal.addEvent(EventJournal.MOVE,this.mainScene.selectedProps,loc3);
                break;
@@ -727,9 +738,9 @@ package alternativa.editor
                loc2 = this.mainScene.selectedProp;
                if(loc2)
                {
-                  loc4 = loc2.coords;
+                  loc4 = new Point3D().copyFromObject3D(loc2);
                   this.mainScene.verticalMove(false);
-                  loc3 = loc2.coords;
+                  loc3 = new Point3D().copyFromObject3D(loc2);
                   loc3.difference(loc3,loc4);
                   this.eventJournal.addEvent(EventJournal.MOVE,this.mainScene.selectedProps,loc3);
                }
@@ -746,9 +757,9 @@ package alternativa.editor
                   loc2 = this.mainScene.selectedProp;
                   if(loc2)
                   {
-                     loc4 = loc2.coords;
+                     loc4 = new Point3D().copyFromObject3D(loc2);
                      this.mainScene.verticalMove(true);
-                     loc3 = loc2.coords;
+                     loc3 = new Point3D().copyFromObject3D(loc2);
                      loc3.difference(loc3,loc4);
                      this.eventJournal.addEvent(EventJournal.MOVE,this.mainScene.selectedProps,loc3);
                   }
@@ -762,7 +773,7 @@ package alternativa.editor
                   loc6 = this.cursorScene.object;
                   if(loc6)
                   {
-                     loc6.coords = loc2.coords;
+                     loc6.setPositionXYZ(loc2.x,loc2.y,loc2.z);
                      if(this.snapMode)
                      {
                         loc6.snapToGrid();
@@ -799,7 +810,7 @@ package alternativa.editor
                {
                   if(this.cursorScene.object)
                   {
-                     this.cursorScene.object.coords = loc2.coords;
+                     this.cursorScene.object.setPositionXYZ(loc2.x,loc2.y,loc2.z);
                      this.cursorScene.object.snapToGrid();
                   }
                   this.mainScene.deselectProps();
@@ -872,7 +883,7 @@ package alternativa.editor
       
       public function addProp(param1:Prop) : void
       {
-         var loc2:Prop = this.mainScene.addProp(param1,this.cursorScene.object.coords,this.cursorScene.object.rotationZ);
+         var loc2:Prop = this.mainScene.addProp(param1,new Point3D().copyFromObject3D(this.cursorScene.object),this.cursorScene.object.rotationZ);
          var loc3:Set = new Set();
          loc3.add(loc2);
          this.eventJournal.addEvent(EventJournal.ADD,loc3);
@@ -886,7 +897,7 @@ package alternativa.editor
       
       private function onPropMouseDown(param1:MouseEvent3D) : void
       {
-         this.clickZ = param1.object.z;
+         this.clickZ = param1.relatedObject.z;
          this.propDown = true;
       }
       

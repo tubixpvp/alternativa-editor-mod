@@ -10,10 +10,11 @@ package alternativa.editor.mapexport
    import alternativa.editor.prop.SpawnPoint;
    import alternativa.engine3d.core.Object3D;
    import flash.filesystem.FileStream;
+   import alternativa.engine3d.core.Object3DContainer;
    
    public class TanksXmlExporterV1Full extends TanksXmlExporterV1Lite
    {
-      public function TanksXmlExporterV1Full(param1:Object3D)
+      public function TanksXmlExporterV1Full(param1:Object3DContainer)
       {
          super(param1);
       }
@@ -41,7 +42,6 @@ package alternativa.editor.mapexport
       
       override public function exportToFileStream(param1:FileStream) : void
       {
-         var loc8:* = undefined;
          var loc9:Prop = null;
          var loc10:MeshProp = null;
          var loc2:XML = new XML("<map version=\"1.0\">\r\n\t\t\t\t\t\t<static-geometry>\r\n\t\t\t\t\t\t</static-geometry>\r\n\t\t\t\t\t\t<collision-geometry>\r\n\t\t\t\t\t\t</collision-geometry>\r\n\t\t\t\t\t\t<spawn-points>\r\n\t\t\t\t\t\t</spawn-points>\r\n\t\t\t\t\t\t<bonus-regions>\r\n\t\t\t\t\t\t</bonus-regions>\r\n\t\t\t\t\t\t" + ("<" + FunctionalProps.KILL_GEOMETRY + "/>") + "\r\n\t\t\t\t\t</map>");
@@ -50,7 +50,7 @@ package alternativa.editor.mapexport
          var loc5:XML = loc2.child("bonus-regions")[0];
          var loc6:XML = loc2.child("spawn-points")[0];
          var loc7:XML = loc2.child(FunctionalProps.KILL_GEOMETRY)[0];
-         for(loc8 in sceneRoot.children)
+         for each(var loc8:Object3D in sceneRoot.children)
          {
             loc9 = loc8 as Prop;
             if(!loc9)

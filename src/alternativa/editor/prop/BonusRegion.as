@@ -1,6 +1,6 @@
 package alternativa.editor.prop
 {
-   import alternativa.engine3d.core.Mesh;
+   import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.core.Object3D;
    import alternativa.engine3d.materials.TextureMaterial;
    import alternativa.types.Set;
@@ -37,7 +37,7 @@ package alternativa.editor.prop
       {
          var loc2:BonusRegion = null;
          var loc1:Mesh = _object.clone() as Mesh;
-         loc1.cloneMaterialToAllSurfaces(_material as TextureMaterial);
+         loc1.setMaterialToAllFaces(_material as TextureMaterial);
          loc2 = new BonusRegion(loc1,name,_libraryName,_groupName,false);
          loc2.distancesX = distancesX.clone();
          loc2.distancesY = distancesY.clone();

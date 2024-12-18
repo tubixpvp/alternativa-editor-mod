@@ -1,23 +1,22 @@
 package alternativa.editor.prop
 {
    import alternativa.editor.scene.EditorScene;
-   import alternativa.engine3d.core.Mesh;
+   import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.core.Object3D;
-   import alternativa.engine3d.events.MouseEvent3D;
+   import alternativa.engine3d.core.MouseEvent3D;
    import alternativa.engine3d.materials.Material;
-   import alternativa.engine3d.materials.SurfaceMaterial;
    import alternativa.engine3d.materials.TextureMaterial;
-   import alternativa.types.Map;
-   import alternativa.types.Point3D;
-   import alternativa.types.Texture;
    import alternativa.utils.MathUtils;
    import flash.display.Bitmap;
    import flash.display.BitmapData;
    import flash.display.BlendMode;
    import flash.geom.Matrix;
    import flash.geom.Point;
+   import alternativa.engine3d.core.Object3DContainer;
+   import alternativa.engine3d.core.Vertex;
+   import flash.geom.Vector3D;
    
-   public class Prop extends Object3D
+   public class Prop extends Object3DContainer
    {
       public static const TILE:int = 1;
       
@@ -31,11 +30,14 @@ package alternativa.editor.prop
       
       public static const KILL_GEOMETRY:int = 6;
       
-      private static const matrix:Matrix = new Matrix();
+      private static const _matrix:Matrix = new Matrix();
       
       private static var redClass:Class = Prop_redClass;
       
       private static const redBmp:BitmapData = new redClass().bitmapData;
+
+      private static const v1:Vector3D = new Vector3D();
+      private static const v2:Vector3D = new Vector3D();
       
       public var type:int = 3;
       
@@ -73,7 +75,8 @@ package alternativa.editor.prop
       
       public function Prop(param1:Object3D, param2:String, param3:String, param4:String, param5:Boolean = true)
       {
-         super(param2);
+         super();
+         this.name = param2;
          addChild(param1);
          this._object = param1;
          this._object.addEventListener(MouseEvent3D.MOUSE_DOWN,this.onMouseDown);
@@ -144,30 +147,30 @@ package alternativa.editor.prop
       
       private function onMouseDown(param1:MouseEvent3D) : void
       {
-         param1.object = this;
+         param1.relatedObject = this;
       }
       
       protected function initBitmapData() : void
       {
-         this._material = Mesh(this._object).surfaces.peek().material;
+         this._material = Mesh(this._object).faceList.material;
          if(_material is TextureMaterial)
          {
-            this.bitmapData = TextureMaterial(this._material).texture.bitmapData;
+            this.bitmapData = TextureMaterial(this._material).texture;
          }
       }
       
       public function calculate() : void
       {
-         var loc13:Point3D = null;
+         var loc13:Vector3D = null;
          var loc14:int = 0;
-         var loc15:Point3D = null;
+         var loc15:Vector3D = null;
          var loc16:Number = NaN;
          var loc17:Number = NaN;
          var loc18:Number = NaN;
          var loc19:Number = NaN;
          var loc20:Number = NaN;
          var loc21:Number = NaN;
-         var loc1:Array = (this._object as Mesh).vertices.toArray(true);
+         var loc1:Vector.<Vertex> = (this._object as Mesh).vertices;
          var loc2:Number = 0;
          var loc3:Number = 0;
          var loc4:Number = 0;
@@ -181,16 +184,16 @@ package alternativa.editor.prop
          var loc12:int = 0;
          while(loc12 < loc11)
          {
-            loc13 = loc1[loc12].coords;
-            if(scene)
+            loc13 = loc1[loc12].copyToVector3D(v1);
+            if(parent)
             {
                loc13 = localToGlobal(loc13);
             }
             loc14 = loc12 + 1;
             while(loc14 < loc11)
             {
-               loc15 = loc1[loc14].coords;
-               if(scene)
+               loc15 = loc1[loc14].copyToVector3D(v2);
+               if(parent)
                {
                   loc15 = localToGlobal(loc15);
                }
@@ -230,7 +233,7 @@ package alternativa.editor.prop
          {
             this._multi = true;
          }
-         if(!scene)
+         if(!parent)
          {
             if(this._multi)
             {
@@ -278,9 +281,9 @@ package alternativa.editor.prop
       public function select() : void
       {
          this._selectBitmapData = this.bitmapData.clone();
-         matrix.a = this.bitmapData.width / redBmp.width;
-         matrix.d = matrix.a;
-         this._selectBitmapData.draw(redBmp,matrix,null,BlendMode.MULTIPLY);
+         _matrix.a = this.bitmapData.width / redBmp.width;
+         _matrix.d = _matrix.a;
+         this._selectBitmapData.draw(redBmp,_matrix,null,BlendMode.MULTIPLY);
          this.setMaterial(this.newSelectedMaterial);
          this._selected = true;
       }
@@ -301,13 +304,14 @@ package alternativa.editor.prop
       
       protected function get newSelectedMaterial() : Material
       {
-         return new TextureMaterial(new Texture(this._selectBitmapData));
+         return new TextureMaterial(this._selectBitmapData);
       }
       
       public function setMaterial(param1:Material) : void
       {
-         var loc2:SurfaceMaterial = param1 as SurfaceMaterial;
-         (this._object as Mesh).cloneMaterialToAllSurfaces(loc2);
+         //var loc2:SurfaceMaterial = param1 as SurfaceMaterial;
+         var loc2:Material = param1; //TODO
+         (this._object as Mesh).setMaterialToAllFaces(loc2);
       }
       
       public function hide() : void
@@ -347,7 +351,7 @@ package alternativa.editor.prop
          return this._groupName;
       }
       
-      public function get vertices() : Map
+      public function get vertices() : Vector.<Vertex>
       {
          return (this._object as Mesh).vertices;
       }

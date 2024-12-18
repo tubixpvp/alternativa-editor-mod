@@ -1,7 +1,7 @@
 package alternativa.editor.prop
 {
    import alternativa.editor.scene.EditorScene;
-   import alternativa.engine3d.core.Mesh;
+   import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.core.Object3D;
    import alternativa.engine3d.materials.TextureMaterial;
    import flash.geom.Point;
@@ -25,7 +25,7 @@ package alternativa.editor.prop
       override public function clone() : Object3D
       {
          var loc1:Mesh = _object.clone() as Mesh;
-         loc1.cloneMaterialToAllSurfaces(_material as TextureMaterial);
+         loc1.setMaterialToAllFaces(_material as TextureMaterial);
          var loc2:CTFFlagBase = new CTFFlagBase(loc1,name,_libraryName,_groupName,false);
          loc2.distancesX = distancesX.clone();
          loc2.distancesY = distancesY.clone();

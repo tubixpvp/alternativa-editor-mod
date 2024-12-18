@@ -2,9 +2,9 @@ package alternativa.editor.mapexport
 {
    import alternativa.engine3d.alternativa3d;
    import alternativa.engine3d.core.Face;
-   import alternativa.engine3d.core.Mesh;
+   import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.core.Vertex;
-   import alternativa.types.Matrix3D;
+   import alternativa.types.Matrix4;
    import alternativa.types.Point3D;
    
    public class CollisionTriangle extends CollisionPrimitive
@@ -25,10 +25,10 @@ package alternativa.editor.mapexport
       
       override public function parse(param1:Mesh) : void
       {
-         var loc2:Array = Face(param1.alternativa3d::_faces.peek()).vertices;
-         this.v0.copy(Vertex(loc2[0]).alternativa3d::_coords);
-         this.v1.copy(Vertex(loc2[1]).alternativa3d::_coords);
-         this.v2.copy(Vertex(loc2[2]).alternativa3d::_coords);
+         var loc2:Vector.<Vertex> = param1.faceList.vertices;
+         this.v0.copy((loc2[0]).alternativa3d::_coords);
+         this.v1.copy((loc2[1]).alternativa3d::_coords);
+         this.v2.copy((loc2[2]).alternativa3d::_coords);
          var loc3:Point3D = new Point3D();
          loc3.x = (this.v0.x + this.v1.x + this.v2.x) / 3;
          loc3.y = (this.v0.y + this.v1.y + this.v2.y) / 3;
@@ -59,9 +59,9 @@ package alternativa.editor.mapexport
          this.v2.y -= loc7;
       }
       
-      override public function getXml(param1:Matrix3D) : XML
+      override public function getXml(param1:Matrix4) : XML
       {
-         var loc2:Matrix3D = null;
+         var loc2:Matrix4 = null;
          if(param1 == null)
          {
             loc2 = transform;

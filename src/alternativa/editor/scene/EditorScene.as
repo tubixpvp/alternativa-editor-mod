@@ -3,14 +3,15 @@ package alternativa.editor.scene
    import alternativa.editor.prop.Prop;
    import alternativa.engine3d.core.Camera3D;
    import alternativa.engine3d.core.Object3D;
-   import alternativa.engine3d.core.Scene3D;
-   import alternativa.engine3d.display.View;
-   import alternativa.types.Matrix3D;
+   import alternativa.editor.engine3d.Scene3D;
+   import alternativa.engine3d.core.View;
+   import alternativa.types.Matrix4;
    import alternativa.types.Point3D;
    import alternativa.types.Set;
    import alternativa.utils.KeyboardUtils;
    import alternativa.utils.MathUtils;
    import flash.geom.Point;
+   import alternativa.engine3d.core.Object3DContainer;
    
    public class EditorScene extends Scene3D
    {
@@ -29,8 +30,6 @@ package alternativa.editor.scene
       public static var hBase2:Number = 2 * hBase;
       
       public static var vBase:Number = 300;
-      
-      public var camera:Camera3D;
       
       public var view:View;
       
@@ -65,13 +64,14 @@ package alternativa.editor.scene
       
       protected function initScene() : void
       {
-         root = new Object3D();
+         root = new Object3DContainer();
          this.camera = new Camera3D();
          this.camera.rotationX = -MathUtils.DEG90 - MathUtils.DEG30;
-         this.camera.coords = new Point3D(250,-7800,4670);
+         this.camera.setPositionXYZ(250,-7800,4670);
          root.addChild(this.camera);
-         this.view = new View(this.camera);
-         this.view.interactive = true;
+         this.view = new View(100,100);
+         this.camera.view = view;
+         //this.view.interactive = true;
          this.view.buttonMode = true;
          this.view.useHandCursor = false;
          this.view.graphics.beginFill(16777215);
@@ -81,7 +81,7 @@ package alternativa.editor.scene
       
       protected function getCameraFacing() : CameraFacing
       {
-         var loc1:Matrix3D = this.camera.transformation;
+         var loc1:Matrix4 = this.camera.transformation;
          if(loc1.a > 1 / Math.SQRT2)
          {
             return CameraFacing.Y;

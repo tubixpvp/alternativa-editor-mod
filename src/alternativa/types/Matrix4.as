@@ -1,6 +1,6 @@
 package alternativa.types
 {
-   public final class Matrix3D
+   public final class Matrix4
    {
       public var a:Number;
       
@@ -26,7 +26,7 @@ package alternativa.types
       
       public var l:Number;
       
-      public function Matrix3D(param1:Number = 1, param2:Number = 0, param3:Number = 0, param4:Number = 0, param5:Number = 0, param6:Number = 1, param7:Number = 0, param8:Number = 0, param9:Number = 0, param10:Number = 0, param11:Number = 1, param12:Number = 0)
+      public function Matrix4(param1:Number = 1, param2:Number = 0, param3:Number = 0, param4:Number = 0, param5:Number = 0, param6:Number = 1, param7:Number = 0, param8:Number = 0, param9:Number = 0, param10:Number = 0, param11:Number = 1, param12:Number = 0)
       {
          super();
          this.a = param1;
@@ -43,17 +43,17 @@ package alternativa.types
          this.l = param12;
       }
       
-      public static function inverseTranslationMatrix(param1:Number = 0, param2:Number = 0, param3:Number = 0) : Matrix3D
+      public static function inverseTranslationMatrix(param1:Number = 0, param2:Number = 0, param3:Number = 0) : Matrix4
       {
-         return new Matrix3D(1,0,0,-param1,0,1,0,-param2,0,0,1,-param3);
+         return new Matrix4(1,0,0,-param1,0,1,0,-param2,0,0,1,-param3);
       }
       
-      public static function translationMatrix(param1:Number = 0, param2:Number = 0, param3:Number = 0) : Matrix3D
+      public static function translationMatrix(param1:Number = 0, param2:Number = 0, param3:Number = 0) : Matrix4
       {
-         return new Matrix3D(1,0,0,param1,0,1,0,param2,0,0,1,param3);
+         return new Matrix4(1,0,0,param1,0,1,0,param2,0,0,1,param3);
       }
       
-      public static function axisAngleToMatrix(param1:Point3D, param2:Number = 0) : Matrix3D
+      public static function axisAngleToMatrix(param1:Point3D, param2:Number = 0) : Matrix4
       {
          var loc3:Number = Math.cos(param2);
          var loc4:Number = Math.sin(param2);
@@ -61,10 +61,10 @@ package alternativa.types
          var loc6:Number = param1.x;
          var loc7:Number = param1.y;
          var loc8:Number = param1.z;
-         return new Matrix3D(loc5 * loc6 * loc6 + loc3,loc5 * loc6 * loc7 - loc8 * loc4,loc5 * loc6 * loc8 + loc7 * loc4,0,loc5 * loc6 * loc7 + loc8 * loc4,loc5 * loc7 * loc7 + loc3,loc5 * loc7 * loc8 - loc6 * loc4,0,loc5 * loc6 * loc8 - loc7 * loc4,loc5 * loc7 * loc8 + loc6 * loc4,loc5 * loc8 * loc8 + loc3,0);
+         return new Matrix4(loc5 * loc6 * loc6 + loc3,loc5 * loc6 * loc7 - loc8 * loc4,loc5 * loc6 * loc8 + loc7 * loc4,0,loc5 * loc6 * loc7 + loc8 * loc4,loc5 * loc7 * loc7 + loc3,loc5 * loc7 * loc8 - loc6 * loc4,0,loc5 * loc6 * loc8 - loc7 * loc4,loc5 * loc7 * loc8 + loc6 * loc4,loc5 * loc8 * loc8 + loc3,0);
       }
       
-      public static function inverseRotationMatrix(param1:Number = 0, param2:Number = 0, param3:Number = 0) : Matrix3D
+      public static function inverseRotationMatrix(param1:Number = 0, param2:Number = 0, param3:Number = 0) : Matrix4
       {
          var loc4:Number = Math.cos(param1);
          var loc5:Number = Math.sin(-param1);
@@ -73,10 +73,10 @@ package alternativa.types
          var loc8:Number = Math.cos(param3);
          var loc9:Number = Math.sin(-param3);
          var loc10:Number = loc5 * loc7;
-         return new Matrix3D(loc6 * loc8,-loc6 * loc9,loc7,0,loc4 * loc9 + loc10 * loc8,loc4 * loc8 - loc10 * loc9,-loc5 * loc6,0,loc5 * loc9 - loc4 * loc8 * loc7,loc5 * loc8 + loc4 * loc7 * loc9,loc4 * loc6,0);
+         return new Matrix4(loc6 * loc8,-loc6 * loc9,loc7,0,loc4 * loc9 + loc10 * loc8,loc4 * loc8 - loc10 * loc9,-loc5 * loc6,0,loc5 * loc9 - loc4 * loc8 * loc7,loc5 * loc8 + loc4 * loc7 * loc9,loc4 * loc6,0);
       }
       
-      public static function inverseTransformationMatrix(param1:Number = 0, param2:Number = 0, param3:Number = 0, param4:Number = 0, param5:Number = 0, param6:Number = 0, param7:Number = 1, param8:Number = 1, param9:Number = 1) : Matrix3D
+      public static function inverseTransformationMatrix(param1:Number = 0, param2:Number = 0, param3:Number = 0, param4:Number = 0, param5:Number = 0, param6:Number = 0, param7:Number = 1, param8:Number = 1, param9:Number = 1) : Matrix4
       {
          var loc10:Number = Math.cos(-param4);
          var loc11:Number = Math.sin(-param4);
@@ -101,10 +101,10 @@ package alternativa.types
          var loc30:Number = loc15 * loc22 - loc14 * loc13 * loc23;
          var loc31:Number = loc14 * loc22 + loc13 * loc15 * loc23;
          var loc32:Number = loc12 * loc23;
-         return new Matrix3D(loc24,loc25,loc26,-(loc24 * param1 + loc25 * param2 + loc26 * param3),loc27,loc28,loc29,-(loc27 * param1 + loc28 * param2 + loc29 * param3),loc30,loc31,loc32,-(loc30 * param1 + loc31 * param2 + loc32 * param3));
+         return new Matrix4(loc24,loc25,loc26,-(loc24 * param1 + loc25 * param2 + loc26 * param3),loc27,loc28,loc29,-(loc27 * param1 + loc28 * param2 + loc29 * param3),loc30,loc31,loc32,-(loc30 * param1 + loc31 * param2 + loc32 * param3));
       }
       
-      public static function inverseMatrix(param1:Matrix3D) : Matrix3D
+      public static function inverseMatrix(param1:Matrix4) : Matrix4
       {
          var loc2:Number = -param1.c * param1.f * param1.i + param1.b * param1.g * param1.i + param1.c * param1.e * param1.j - param1.a * param1.g * param1.j - param1.b * param1.e * param1.k + param1.a * param1.f * param1.k;
          var loc3:Number = (-param1.g * param1.j + param1.f * param1.k) / loc2;
@@ -119,20 +119,20 @@ package alternativa.types
          var loc12:Number = (param1.b * param1.i - param1.a * param1.j) / loc2;
          var loc13:Number = (-param1.b * param1.e + param1.a * param1.f) / loc2;
          var loc14:Number = (param1.d * param1.f * param1.i - param1.b * param1.h * param1.i - param1.d * param1.e * param1.j + param1.a * param1.h * param1.j + param1.b * param1.e * param1.l - param1.a * param1.f * param1.l) / loc2;
-         return new Matrix3D(loc3,loc4,loc5,loc6,loc7,loc8,loc9,loc10,loc11,loc12,loc13,loc14);
+         return new Matrix4(loc3,loc4,loc5,loc6,loc7,loc8,loc9,loc10,loc11,loc12,loc13,loc14);
       }
       
-      public static function inverseScaleMatrix(param1:Number = 1, param2:Number = 1, param3:Number = 1) : Matrix3D
+      public static function inverseScaleMatrix(param1:Number = 1, param2:Number = 1, param3:Number = 1) : Matrix4
       {
-         return new Matrix3D(1 / param1,0,0,0,0,1 / param2,0,0,0,0,1 / param3,0);
+         return new Matrix4(1 / param1,0,0,0,0,1 / param2,0,0,0,0,1 / param3,0);
       }
       
-      public static function scaleMatrix(param1:Number = 1, param2:Number = 1, param3:Number = 1) : Matrix3D
+      public static function scaleMatrix(param1:Number = 1, param2:Number = 1, param3:Number = 1) : Matrix4
       {
-         return new Matrix3D(param1,0,0,0,0,param2,0,0,0,0,param3,0);
+         return new Matrix4(param1,0,0,0,0,param2,0,0,0,0,param3,0);
       }
       
-      public static function transformationMatrix(param1:Number = 0, param2:Number = 0, param3:Number = 0, param4:Number = 0, param5:Number = 0, param6:Number = 0, param7:Number = 1, param8:Number = 1, param9:Number = 1) : Matrix3D
+      public static function transformationMatrix(param1:Number = 0, param2:Number = 0, param3:Number = 0, param4:Number = 0, param5:Number = 0, param6:Number = 0, param7:Number = 1, param8:Number = 1, param9:Number = 1) : Matrix4
       {
          var loc10:Number = Math.cos(param4);
          var loc11:Number = Math.sin(param4);
@@ -147,15 +147,15 @@ package alternativa.types
          var loc20:Number = loc10 * param8;
          var loc21:Number = loc10 * param9;
          var loc22:Number = loc11 * param9;
-         return new Matrix3D(loc14 * loc18,loc16 * loc19 - loc15 * loc20,loc16 * loc21 + loc15 * loc22,param1,loc15 * loc18,loc17 * loc19 + loc14 * loc20,loc17 * loc21 - loc14 * loc22,param2,-loc13 * param7,loc12 * loc19,loc12 * loc21,param3);
+         return new Matrix4(loc14 * loc18,loc16 * loc19 - loc15 * loc20,loc16 * loc21 + loc15 * loc22,param1,loc15 * loc18,loc17 * loc19 + loc14 * loc20,loc17 * loc21 - loc14 * loc22,param2,-loc13 * param7,loc12 * loc19,loc12 * loc21,param3);
       }
       
-      public static function product(param1:Matrix3D, param2:Matrix3D) : Matrix3D
+      public static function product(param1:Matrix4, param2:Matrix4) : Matrix4
       {
-         return new Matrix3D(param1.a * param2.a + param1.b * param2.e + param1.c * param2.i,param1.a * param2.b + param1.b * param2.f + param1.c * param2.j,param1.a * param2.c + param1.b * param2.g + param1.c * param2.k,param1.a * param2.d + param1.b * param2.h + param1.c * param2.l + param1.d,param1.e * param2.a + param1.f * param2.e + param1.g * param2.i,param1.e * param2.b + param1.f * param2.f + param1.g * param2.j,param1.e * param2.c + param1.f * param2.g + param1.g * param2.k,param1.e * param2.d + param1.f * param2.h + param1.g * param2.l + param1.h,param1.i * param2.a + param1.j * param2.e + param1.k * param2.i,param1.i * param2.b + param1.j * param2.f + param1.k * param2.j,param1.i * param2.c + param1.j * param2.g + param1.k * param2.k,param1.i * param2.d + param1.j * param2.h + param1.k * param2.l + param1.l);
+         return new Matrix4(param1.a * param2.a + param1.b * param2.e + param1.c * param2.i,param1.a * param2.b + param1.b * param2.f + param1.c * param2.j,param1.a * param2.c + param1.b * param2.g + param1.c * param2.k,param1.a * param2.d + param1.b * param2.h + param1.c * param2.l + param1.d,param1.e * param2.a + param1.f * param2.e + param1.g * param2.i,param1.e * param2.b + param1.f * param2.f + param1.g * param2.j,param1.e * param2.c + param1.f * param2.g + param1.g * param2.k,param1.e * param2.d + param1.f * param2.h + param1.g * param2.l + param1.h,param1.i * param2.a + param1.j * param2.e + param1.k * param2.i,param1.i * param2.b + param1.j * param2.f + param1.k * param2.j,param1.i * param2.c + param1.j * param2.g + param1.k * param2.k,param1.i * param2.d + param1.j * param2.h + param1.k * param2.l + param1.l);
       }
       
-      public static function rotationMatrix(param1:Number = 0, param2:Number = 0, param3:Number = 0) : Matrix3D
+      public static function rotationMatrix(param1:Number = 0, param2:Number = 0, param3:Number = 0) : Matrix4
       {
          var loc4:Number = Math.cos(param1);
          var loc5:Number = Math.sin(param1);
@@ -165,7 +165,7 @@ package alternativa.types
          var loc9:Number = Math.sin(param3);
          var loc10:Number = loc8 * loc7;
          var loc11:Number = loc9 * loc7;
-         return new Matrix3D(loc8 * loc6,loc10 * loc5 - loc9 * loc4,loc10 * loc4 + loc9 * loc5,0,loc9 * loc6,loc11 * loc5 + loc8 * loc4,loc11 * loc4 - loc8 * loc5,0,-loc7,loc6 * loc5,loc6 * loc4,0);
+         return new Matrix4(loc8 * loc6,loc10 * loc5 - loc9 * loc4,loc10 * loc4 + loc9 * loc5,0,loc9 * loc6,loc11 * loc5 + loc8 * loc4,loc11 * loc4 - loc8 * loc5,0,-loc7,loc6 * loc5,loc6 * loc4,0);
       }
       
       public function transform(param1:Number = 0, param2:Number = 0, param3:Number = 0, param4:Number = 0, param5:Number = 0, param6:Number = 0, param7:Number = 1, param8:Number = 1, param9:Number = 1) : void
@@ -311,7 +311,7 @@ package alternativa.types
          l = loc32 * loc39 + loc33 * loc43 + loc34 * loc47 + loc35;
       }
       
-      public function add(param1:Matrix3D) : void
+      public function add(param1:Matrix4) : void
       {
          a += param1.a;
          b += param1.b;
@@ -442,7 +442,7 @@ package alternativa.types
          l += i * param1 + j * param2 + k * param3;
       }
       
-      public function equals(param1:Matrix3D, param2:Number = 0) : Boolean
+      public function equals(param1:Matrix4, param2:Number = 0) : Boolean
       {
          var loc3:Number = a - param1.a;
          var loc4:Number = b - param1.b;
@@ -494,7 +494,7 @@ package alternativa.types
          l += param3;
       }
       
-      public function combine(param1:Matrix3D) : void
+      public function combine(param1:Matrix4) : void
       {
          var loc2:Number = a;
          var loc3:Number = b;
@@ -573,9 +573,9 @@ package alternativa.types
          l = loc18 * loc24 + loc19 * loc28 + loc20 * loc32;
       }
       
-      public function clone() : Matrix3D
+      public function clone() : Matrix4
       {
-         return new Matrix3D(a,b,c,d,e,f,g,h,i,j,k,l);
+         return new Matrix4(a,b,c,d,e,f,g,h,i,j,k,l);
       }
       
       public function invert() : void
@@ -612,7 +612,7 @@ package alternativa.types
          return "[Matrix3D " + "[" + a.toFixed(3) + " " + b.toFixed(3) + " " + c.toFixed(3) + " " + d.toFixed(3) + "] [" + e.toFixed(3) + " " + f.toFixed(3) + " " + g.toFixed(3) + " " + h.toFixed(3) + "] [" + i.toFixed(3) + " " + j.toFixed(3) + " " + k.toFixed(3) + " " + l.toFixed(3) + "]]";
       }
       
-      public function inverseCombine(param1:Matrix3D) : void
+      public function inverseCombine(param1:Matrix4) : void
       {
          var loc2:Number = a;
          var loc3:Number = b;
@@ -672,7 +672,7 @@ package alternativa.types
          l *= param1;
       }
       
-      public function copy(param1:Matrix3D) : void
+      public function copy(param1:Matrix4) : void
       {
          a = param1.a;
          b = param1.b;

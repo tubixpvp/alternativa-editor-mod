@@ -15,7 +15,7 @@ package alternativa.editor.propslib
       
       public function toString() : String
       {
-         return "[PropMesh object3d=" + object3d + ", bitmaps=" + this.bitmaps + "]";
+         return "[PropMesh object3d=" + mainObject + ", bitmaps=" + this.bitmaps + (objects != null ? ", objectsLen="+objects.length : "") + "]";
       }
    }
 }

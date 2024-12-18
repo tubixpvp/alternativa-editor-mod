@@ -8,9 +8,10 @@ package alternativa.editor.mapexport
    import alternativa.editor.prop.Prop;
    import alternativa.editor.prop.SpawnPoint;
    import alternativa.engine3d.alternativa3d;
-   import alternativa.engine3d.core.Mesh;
+   import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.core.Object3D;
    import flash.filesystem.FileStream;
+   import alternativa.engine3d.core.Object3DContainer;
    
    public class TanksXmlExporterV1Lite extends FileExporter
    {
@@ -18,7 +19,7 @@ package alternativa.editor.mapexport
       
       private var collPrimCache:CollisionPrimitivesCache;
       
-      public function TanksXmlExporterV1Lite(param1:Object3D)
+      public function TanksXmlExporterV1Lite(param1:Object3DContainer)
       {
          super(param1);
          this.collPrimCache = new CollisionPrimitivesCache();
@@ -183,7 +184,6 @@ package alternativa.editor.mapexport
       
       override public function exportToFileStream(param1:FileStream) : void
       {
-         var loc7:* = undefined;
          var loc8:Prop = null;
          var loc9:MeshProp = null;
          var loc2:XML = <map version="1.0.Light">
@@ -200,7 +200,7 @@ package alternativa.editor.mapexport
          var loc4:XML = loc2.child("collision-geometry")[0];
          var loc5:XML = loc2.child("bonus-regions")[0];
          var loc6:XML = loc2.child("spawn-points")[0];
-         for(loc7 in sceneRoot.children)
+         for each(var loc7:Object3D in sceneRoot.children)
          {
             loc8 = loc7 as Prop;
             if(!loc8)

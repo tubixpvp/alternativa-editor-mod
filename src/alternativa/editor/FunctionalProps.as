@@ -6,7 +6,7 @@ package alternativa.editor
    import alternativa.editor.propslib.PropGroup;
    import alternativa.editor.propslib.PropLibObject;
    import alternativa.editor.propslib.PropsLibrary;
-   import alternativa.engine3d.core.Mesh;
+   import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.core.Object3D;
    import alternativa.engine3d.core.Vertex;
    import alternativa.engine3d.loaders.Parser3DS;
@@ -16,6 +16,7 @@ package alternativa.editor
    import flash.geom.Point;
    import flash.utils.ByteArray;
    import flash.utils.Dictionary;
+   import alternativa.engine3d.primitives.Box;
    
    public class FunctionalProps
    {
@@ -163,14 +164,14 @@ package alternativa.editor
       private static function getColoredPropObject(param1:String, param2:ByteArray, param3:uint) : PropLibObject
       {
          var loc4:Mesh = parse3DS(param2);
-         loc4.cloneMaterialToAllSurfaces(new TextureMaterial(getMonochromeTexture(param3)));
+         loc4.setMaterialToAllFaces(new TextureMaterial(getMonochromeTexture(param3)));
          return new PropLibObject(param1,loc4);
       }
       
       private static function getTexturedPropObject(param1:String, param2:ByteArray, param3:BitmapData) : PropLibObject
       {
          var loc4:Mesh = parse3DS(param2);
-         loc4.cloneMaterialToAllSurfaces(new TextureMaterial(new Texture(param3)));
+         loc4.setMaterialToAllFaces(new TextureMaterial(param3));
          return new PropLibObject(param1,loc4);
       }
       
@@ -178,19 +179,19 @@ package alternativa.editor
       {
          var loc2:Parser3DS = new Parser3DS();
          loc2.parse(param1);
-         var loc3:Mesh = loc2.content.children.peek() as Mesh;
+         var loc3:Mesh = loc2.objects[0] as Mesh;
          loc3.x = 0;
          loc3.y = 0;
          loc3.z = 0;
          return loc3;
       }
       
-      private static function getMonochromeTexture(param1:uint) : Texture
+      private static function getMonochromeTexture(param1:uint) : BitmapData
       {
-         var loc2:Texture = textures[param1];
+         var loc2:BitmapData = textures[param1];
          if(loc2 == null)
          {
-            loc2 = new Texture(new BitmapData(1,1,false,param1));
+            loc2 = new BitmapData(1,1,false,param1);
             textures[param1] = loc2;
          }
          return loc2;
@@ -208,7 +209,7 @@ package alternativa.editor
       
       private static function createDominationPoint() : Object3D
       {
-         var loc1:Mesh = new Mesh();
+         /*var loc1:Mesh = new Mesh();
          var loc4:Vertex = loc1.createVertex(-50,-50,0);
          var loc5:Vertex = loc1.createVertex(50,-50,0);
          var loc6:Vertex = loc1.createVertex(50,50,0);
@@ -223,8 +224,9 @@ package alternativa.editor
          loc1.setUVsToFace(new Point(0,0),new Point(1,0),new Point(1,1),loc1.createFace([loc5,loc6,loc10,loc9]));
          loc1.setUVsToFace(new Point(0,0),new Point(1,0),new Point(1,1),loc1.createFace([loc6,loc7,loc11,loc10]));
          loc1.setUVsToFace(new Point(0,0),new Point(1,0),new Point(1,1),loc1.createFace([loc4,loc8,loc11,loc7]));
-         loc1.moveAllFacesToSurface();
-         loc1.cloneMaterialToAllSurfaces(new TextureMaterial(getMonochromeTexture(16711935)));
+         loc1.moveAllFacesToSurface();*/
+         var loc1:Box = new Box(100,100,400);
+         loc1.setMaterialToAllFaces(new TextureMaterial(getMonochromeTexture(16711935)));
          return loc1;
       }
       

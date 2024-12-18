@@ -3,7 +3,7 @@ package alternativa.editor.propslib
    import alternativa.editor.propslib.events.PropLibProgressEvent;
    import alternativa.editor.propslib.loaders.MeshLoader;
    import alternativa.editor.propslib.loaders.SpriteLoader;
-   import alternativa.engine3d.loaders.TextureMapsInfo;
+   import alternativa.editor.engine3d.loaders.TextureMapsInfo;
    import alternativa.types.Map;
    import flash.events.ErrorEvent;
    import flash.events.Event;
@@ -117,12 +117,13 @@ package alternativa.editor.propslib
          {
             loc2 = this.currLoader.propObject as PropLibMesh;
             loc3 = this.currLoader.loader as MeshLoader;
-            loc2.object3d = loc3.object;
+            loc2.mainObject = loc3.object;
             loc2.bitmaps = loc3.bitmaps;
+            loc2.objects = loc3.objects;
          }
          else
          {
-            this.currLoader.propObject.object3d = (this.currLoader.loader as SpriteLoader).sprite;
+            this.currLoader.propObject.mainObject = (this.currLoader.loader as SpriteLoader).sprite;
          }
          ++this.propsLoaded;
          if(hasEventListener(PropLibProgressEvent.PROGRESS))

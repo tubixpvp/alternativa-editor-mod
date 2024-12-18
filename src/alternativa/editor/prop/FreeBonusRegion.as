@@ -1,28 +1,29 @@
 package alternativa.editor.prop
 {
    import alternativa.editor.scene.MainScene;
-   import alternativa.engine3d.core.Mesh;
+   import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.core.Object3D;
    import alternativa.engine3d.materials.Material;
-   import alternativa.engine3d.materials.SurfaceMaterial;
    import alternativa.engine3d.materials.TextureMaterial;
    import alternativa.engine3d.primitives.Box;
    import alternativa.engine3d.primitives.Plane;
    import alternativa.types.Point3D;
    import alternativa.types.Set;
-   import alternativa.types.Texture;
    import flash.display.BitmapData;
    import flash.display.BlendMode;
+   import flash.geom.Vector3D;
    
    public class FreeBonusRegion extends Prop
    {
+      private static const tmpVec:Vector3D = new Vector3D();
+
       private static const BASE_WIDTH:Number = 500;
       
       private static const BASE_LENGTH:Number = 500;
       
       private static const BASE_HEIGHT:Number = 300;
       
-      private static const texture:Texture = new Texture(new BitmapData(1,1,false,16756224));
+      private static const texture:BitmapData = new BitmapData(1,1,false,16756224);
       
       private var _typeNames:Set;
       
@@ -47,8 +48,9 @@ package alternativa.editor.prop
          loc5.x = BASE_WIDTH / 2;
          loc5.y = BASE_LENGTH / 2;
          loc5.z = BASE_HEIGHT / 2;
-         _material = new TextureMaterial(texture,0.5,true,false,BlendMode.MULTIPLY);
-         loc5.cloneMaterialToAllSurfaces(SurfaceMaterial(_material));
+         //_material = new TextureMaterial(texture,0.5,true,false,BlendMode.MULTIPLY);
+         _material = new TextureMaterial(texture);
+         loc5.setMaterialToAllFaces(_material);
          _object = loc5;
          super(object,param1,param2,param3,param4);
          type = Prop.BONUS;
@@ -68,7 +70,7 @@ package alternativa.editor.prop
       override public function clone() : Object3D
       {
          var loc1:Mesh = _object.clone() as Mesh;
-         loc1.cloneMaterialToAllSurfaces(_material as TextureMaterial);
+         loc1.setMaterialToAllFaces(_material as TextureMaterial);
          var loc2:FreeBonusRegion = new FreeBonusRegion(name,_libraryName,_groupName,false);
          loc2.scaleX = scaleX;
          loc2.scaleY = scaleY;
@@ -86,19 +88,20 @@ package alternativa.editor.prop
       
       public function showDestinationArea() : void
       {
-         if(Boolean(this.shadow) && children.has(this.shadow))
+         if(Boolean(this.shadow) && contains(this.shadow))
          {
             removeChild(this.shadow);
          }
-         var loc1:Point3D = MainScene.getProjectedPoint(new Point3D(x + scaleX * BASE_WIDTH / 2,y + scaleY * BASE_LENGTH / 2,z - 50));
-         globalToLocal(loc1,loc1);
+         var loc1:Vector3D = MainScene.getProjectedPoint(new Vector3D(x + scaleX * BASE_WIDTH / 2,y + scaleY * BASE_LENGTH / 2,z - 50));
+         loc1 = globalToLocal(loc1);
          var loc2:Number = BASE_WIDTH * scaleX + this.BOX_SIZE;
          var loc3:Number = BASE_LENGTH * scaleY + this.BOX_SIZE;
          this.shadow = new Plane(loc2,loc3);
          this.shadow.mouseEnabled = false;
          var loc4:TextureMaterial = new TextureMaterial(texture);
-         loc4.alpha = 0.5;
-         this.shadow.cloneMaterialToAllSurfaces(loc4);
+         //loc4.alpha = 0.5;
+         this.shadow.alpha = 0.5;
+         this.shadow.setMaterialToAllFaces(loc4);
          this.shadow.scaleX /= scaleX;
          this.shadow.scaleY /= scaleY;
          this.shadow.x = BASE_WIDTH / 2;
@@ -109,9 +112,10 @@ package alternativa.editor.prop
       
       override public function setMaterial(param1:Material) : void
       {
-         var loc2:SurfaceMaterial = param1 as SurfaceMaterial;
-         (_object as Mesh).cloneMaterialToAllSurfaces(loc2);
-         (this.shadow as Mesh).cloneMaterialToAllSurfaces(loc2);
+         //var loc2:SurfaceMaterial = param1 as SurfaceMaterial;
+         var loc2:Material = param1; //TODO check maybe FillMaterial is not Surface
+         (_object as Mesh).setMaterialToAllFaces(loc2);
+         (this.shadow as Mesh).setMaterialToAllFaces(loc2);
       }
       
       override public function get rotationX() : Number

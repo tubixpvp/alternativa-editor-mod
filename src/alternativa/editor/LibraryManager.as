@@ -14,9 +14,9 @@ package alternativa.editor
    import alternativa.editor.propslib.PropLibObject;
    import alternativa.editor.propslib.PropsLibrary;
    import alternativa.editor.propslib.events.PropLibProgressEvent;
-   import alternativa.engine3d.core.Mesh;
+   import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.core.Object3D;
-   import alternativa.engine3d.core.Sprite3D;
+   import alternativa.engine3d.objects.Sprite3D;
    import alternativa.types.Map;
    import alternativa.types.Point3D;
    import flash.events.ErrorEvent;
@@ -59,7 +59,7 @@ package alternativa.editor
       
       private static function createFunctionalProp(param1:PropLibObject, param2:String) : Prop
       {
-         var loc3:Object3D = param1.object3d;
+         var loc3:Object3D = param1.mainObject;
          switch(param2)
          {
             case FunctionalProps.GRP_SPAWN_POINTS:
@@ -86,9 +86,9 @@ package alternativa.editor
             case FunctionalProps.DOMINATION_BLUE_SPAWN:
             case FunctionalProps.DOMINATION_RED_SPAWN:
             case FunctionalProps.DOMINATION_SPAWN:
-               return new SpawnPoint(param2.object3d,param2.name,FunctionalProps.LIBRARY_NAME,param1);
+               return new SpawnPoint(param2.mainObject,param2.name,FunctionalProps.LIBRARY_NAME,param1);
             case FunctionalProps.DOMINATION_POINT:
-               return new ControlPoint(param2.object3d,param2.name,FunctionalProps.LIBRARY_NAME,param1);
+               return new ControlPoint(param2.mainObject,param2.name,FunctionalProps.LIBRARY_NAME,param1);
             default:
                throw new Error("Unsupported prop type: " + param2.name);
          }
@@ -98,11 +98,11 @@ package alternativa.editor
       {
          var loc5:MeshProp = null;
          var loc6:String = null;
-         var loc4:Object3D = param1.object3d;
-         loc4.coords = new Point3D();
+         var loc4:Object3D = param1.mainObject;
+         loc4.setPositionXYZ(0,0,0);
          if(loc4 is Mesh)
          {
-            loc5 = new MeshProp(loc4,param1.name,param2,param3);
+            loc5 = new MeshProp(loc4,param1.objects,param1.name,param2,param3);
             loc5.bitmaps = (param1 as PropLibMesh).bitmaps;
             if(loc5.bitmaps != null)
             {

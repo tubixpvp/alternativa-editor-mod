@@ -4,13 +4,12 @@ package alternativa.editor.scene
    import alternativa.editor.prop.MeshProp;
    import alternativa.editor.prop.Prop;
    import alternativa.editor.prop.Sprite3DProp;
-   import alternativa.engine3d.controllers.WalkController;
+   import alternativa.editor.engine3d.controllers.WalkController;
    import alternativa.engine3d.core.Camera3D;
    import alternativa.engine3d.core.Object3D;
-   import alternativa.engine3d.display.View;
+   import alternativa.engine3d.core.View;
    import alternativa.engine3d.materials.Material;
-   import alternativa.engine3d.materials.SpriteTextureMaterial;
-   import alternativa.types.Matrix3D;
+   import alternativa.types.Matrix4;
    import alternativa.types.Point3D;
    import alternativa.types.Set;
    import alternativa.types.Texture;
@@ -22,6 +21,10 @@ package alternativa.editor.scene
    import flash.display.Shape;
    import flash.geom.Matrix;
    import flash.geom.Point;
+   import alternativa.engine3d.core.Object3DContainer;
+   import flash.geom.Vector3D;
+   import alternativa.engine3d.materials.TextureMaterial;
+   import flash.display.Sprite;
    
    public class CursorScene extends EditorScene
    {
@@ -47,7 +50,7 @@ package alternativa.editor.scene
       
       public var containerController:WalkController;
       
-      public var container:Object3D;
+      public var container:Object3DContainer;
       
       private var eventSourceObject:DisplayObject;
       
@@ -59,12 +62,12 @@ package alternativa.editor.scene
       
       private var _visible:Boolean = false;
       
-      public function CursorScene(param1:DisplayObject)
+      public function CursorScene(param1:DisplayObject, container:Sprite)
       {
          super();
          this.eventSourceObject = param1;
          this.initControllers();
-         view.addChild(this.axisIndicatorOverlay = new Shape());
+         container.addChild(this.axisIndicatorOverlay = new Shape());
       }
       
       private function initControllers() : void
@@ -75,7 +78,7 @@ package alternativa.editor.scene
          this.cameraController.speedThreshold = 1;
          this.cameraController.mouseEnabled = false;
          this.cameraController.coords = new Point3D(250,-7800,4670);
-         this.container = new Object3D();
+         this.container = new Object3DContainer();
          root.addChild(this.container);
          this.containerController = new WalkController(this.eventSourceObject);
          this.containerController.object = this.container;
@@ -85,10 +88,10 @@ package alternativa.editor.scene
       
       public function set object(param1:Prop) : void
       {
-         var loc2:Point3D = null;
+         var loc2:Vector3D = null;
          if(this._object)
          {
-            loc2 = this._object.coords;
+            loc2 = new Vector3D(this._object.x,this._object.y,this._object.z);
             if(this._visible)
             {
                root.removeChild(this._object);
@@ -96,10 +99,11 @@ package alternativa.editor.scene
          }
          this._object = param1;
          this.material = this._object.material.clone();
-         this.material.alpha = 0.5;
+         //this.material.alpha = 0.5;
+         this._object.alpha = 0.5;
          if(loc2)
          {
-            this._object.coords = loc2;
+            this._object.setPositionFromVector3(loc2);
          }
          if(this._visible)
          {
@@ -150,24 +154,25 @@ package alternativa.editor.scene
          loc2.draw(greenBmp,loc3,null,BlendMode.HARDLIGHT);
          if(this._object is Sprite3DProp)
          {
-            this.greenMaterial = new SpriteTextureMaterial(new Texture(loc2));
-            this.redMaterial = new SpriteTextureMaterial(new Texture(loc1));
+            this.greenMaterial = new TextureMaterial(loc2);
+            this.redMaterial = new TextureMaterial(loc1);
          }
          else
          {
             this.greenMaterial = new CustomFillMaterial(new Point3D(-10000000000,-7000000000,4000000000),65280);
             this.redMaterial = new CustomFillMaterial(new Point3D(-10000000000,-7000000000,4000000000),16711680);
          }
-         this.greenMaterial.alpha = 0.8;
-         this.redMaterial.alpha = 0.8;
+         //this.greenMaterial.alpha = 0.8;
+         //this.redMaterial.alpha = 0.8;
+         this._object.alpha = 0.8;
       }
       
       public function moveCursorByMouse() : void
       {
-         var loc1:Point3D = null;
+         var loc1:Vector3D = null;
          if(this._object)
          {
-            loc1 = view.projectViewPointToPlane(new Point(view.mouseX,view.mouseY),znormal,this._object.z);
+            loc1 = camera.projectGlobal(new Vector3D(view.mouseX,view.mouseY,this._object.z));
             this._object.x = loc1.x;
             this._object.y = loc1.y;
             if(this._snapMode || this._object is MeshProp && !(this._object is Sprite3DProp))
@@ -185,11 +190,12 @@ package alternativa.editor.scene
       
       override protected function initScene() : void
       {
-         root = new Object3D();
+         root = new Object3DContainer();
          camera = new Camera3D();
          camera.rotationX = -MathUtils.DEG90 - MathUtils.DEG30;
-         view = new View(camera);
-         view.interactive = false;
+         view = new View(100,100);
+         camera.view = view;
+         //view.interactive = false;
          view.mouseEnabled = false;
          view.mouseChildren = false;
          view.graphics.beginFill(16777215);
@@ -234,7 +240,7 @@ package alternativa.editor.scene
          }
       }
       
-      public function drawAxis(param1:Matrix3D) : void
+      public function drawAxis(param1:Matrix4) : void
       {
          var loc2:Graphics = this.axisIndicatorOverlay.graphics;
          var loc3:Number = this.axisIndicatorSize;

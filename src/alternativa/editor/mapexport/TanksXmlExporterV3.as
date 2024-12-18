@@ -7,9 +7,10 @@ package alternativa.editor.mapexport
    import alternativa.editor.prop.SpawnPoint;
    import alternativa.editor.prop.Sprite3DProp;
    import alternativa.engine3d.alternativa3d;
-   import alternativa.engine3d.core.Mesh;
+   import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.core.Object3D;
    import flash.filesystem.FileStream;
+   import alternativa.engine3d.core.Object3DContainer;
    
    use namespace alternativa3d;
    
@@ -39,14 +40,13 @@ package alternativa.editor.mapexport
       
       private var spritesXML:XML;
       
-      public function TanksXmlExporterV3(param1:Object3D)
+      public function TanksXmlExporterV3(param1:Object3DContainer)
       {
          super(param1);
       }
       
       override public function exportToFileStream(param1:FileStream) : void
       {
-         var loc6:* = undefined;
          var loc7:XML = null;
          var loc8:PropRegistryData = null;
          var loc9:Prop = null;
@@ -63,7 +63,7 @@ package alternativa.editor.mapexport
          var loc3:XML = <x/>;
          var loc4:XML = <x/>;
          var loc5:XML = <ctf-flags/>;
-         for(loc6 in sceneRoot.children)
+         for each(var loc6:Object3D in sceneRoot.children)
          {
             loc9 = loc6 as Prop;
             if(!loc9)
