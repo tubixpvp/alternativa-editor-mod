@@ -63,6 +63,7 @@ package alternativa.editor.prop
       public var bitmapData:BitmapData;
       
       protected var _selectBitmapData:BitmapData;
+      private var _selectMaterial:Material;
       
       public var icon:Bitmap;
       
@@ -88,6 +89,34 @@ package alternativa.editor.prop
          {
             this.calculate();
          }
+      }
+
+      public function dispose() : void
+      {
+         if(_material is TextureMaterial)
+         {
+            (_material as TextureMaterial).dispose();
+         }
+         _material = null;
+
+         bitmapData = null;
+         icon = null;
+
+         if(_selectMaterial)
+         {
+            _selectMaterial.dispose();
+            _selectMaterial = null;
+         }
+         if(_selectBitmapData)
+         {
+            _selectBitmapData.dispose();
+            _selectBitmapData = null;
+         }
+
+         _object.destroy();
+         _object = null;
+
+         super.destroy();
       }
       
       private static function calcDistance(param1:Number, param2:Number, param3:Number, param4:Number) : Point
@@ -154,6 +183,9 @@ package alternativa.editor.prop
       protected function initBitmapData() : void
       {
          this._material = Mesh(this._object).faceList.material;
+         if(this._material == null)
+            return;
+         this._material = this._material.clone(); //to easier dispose it
          if(_material is TextureMaterial && !(_material is FillMaterial))
          {
             this.bitmapData = TextureMaterial(this._material).texture;
@@ -281,17 +313,30 @@ package alternativa.editor.prop
       
       public function select() : void
       {
-         this._selectBitmapData = this.bitmapData.clone();
-         _matrix.a = this.bitmapData.width / redBmp.width;
-         _matrix.d = _matrix.a;
-         this._selectBitmapData.draw(redBmp,_matrix,null,BlendMode.MULTIPLY);
-         this.setMaterial(this.newSelectedMaterial);
+         if(this._selectBitmapData == null)
+         {
+            this._selectBitmapData = this.bitmapData.clone();
+            _matrix.a = this.bitmapData.width / redBmp.width;
+            _matrix.d = _matrix.a;
+            this._selectBitmapData.draw(redBmp,_matrix,null,BlendMode.MULTIPLY);
+
+            _selectMaterial = new TextureMaterial(_selectBitmapData);
+         }
+         this.setMaterial(this._selectMaterial);
          this._selected = true;
+      }
+      protected function disposeSelectTexture() : void
+      {
+         if(_selectBitmapData == null)
+            return;
+         _selectMaterial.dispose();
+         _selectMaterial = null;
+         _selectBitmapData.dispose();
+         _selectBitmapData = null;
       }
       
       public function deselect() : void
       {
-         this._selectBitmapData.dispose();
          if(this._hidden)
          {
             this.setMaterial(null);
@@ -301,11 +346,6 @@ package alternativa.editor.prop
             this.setMaterial(this._material);
          }
          this._selected = false;
-      }
-      
-      protected function get newSelectedMaterial() : Material
-      {
-         return new TextureMaterial(this._selectBitmapData);
       }
       
       public function setMaterial(param1:Material) : void

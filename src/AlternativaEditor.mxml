@@ -52,6 +52,8 @@
             import mx.events.ListEvent;
             import mx.events.PropertyChangeEvent;
             import mx.managers.PopUpManager;
+            import alternativa.gfx.core.Device;
+            import alternativa.engine3d.core.View;
             
             public static var preview:Preview;
             
@@ -131,7 +133,7 @@
                 loc2.addEventListener(Event.SELECT, this.specialAppendFromXMLClick);
                 this.initMenuItems();
                 this.setSnapping(true);
-                this.initFunctionalLibrary();
+                this.waitForContextAndInitFunctionalLibrary();
                 this.batchProcessor = new BatchProcessor(this.mainScene, this.libraryManager);
                 this.batchProcessor.addEventListener(Event.COMPLETE, this.onBatchProcessingComplete);
                 this.batchProcessor.addEventListener(EditorProgressEvent.PROGRESS, this.onBatchProcessingProgress);
@@ -170,6 +172,22 @@
                 this.progressBar.setProgress(param1.progress, 1);
             }
             
+            private function waitForContextAndInitFunctionalLibrary() : void
+            {
+                var device:Device = View.getStaticDevice();
+                if(device.getContext3D() != null)
+                {
+                    initFunctionalLibrary();
+                    return;
+                }
+                device.addEventListener(Event.CONTEXT3D_CREATE, context3DCreated);
+            }
+            private function context3DCreated(e:Event):void
+            {
+                View.getStaticDevice().removeEventListener(Event.CONTEXT3D_CREATE, context3DCreated);
+
+                initFunctionalLibrary();
+            }
             private function initFunctionalLibrary():void
             {
                 this.libraryManager.addLibrary(FunctionalProps.getFunctionalLibrary());

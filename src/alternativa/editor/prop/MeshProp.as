@@ -41,6 +41,46 @@ package alternativa.editor.prop
          type = Prop.TILE;
          this.parseCollisionData(mainObject, objects);
       }
+
+      public override function dispose() : void
+      {
+         if(this.bound)
+         {
+            this.bound.faceList.material.dispose();
+            this.bound.setMaterialToAllFaces(null);
+            this.bound.deleteResources();
+            this.bound.destroy();
+            this.bound = null;
+         }
+
+         var mesh:Mesh = _object as Mesh;
+
+         if(mesh)
+         {
+            mesh.setMaterialToAllFaces(null);
+            mesh.deleteResources();
+         }
+
+         for each(var obj:Object3D in _objects)
+         {
+            var objMesh:Mesh = obj as Mesh;
+            objMesh.setMaterialToAllFaces(null);
+            objMesh.deleteResources();
+            objMesh.destroy();
+         }
+         _objects.length = 0;
+         _objects = null;
+
+         this.collisionMaterial.dispose();
+         this.collisionMaterial = null;
+
+         this.collisionBoxes.clear();
+         this.collisionBoxes = null;
+
+         this.bitmaps = null;
+
+         super.dispose();
+      }
       
       private static function getMirrorBitmapData(param1:BitmapData) : BitmapData
       {
@@ -118,10 +158,15 @@ package alternativa.editor.prop
          {
             bitmapData = this._isMirror ? getMirrorBitmapData(this.bitmaps[param1]) : this.bitmaps[param1];
          }
+         if(_material != null)
+         {
+            _material.dispose();
+         }
          _material = new TextureMaterial(bitmapData);
          if(_selected)
          {
-            _selectBitmapData.dispose();
+            this.disposeSelectTexture();
+
             select();
          }
          else
@@ -141,7 +186,8 @@ package alternativa.editor.prop
          (_material as TextureMaterial).texture = bitmapData;
          if(selected)
          {
-            _selectBitmapData.dispose();
+            this.disposeSelectTexture();
+
             select();
          }
          else

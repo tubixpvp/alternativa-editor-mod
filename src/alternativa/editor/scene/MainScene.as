@@ -831,6 +831,7 @@ package alternativa.editor.scene
             if(loc2)
             {
                root.removeChild(loc2);
+               loc2.dispose();
             }
          }
          this.selectedProp = null;

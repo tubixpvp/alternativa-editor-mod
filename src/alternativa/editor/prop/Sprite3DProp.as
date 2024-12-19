@@ -10,12 +10,17 @@ package alternativa.editor.prop
    public class Sprite3DProp extends MeshProp
    {
       private static const EMPTY_OBJECTS:Vector.<Object3D> = new Vector.<Object3D>();
-
-      private var spriteTextureMaterial:TextureMaterial;
       
       public function Sprite3DProp(param1:Sprite3D, param2:String, param3:String, param4:String, param5:Boolean = true)
       {
          super(param1,EMPTY_OBJECTS,param2,param3,param4,param5);
+      }
+
+      public override function dispose() : void
+      {
+         (_object as Sprite3D).material = null;
+
+         super.dispose();
       }
       
       public function get scale() : Number
@@ -34,34 +39,18 @@ package alternativa.editor.prop
       
       override public function setMaterial(param1:Material) : void
       {
-         var loc2:TextureMaterial = param1 as TextureMaterial;
-         if(loc2)
-         {
-            //loc2.originX = this.spriteTextureMaterial.originX;
-            //loc2.originY = this.spriteTextureMaterial.originY;
-         }
-         (_object as Sprite3D).material = loc2;
+         (_object as Sprite3D).material = param1;
       }
       
       override protected function initBitmapData() : void
       {
-         _material = (_object as Sprite3D).material;
-         this.spriteTextureMaterial = _material as TextureMaterial;
-         bitmapData = this.spriteTextureMaterial.texture;
+         _material = (_object as Sprite3D).material; //no need to clone(), already cloned earlier
+         bitmapData = (_material as TextureMaterial).texture;
       }
       
       override public function get vertices() : Vector.<Vertex>
       {
-         /*var loc1:Vertex = new Vertex(0,0,0);
-         var loc2:Map = new Map();
-         loc2.add("1",loc1);
-         return loc2;*/
          return Vector.<Vertex>([new Vertex()]);
-      }
-      
-      override protected function get newSelectedMaterial() : Material
-      {
-         return new TextureMaterial(_selectBitmapData);
       }
       
       override public function clone() : Object3D

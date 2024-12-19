@@ -32,6 +32,14 @@ package alternativa.editor.engine3d.materials
             super(createWireTexture());
         }
 
+        public override function dispose() : void
+        {
+            super.dispose();
+
+            this.bitmap.dispose();
+            this.bitmap = null;
+        }
+
         override public function clone():Material
         {
             var _local_1:WireMaterial = new WireMaterial(_color, _thickness, _width, _height, _segments);

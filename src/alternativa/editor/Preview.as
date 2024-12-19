@@ -34,6 +34,8 @@ package alternativa.editor
       private var cameraContainer:Object3DContainer;
       
       private var propDistance:Map;
+
+      private var _renderingBlocked:Boolean = false;
       
       public function Preview()
       {
@@ -71,6 +73,10 @@ package alternativa.editor
       
       private function onEnterFrame(param1:Event) : void
       {
+         if(_renderingBlocked)
+         {
+            return;
+         }
          this.cameraContainer.rotationZ += MathUtils.DEG1;
          this.scene.calculate();
       }
@@ -162,12 +168,26 @@ package alternativa.editor
       
       public function getPropIcon(param1:Prop) : Bitmap
       {
+         _renderingBlocked = true;
+         
+         //setup scene
          this.clearScene();
          this.calculateOptimalCameraPosition(param1);
          this.setCameraCoords(param1);
          this.scene.root.addChild(param1);
-         this.scene.calculate(false);
+
+         this.cameraContainer.rotationZ = Math.PI/2;
+
+         //draw to bitmap
+         var screenBitmap:BitmapData = new BitmapData(stage.width, stage.height, true, 0xff000000);
+
+         View.getStaticDevice().clear(1,1,1); //clear buffers to avoid context3d error
          
+         this.scene.calculate(false);
+
+         view.getContext3D().drawToBitmapData(screenBitmap);
+         
+         //clean up
          var mesh:Mesh = (param1.object as Mesh);
          if(mesh != null)
          {
@@ -179,13 +199,35 @@ package alternativa.editor
                (currMaterial as TextureMaterial).disposeResource();
             }
          }
+         
+         this.scene.root.removeChild(param1);
 
-         var loc2:BitmapData = new BitmapData(ICON_SIZE,ICON_SIZE,false,0);
+         _renderingBlocked = false;
+
+         //draw icon
+			var imagePos:Point = this.view.localToGlobal(new Point(0,0));
+
+			var bitmapData:BitmapData = new BitmapData(ICON_SIZE,ICON_SIZE,false,0x0);
+
+			var scale:Number = ICON_SIZE/this.view.width;
+
+         var matrix:Matrix = this.tmpMatrix;
+			matrix.a = scale;
+			matrix.d = scale;
+			matrix.tx = -imagePos.x * scale;
+			matrix.ty = -imagePos.y * scale;
+
+			bitmapData.draw(screenBitmap,matrix);
+			screenBitmap.dispose();
+
+			return new Bitmap(bitmapData);
+
+         /*var loc2:BitmapData = new BitmapData(ICON_SIZE,ICON_SIZE,false,0);
          var loc3:Matrix = tmpMatrix;
          loc3.a = ICON_SIZE / this.view.width;
          loc3.d = loc3.a;
          loc2.draw(this.view,loc3);
-         return new Bitmap(loc2);
+         return new Bitmap(loc2);*/
       }
       
       private function setCameraCoords(param1:Object3D) : void
@@ -223,6 +265,10 @@ package alternativa.editor
       {
          this.view.width = parent.width;
          this.view.height = parent.height;
+         if(_renderingBlocked)
+         {
+            return;
+         }
          this.scene.calculate();
       }
    }

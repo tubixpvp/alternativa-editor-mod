@@ -23,6 +23,7 @@ package alternativa.engine3d.core{
     import flash.display.StageAlign;
     import __AS3__.vec.*;
     import alternativa.engine3d.alternativa3d; 
+    import flash.display3D.Context3D;
 
     use namespace alternativa3d;
 
@@ -110,6 +111,16 @@ package alternativa.engine3d.core{
             super.addChild(this.canvas);
             //this.showLogo();
             addEventListener(Event.ADDED_TO_STAGE, this.onAddToStage);
+        }
+
+        public static function getStaticDevice() : Device
+        {
+            return staticDevice;
+        }
+
+        public function getContext3D() : Context3D
+        {
+            return this.device.getContext3D();
         }
 
         private function onAddToStage(_arg_1:Event):void{

@@ -138,6 +138,11 @@ package alternativa.gfx.core{
             dispatchEvent(new Event(Event.CONTEXT3D_CREATE));
         }
 
+        public function getContext3D() : Context3D
+        {
+            return this._stage3D.context3D;
+        }
+
         public function dispose():void{
             var _local_1:*;
             this._stage3D.removeEventListener(Event.CONTEXT3D_CREATE, this.onContext3DCreate);
