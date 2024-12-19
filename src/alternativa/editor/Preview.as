@@ -176,7 +176,7 @@ package alternativa.editor
          this.setCameraCoords(param1);
          this.scene.root.addChild(param1);
 
-         this.cameraContainer.rotationZ = Math.PI/2;
+         this.cameraContainer.rotationZ = 0; //TODO adjust angle
 
          //draw to bitmap
          var screenBitmap:BitmapData = new BitmapData(stage.width, stage.height, true, 0xff000000);
