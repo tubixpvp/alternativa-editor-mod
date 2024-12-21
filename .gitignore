@@ -1,3 +1,4 @@
 .DS_Store
-*.swf
+bin
 .vscode
+tankseditor.p12
