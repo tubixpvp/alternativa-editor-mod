@@ -20,16 +20,16 @@ package alternativa.editor.mapexport
       {
          var loc8:Vertex = null;
          var loc9:Point3D = null;
-         var loc10:Point3D = null;
+         var loc10:Point3D = new Point3D();
          var loc2:Number = Number.MAX_VALUE;
          var loc3:Number = -Number.MAX_VALUE;
          var loc4:Number = Number.MAX_VALUE;
          var loc5:Number = -Number.MAX_VALUE;
          var loc6:Number = Number.MAX_VALUE;
          var loc7:Number = -Number.MAX_VALUE;
-         for each(loc8 in param1.alternativa3d::_vertices)
+         for each(loc8 in param1.vertices)
          {
-            loc10 = loc8.alternativa3d::_coords;
+            loc10.copyFromVertex(loc8);
             if(loc10.x < loc2)
             {
                loc2 = loc10.x;

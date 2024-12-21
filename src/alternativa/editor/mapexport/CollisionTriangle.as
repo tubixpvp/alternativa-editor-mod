@@ -26,9 +26,9 @@ package alternativa.editor.mapexport
       override public function parse(param1:Mesh) : void
       {
          var loc2:Vector.<Vertex> = param1.faceList.vertices;
-         this.v0.copy((loc2[0]).alternativa3d::_coords);
-         this.v1.copy((loc2[1]).alternativa3d::_coords);
-         this.v2.copy((loc2[2]).alternativa3d::_coords);
+         this.v0.copyFromVertex((loc2[0]));
+         this.v1.copyFromVertex((loc2[1]));
+         this.v2.copyFromVertex((loc2[2]));
          var loc3:Point3D = new Point3D();
          loc3.x = (this.v0.x + this.v1.x + this.v2.x) / 3;
          loc3.y = (this.v0.y + this.v1.y + this.v2.y) / 3;
@@ -48,8 +48,8 @@ package alternativa.editor.mapexport
          loc5.cross2(loc8,loc4);
          loc5.normalize();
          transform.setVectors(loc4,loc5,loc8,loc3);
-         transform.rotate(param1.alternativa3d::_rotationX,param1.alternativa3d::_rotationY,param1.alternativa3d::_rotationZ);
-         transform.translate(param1.alternativa3d::_coords.x,param1.alternativa3d::_coords.y,param1.alternativa3d::_coords.z);
+         transform.rotate(param1.rotationX,param1.rotationY,param1.rotationZ);
+         transform.translate(param1.x,param1.y,param1.z);
          loc6 = (this.v1.x + this.v2.x) / 3;
          loc7 = (this.v1.y + this.v2.y) / 3;
          this.v0.reset(-loc6,-loc7,0);
