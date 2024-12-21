@@ -82,6 +82,7 @@ package alternativa.editor.scene
          this.containerController.object = this.container;
          this.containerController.mouseEnabled = false;
          this.container.addChild(this.mainScene.camera);
+         this.container.mouseChildren = false;
       }
       
       public function set object(param1:Prop) : void
@@ -219,7 +220,7 @@ package alternativa.editor.scene
       {
          if(this._object)
          {
-            if(this.mainScene.root.getChildByName(this._object.name))
+            if(this.mainScene.root.contains(this._object))
             {
                this.mainScene.root.removeChild(this._object);
             }

@@ -24,6 +24,12 @@ package alternativa.engine3d.core{
     import __AS3__.vec.*;
     import alternativa.engine3d.alternativa3d; 
     import flash.display3D.Context3D;
+    import mx.controls.Alert;
+    import flash.geom.Vector3D;
+    import alternativa.math.Quaternion;
+    import alternativa.engine3d.primitives.Box;
+    import alternativa.engine3d.materials.FillMaterial;
+    import alternativa.math.Matrix3;
 
     use namespace alternativa3d;
 
@@ -39,6 +45,9 @@ package alternativa.engine3d.core{
         private static var views:Vector.<View> = new Vector.<View>();
         private static var configured:Boolean = false;
         private static var cleared:Boolean = true;
+        
+        private static const tmpVec1:Vector3D = new Vector3D();
+        private static const tmpMatrix3:Matrix3 = new Matrix3();
 
         private var presented:Boolean = false;
         private var globalCoords:Point;
@@ -75,10 +84,12 @@ package alternativa.engine3d.core{
 
         private var _interactive:Boolean = false;
 
-        public function View(width:Number, height:Number, constrainedMode:Boolean=false){
+        public function View(camera:Camera3D, width:Number, height:Number, constrainedMode:Boolean=false){
             super();
             this._width = width;
             this._height = height;
+            this.camera = camera;
+            camera.view = this;
             this.constrained = constrainedMode;
             mouseEnabled = true;
             mouseChildren = true;
@@ -289,6 +300,7 @@ package alternativa.engine3d.core{
         }
 
         private function onMouseMove(_arg_1:MouseEvent):void{
+            return;
             this.onMouse(_arg_1);
             this.defineTarget(_arg_1);
             if (this.target != null)
@@ -603,72 +615,66 @@ package alternativa.engine3d.core{
             };
         }
 
-        private function defineTarget(_arg_1:MouseEvent):void{
-            var _local_2:Object3D;
-            var _local_3:Object3D;
-            var _local_6:Canvas;
-            var _local_7:DisplayObject;
-            var _local_8:Object3D;
-            var _local_9:Object3D;
+        private function defineTarget(_arg_1:MouseEvent):void
+        {
             mouse.x = _arg_1.localX;
             mouse.y = _arg_1.localY;
-            var _local_4:Array = ((stage != null) ? stage.getObjectsUnderPoint(localToGlobal(mouse)) : super.getObjectsUnderPoint(mouse));
-            var _local_5:int = (_local_4.length - 1);
-            while (_local_5 >= 0)
+
+            //idk how to make this to work, pls help
+
+            this.target = null;
+
+            var root:Object3DContainer = this.camera.parent;
+
+            while(root != null)
             {
-                _local_6 = null;
-                _local_7 = _local_4[_local_5];
-                while (_local_7.parent != stage)
-                {
-                    _local_6 = (_local_7 as Canvas);
-                    if (_local_6 != null) break;
-                    _local_7 = _local_7.parent;
-                };
-                if (_local_6 != null)
-                {
-                    if (_local_3 != null)
-                    {
-                        _local_8 = null;
-                        _local_9 = _local_3;
-                        while (_local_9 != null)
-                        {
-                            if (((_local_9 is Object3DContainer) && (!(Object3DContainer(_local_9).mouseChildren))))
-                            {
-                                _local_8 = null;
-                            };
-                            if (((_local_8 == null) && (_local_9.mouseEnabled)))
-                            {
-                                _local_8 = _local_9;
-                            };
-                            _local_9 = _local_9._parent;
-                        };
-                        if (_local_8 != null)
-                        {
-                            if (this.target != null)
-                            {
-                                _local_9 = _local_8;
-                                while (_local_9 != null)
-                                {
-                                    if (_local_9 == this.target)
-                                    {
-                                        _local_2 = _local_3;
-                                        this.target = _local_8;
-                                        break;
-                                    };
-                                    _local_9 = _local_9._parent;
-                                };
-                            }
-                            else
-                            {
-                                _local_2 = _local_3;
-                                this.target = _local_8;
-                            };
-                            if (_local_2 == this.target) break;
-                        };
-                    };
-                };
-                _local_5--;
-            };
+                var parent:Object3DContainer = root.parent;
+                if(parent == null)
+                    break;
+                if(!parent.mouseChildren)
+                    continue;
+                root = parent;
+            }
+            if(!root.mouseChildren)
+                return;
+
+            //ErrorHandler.clearMessages();
+
+            tmpVec1.setTo(mouse.x,mouse.y,0);
+            var origin:Vector3D = this.camera.projectGlobal(tmpVec1);
+
+            tmpVec1.setTo(0,0,1);
+            
+            //ErrorHandler.addText("local dir: " + tmpVec1);
+
+            var dir:Vector3D = camera.localToGlobal(tmpVec1,true);
+
+            //debugging:
+            /*ErrorHandler.addText("ray: origin="+origin + " ; dir=" + dir);
+
+            var box:Box = new Box(10,10,30);
+            box.setMaterialToAllFaces(new FillMaterial(0xff0000));
+            root.addChild(box);
+
+            tmpMatrix3.setDirectionVector(dir);
+            var rotation:Vector3D = new Vector3D();
+            tmpMatrix3.getEulerAngles(rotation);
+
+            box.setPositionXYZ(origin.x,origin.y,origin.z);
+            box.setRotationXYZ(rotation.x,rotation.y,rotation.z);*/
+
+            var rayHit:RayIntersectionData = root.intersectRay(origin, dir, null, this.camera);
+
+            /*setTimeout(function():void{
+                ErrorHandler.showWindow();
+            },10);*/
+
+            if(rayHit == null)
+                return;
+
+            this.target = rayHit.object;
+
+            //ErrorHandler.addText("hit: " + rayHit);
         }
 
         override public function getObjectsUnderPoint(_arg_1:Point):Array{

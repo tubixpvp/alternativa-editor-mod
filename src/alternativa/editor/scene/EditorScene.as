@@ -65,12 +65,12 @@ package alternativa.editor.scene
       protected function initScene() : void
       {
          root = new Object3DContainer();
+         root.name = "EditorRoot";
          this.camera = new Camera3D();
          this.camera.rotationX = -MathUtils.DEG90 - MathUtils.DEG30;
          this.camera.setPositionXYZ(250,-7800,4670);
          //root.addChild(this.camera);
-         this.view = new View(100,100);
-         this.camera.view = view;
+         this.view = new View(this.camera,100,100);
          this.view.interactive = true;
          this.view.buttonMode = true;
          this.view.useHandCursor = false;

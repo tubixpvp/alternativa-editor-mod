@@ -52,7 +52,7 @@ package alternativa.engine3d.core
         private static const constantsVertexBuffer:VertexBufferResource = createConstantsVertexBuffer((constantsMaxTriangles * 3));
         private static const constantsIndexBuffer:IndexBufferResource = createConstantsIndexBuffer((constantsMaxTriangles * 3));
 
-        public var view:View;
+        alternativa3d var view:View;
         public var fov:Number = 1.5707963267949;
         public var nearClipping:Number = 1;
         public var farClipping:Number = 1000000;
@@ -197,6 +197,7 @@ package alternativa.engine3d.core
             this.lastWrapper = this.firstWrapper;
             this.lastVertex = this.firstVertex;
             this.lastFace = this.firstFace;
+            this.mouseEnabled = false;
             super();
         }
 

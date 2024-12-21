@@ -421,25 +421,29 @@ package alternativa.engine3d.core
             var _local_9:Object3D = this.childrenList;
             while (_local_9 != null)
             {
-                _local_9.composeMatrix();
-                _local_9.invertMatrix();
-                if (_local_5 == null)
+                var cont:Object3DContainer = _local_9 as Object3DContainer;
+                if((cont == null && _local_9.mouseEnabled) || (cont && cont.mouseChildren))
                 {
-                    _local_5 = new Vector3D();
-                    _local_6 = new Vector3D();
-                };
-                _local_5.x = ((((_local_9.ma * _arg_1.x) + (_local_9.mb * _arg_1.y)) + (_local_9.mc * _arg_1.z)) + _local_9.md);
-                _local_5.y = ((((_local_9.me * _arg_1.x) + (_local_9.mf * _arg_1.y)) + (_local_9.mg * _arg_1.z)) + _local_9.mh);
-                _local_5.z = ((((_local_9.mi * _arg_1.x) + (_local_9.mj * _arg_1.y)) + (_local_9.mk * _arg_1.z)) + _local_9.ml);
-                _local_6.x = (((_local_9.ma * _arg_2.x) + (_local_9.mb * _arg_2.y)) + (_local_9.mc * _arg_2.z));
-                _local_6.y = (((_local_9.me * _arg_2.x) + (_local_9.mf * _arg_2.y)) + (_local_9.mg * _arg_2.z));
-                _local_6.z = (((_local_9.mi * _arg_2.x) + (_local_9.mj * _arg_2.y)) + (_local_9.mk * _arg_2.z));
-                _local_10 = _local_9.intersectRay(_local_5, _local_6, _arg_3, _arg_4);
-                if (((!(_local_10 == null)) && (_local_10.time < _local_8)))
-                {
-                    _local_8 = _local_10.time;
-                    _local_7 = _local_10;
-                };
+                    _local_9.composeMatrix();
+                    _local_9.invertMatrix();
+                    if (_local_5 == null)
+                    {
+                        _local_5 = new Vector3D();
+                        _local_6 = new Vector3D();
+                    };
+                    _local_5.x = ((((_local_9.ma * _arg_1.x) + (_local_9.mb * _arg_1.y)) + (_local_9.mc * _arg_1.z)) + _local_9.md);
+                    _local_5.y = ((((_local_9.me * _arg_1.x) + (_local_9.mf * _arg_1.y)) + (_local_9.mg * _arg_1.z)) + _local_9.mh);
+                    _local_5.z = ((((_local_9.mi * _arg_1.x) + (_local_9.mj * _arg_1.y)) + (_local_9.mk * _arg_1.z)) + _local_9.ml);
+                    _local_6.x = (((_local_9.ma * _arg_2.x) + (_local_9.mb * _arg_2.y)) + (_local_9.mc * _arg_2.z));
+                    _local_6.y = (((_local_9.me * _arg_2.x) + (_local_9.mf * _arg_2.y)) + (_local_9.mg * _arg_2.z));
+                    _local_6.z = (((_local_9.mi * _arg_2.x) + (_local_9.mj * _arg_2.y)) + (_local_9.mk * _arg_2.z));
+                    _local_10 = _local_9.intersectRay(_local_5, _local_6, _arg_3, _arg_4);
+                    if (((!(_local_10 == null)) && (_local_10.time < _local_8)))
+                    {
+                        _local_8 = _local_10.time;
+                        _local_7 = _local_10;
+                    };
+                }
                 _local_9 = _local_9.next;
             };
             return (_local_7);

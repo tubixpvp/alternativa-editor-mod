@@ -63,8 +63,7 @@ package alternativa.editor
          this.cameraContainer.addChild(this.camera);
          this.camera.setPositionXYZ(0,-100,40);
          this.scene.root.addChild(this.cameraContainer);
-         this.view = new View(100,100);
-         this.camera.view = this.view;
+         this.view = new View(this.camera,100,100);
          addChild(this.view);
          //this.view.graphics.beginFill(16777215);
          //this.view.graphics.drawRect(0,0,1,1);

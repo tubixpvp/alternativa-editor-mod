@@ -439,7 +439,8 @@
             private function newLevel():void
             {
                 this.mainScene.clear();
-                this.cursorScene.updateMaterial();
+                //this.cursorScene.updateMaterial();
+                this.cursorScene.clear();
             }
             
             private function onImportFromTanksClick(param1:NativeMenuItem):void
@@ -526,7 +527,8 @@
             {
                 this.mainScene.clear();
                 this.mainScene.changed = true;
-                this.cursorScene.updateMaterial();
+                //this.cursorScene.updateMaterial();
+                this.cursorScene.clear();
             }
             
             private function onSelectAll(param1:NativeMenuItem):void

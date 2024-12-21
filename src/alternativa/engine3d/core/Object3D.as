@@ -228,6 +228,13 @@ package alternativa.engine3d.core
         public function get transformation() : Matrix4
         {
             tA.composeMatrixFromSource(this);
+            var _local_1:Object3D = this;
+            while (_local_1._parent != null)
+            {
+                _local_1 = _local_1._parent;
+                tB.composeMatrixFromSource(_local_1);
+                tA.appendMatrix(tB);
+            };
             return new Matrix4(tA.ma, tA.mb, tA.mc, tA.md, tA.me, tA.mf, tA.mg, tA.mh, tA.mi, tA.mj, tA.mk, tA.ml);
         }
 
@@ -261,7 +268,7 @@ package alternativa.engine3d.core
             return (new Matrix3D(Vector.<Number>([tA.ma, tA.me, tA.mi, 0, tA.mb, tA.mf, tA.mj, 0, tA.mc, tA.mg, tA.mk, 0, tA.md, tA.mh, tA.ml, 1])));
         }
 
-        public function localToGlobal(_arg_1:Vector3D):Vector3D
+        public function localToGlobal(_arg_1:Vector3D, vector:Boolean = false):Vector3D
         {
             tA.composeMatrixFromSource(this);
             var _local_2:Object3D = this;
@@ -272,9 +279,15 @@ package alternativa.engine3d.core
                 tA.appendMatrix(tB);
             };
             var _local_3:Vector3D = new Vector3D();
-            _local_3.x = ((((tA.ma * _arg_1.x) + (tA.mb * _arg_1.y)) + (tA.mc * _arg_1.z)) + tA.md);
-            _local_3.y = ((((tA.me * _arg_1.x) + (tA.mf * _arg_1.y)) + (tA.mg * _arg_1.z)) + tA.mh);
-            _local_3.z = ((((tA.mi * _arg_1.x) + (tA.mj * _arg_1.y)) + (tA.mk * _arg_1.z)) + tA.ml);
+            _local_3.x = (((tA.ma * _arg_1.x) + (tA.mb * _arg_1.y)) + (tA.mc * _arg_1.z));
+            _local_3.y = (((tA.me * _arg_1.x) + (tA.mf * _arg_1.y)) + (tA.mg * _arg_1.z));
+            _local_3.z = (((tA.mi * _arg_1.x) + (tA.mj * _arg_1.y)) + (tA.mk * _arg_1.z));
+            if(!vector)
+            {
+                _local_3.x += tA.md;
+                _local_3.y += tA.mh;
+                _local_3.z += tA.ml;
+            }
             return (_local_3);
         }
 
