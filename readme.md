@@ -15,7 +15,7 @@ Project is configured to compile in VS Code with [ActionScript & MXML](https://m
 You will need Flex 4.9 + AIR 51 SDK
 Here are the steps how to make it:
 1. Download Apache Flex SDK Installer from the [official website](https://flex.apache.org/installer.html). Open the installer, select version 4.9.1, and download it.
-2. Download Adobe AIR+Flex SDK from [here](https://airsdk.harman.com/download). Here download 'AIR SDK for Flex Developers - to be overlaid onto a Flex SDK'.
+2. Download Adobe AIR+Flex SDK from [here](https://airsdk.harman.com/download). You need 'AIR SDK for Flex Developers - to be overlaid onto a Flex SDK'.
 3. Copy all files from AIR SDK into Flex SDK.
 
 Done. Now select this combined SDK in VSCode and compile the project.
