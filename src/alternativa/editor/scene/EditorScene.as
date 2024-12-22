@@ -2,11 +2,9 @@ package alternativa.editor.scene
 {
    import alternativa.editor.prop.Prop;
    import alternativa.engine3d.core.Camera3D;
-   import alternativa.engine3d.core.Object3D;
    import alternativa.editor.engine3d.Scene3D;
    import alternativa.engine3d.core.View;
    import alternativa.types.Matrix4;
-   import alternativa.types.Point3D;
    import alternativa.types.Set;
    import alternativa.utils.KeyboardUtils;
    import alternativa.utils.MathUtils;
@@ -75,9 +73,6 @@ package alternativa.editor.scene
          this.view.interactive = true;
          this.view.buttonMode = true;
          this.view.useHandCursor = false;
-         this.view.graphics.beginFill(16777215);
-         this.view.graphics.drawRect(0,0,1,1);
-         this.view.graphics.endFill();
       }
       
       protected function getCameraFacing() : CameraFacing
