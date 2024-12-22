@@ -12,6 +12,7 @@ package alternativa.editor.scene
    import alternativa.utils.MathUtils;
    import flash.geom.Point;
    import alternativa.engine3d.core.Object3DContainer;
+   import flash.geom.Vector3D;
    
    public class EditorScene extends Scene3D
    {
@@ -35,17 +36,17 @@ package alternativa.editor.scene
       
       public var occupyMap:OccupyMap;
       
-      protected var znormal:Point3D;
+      protected var znormal:Vector3D;
       
-      protected var ynormal:Point3D;
+      protected var ynormal:Vector3D;
       
-      protected var xnormal:Point3D;
+      protected var xnormal:Vector3D;
       
       public function EditorScene()
       {
-         this.znormal = new Point3D(0,0,1);
-         this.ynormal = new Point3D(0,1,0);
-         this.xnormal = new Point3D(1,0,0);
+         this.znormal = new Vector3D(0,0,1);
+         this.ynormal = new Vector3D(0,1,0);
+         this.xnormal = new Vector3D(1,0,0);
          super();
          this.initScene();
       }

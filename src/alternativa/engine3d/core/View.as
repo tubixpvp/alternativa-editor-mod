@@ -46,7 +46,8 @@ package alternativa.engine3d.core{
         private static var configured:Boolean = false;
         private static var cleared:Boolean = true;
         
-        private static const tmpVec1:Vector3D = new Vector3D();
+        private static const v1:Vector3D = new Vector3D();
+        private static const v2:Vector3D = new Vector3D();
         private static const tmpMatrix3:Matrix3 = new Matrix3();
 
         private var presented:Boolean = false;
@@ -300,7 +301,7 @@ package alternativa.engine3d.core{
         }
 
         private function onMouseMove(_arg_1:MouseEvent):void{
-            return;
+            return; //disable for optimization because it is not used
             this.onMouse(_arg_1);
             this.defineTarget(_arg_1);
             if (this.target != null)
@@ -620,8 +621,6 @@ package alternativa.engine3d.core{
             mouse.x = _arg_1.localX;
             mouse.y = _arg_1.localY;
 
-            //idk how to make this to work, pls help
-
             this.target = null;
 
             var root:Object3DContainer = this.camera.parent;
@@ -638,43 +637,17 @@ package alternativa.engine3d.core{
             if(!root.mouseChildren)
                 return;
 
-            //ErrorHandler.clearMessages();
+            var origin:Vector3D = v1;
+            var direction:Vector3D = v2;
 
-            tmpVec1.setTo(mouse.x,mouse.y,0);
-            var origin:Vector3D = this.camera.projectGlobal(tmpVec1);
+            this.camera.calculateRay(origin, direction, mouse.x, mouse.y);
 
-            tmpVec1.setTo(0,0,1);
-            
-            //ErrorHandler.addText("local dir: " + tmpVec1);
-
-            var dir:Vector3D = camera.localToGlobal(tmpVec1,true);
-
-            //debugging:
-            /*ErrorHandler.addText("ray: origin="+origin + " ; dir=" + dir);
-
-            var box:Box = new Box(10,10,30);
-            box.setMaterialToAllFaces(new FillMaterial(0xff0000));
-            root.addChild(box);
-
-            tmpMatrix3.setDirectionVector(dir);
-            var rotation:Vector3D = new Vector3D();
-            tmpMatrix3.getEulerAngles(rotation);
-
-            box.setPositionXYZ(origin.x,origin.y,origin.z);
-            box.setRotationXYZ(rotation.x,rotation.y,rotation.z);*/
-
-            var rayHit:RayIntersectionData = root.intersectRay(origin, dir, null, this.camera);
-
-            /*setTimeout(function():void{
-                ErrorHandler.showWindow();
-            },10);*/
+            var rayHit:RayIntersectionData = root.intersectRay(origin, direction, null, this.camera);
 
             if(rayHit == null)
                 return;
 
             this.target = rayHit.object;
-
-            //ErrorHandler.addText("hit: " + rayHit);
         }
 
         override public function getObjectsUnderPoint(_arg_1:Point):Array{

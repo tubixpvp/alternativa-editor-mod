@@ -38,11 +38,14 @@ package alternativa.engine3d.core
     import flash.display.StageAlign;
     import __AS3__.vec.*;
     import alternativa.engine3d.alternativa3d; 
+    import alternativa.types.Matrix4;
 
     use namespace alternativa3d;
 
     public class Camera3D extends Object3D 
     {
+        private static const tmpOrigin:Vector3D = new Vector3D();
+        private static const tmpDir:Vector3D = new Vector3D();
 
         alternativa3d static var renderId:int = 0;
         private static const constantsAttributesCount:int = 8;
@@ -1052,6 +1055,68 @@ package alternativa.engine3d.core
             _arg_2.x = (_arg_2.x * _local_12);
             _arg_2.y = (_arg_2.y * _local_12);
             _arg_2.z = (_arg_2.z * _local_12);
+        }
+
+
+        public function projectViewPointToPlane(param1:Point, param2:Vector3D, param3:Number, param4:Vector3D = null) : Vector3D
+        {
+            if(param4 == null)
+            {
+                param4 = new Vector3D();
+            }
+            this.calculateRayOriginAndVector(param1.x - (this.view._width >> 1),param1.y - (this.view._height >> 1),tmpOrigin,tmpDir,true);
+            if(!this.calculateLineAndPlaneIntersection(tmpOrigin,tmpDir,param2,param3,param4))
+            {
+                param4.setTo(NaN,NaN,NaN);
+            }
+            return param4;
+        }
+
+        private function calculateRayOriginAndVector(param1:Number, param2:Number, param3:Vector3D, param4:Vector3D, param5:Boolean = false) : void
+        {
+            var loc6:Number = NaN;
+            var loc7:Number = NaN;
+            var loc8:Number = NaN;
+            var loc9:Matrix4 = null;
+            if(param5)
+            {
+                loc9 = Object3D.tmpMatrix4;
+                this.getTransformation(loc9);
+            }
+            else
+            {
+                loc9 = this.transformation;
+            }
+            param3.x = loc9.d;
+            param3.y = loc9.h;
+            param3.z = loc9.l;
+            loc6 = param1;
+            loc7 = param2;
+            if(param5)
+            {
+                loc8 = this.focalLength;
+            }
+            else
+            {
+                loc8 = this.focalLength;
+            }
+            param4.x = loc6 * loc9.a + loc7 * loc9.b + loc8 * loc9.c;
+            param4.y = loc6 * loc9.e + loc7 * loc9.f + loc8 * loc9.g;
+            param4.z = loc6 * loc9.i + loc7 * loc9.j + loc8 * loc9.k;
+        }
+
+        private function calculateLineAndPlaneIntersection(param1:Vector3D, param2:Vector3D, param3:Vector3D, param4:Number, param5:Vector3D) : Boolean
+        {
+            var loc6:Number = param3.x * param2.x + param3.y * param2.y + param3.z * param2.z;
+            if(loc6 < 1e-8 && loc6 > -1e-8)
+            {
+                return false;
+            }
+            var loc7:Number = (param4 - param1.x * param3.x - param1.y * param3.y - param1.z * param3.z) / loc6;
+            param5.x = param1.x + loc7 * param2.x;
+            param5.y = param1.y + loc7 * param2.y;
+            param5.z = param1.z + loc7 * param2.z;
+            return true;
         }
 
         override public function clone():Object3D

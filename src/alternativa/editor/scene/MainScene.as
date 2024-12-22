@@ -430,13 +430,13 @@ package alternativa.editor.scene
                loc8 = getCameraFacing();
                if(loc8 == CameraFacing.Y || loc8 == CameraFacing.NEGATIVE_Y)
                {
-                  loc3 = camera.projectGlobal(new Vector3D(loc2.x,loc2.y,this.selectedProp.y));
+                  loc3 = camera.projectViewPointToPlane(loc2,ynormal,this.selectedProp.y);
                   loc5 = loc3.x - this.selectedProp.x;
                   this.selectedProp.x = loc3.x;
                }
                else
                {
-                  loc3 = camera.projectGlobal(new Vector3D(loc2.x,loc2.y,this.selectedProp.x));
+                  loc3 = camera.projectViewPointToPlane(loc2,xnormal,this.selectedProp.x);
                   loc6 = loc3.y - this.selectedProp.y;
                   this.selectedProp.y = loc3.y;
                }
@@ -445,7 +445,7 @@ package alternativa.editor.scene
             }
             else
             {
-               loc3 = camera.projectGlobal(new Vector3D(loc2.x,loc2.y,this.selectedProp.z));
+               loc3 = camera.projectViewPointToPlane(loc2,znormal,this.selectedProp.z);
                loc5 = loc3.x - this.selectedProp.x;
                loc6 = loc3.y - this.selectedProp.y;
                this.selectedProp.x = loc3.x;
@@ -512,7 +512,7 @@ package alternativa.editor.scene
          var loc3:Boolean = false;
          if(!param1.ctrlKey)
          {
-            loc2 = param1.relatedObject as Prop;
+            loc2 = param1.target as Prop;
             if(this.isSelectableProp(loc2))
             {
                loc3 = loc2.selected;

@@ -20,6 +20,7 @@ package alternativa.editor.scene
    import alternativa.engine3d.materials.TextureMaterial;
    import flash.display.Sprite;
    import mx.controls.Alert;
+   import flash.geom.Point;
    
    public class CursorScene
    {
@@ -30,6 +31,9 @@ package alternativa.editor.scene
       private static var greenClass:Class = CursorScene_greenClass;
       
       private static const greenBmp:BitmapData = new greenClass().bitmapData;
+
+      private static const znormal:Vector3D = new Vector3D(0,0,1);
+
       
       protected var _object:Prop;
       
@@ -176,9 +180,10 @@ package alternativa.editor.scene
          var loc1:Vector3D = null;
          if(this._object)
          {
-            loc1 = this.mainScene.camera.projectGlobal(new Vector3D(this.mainScene.view.mouseX,this.mainScene.view.mouseY,this._object.z));
+            loc1 = this.mainScene.camera.projectViewPointToPlane(new Point(this.mainScene.view.mouseX,this.mainScene.view.mouseY),znormal,this._object.z);
             this._object.x = loc1.x;
             this._object.y = loc1.y;
+
             if(this._snapMode || this._object is MeshProp && !(this._object is Sprite3DProp))
             {
                this._object.snapToGrid();

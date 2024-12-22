@@ -902,7 +902,7 @@ package alternativa.editor
       
       private function onPropMouseDown(param1:MouseEvent3D) : void
       {
-         this.clickZ = param1.relatedObject.z;
+         this.clickZ = param1.target.z;
          this.propDown = true;
       }
       

@@ -32,6 +32,8 @@ package alternativa.engine3d.core
         alternativa3d static const tB:Object3D = new (Object3D)();
         private static const staticSphere:Vector3D = new Vector3D();
 
+        public static const tmpMatrix4:Matrix4 = new Matrix4();
+
         private var _x:Number = 0;
         private var _y:Number = 0;
         private var _z:Number = 0;
@@ -227,6 +229,12 @@ package alternativa.engine3d.core
         }
         public function get transformation() : Matrix4
         {
+            var matrix:Matrix4 = new Matrix4();
+            getTransformation(matrix);
+            return matrix;
+        }
+        public function getTransformation(newMatrix:Matrix4) : void
+        {
             tA.composeMatrixFromSource(this);
             var _local_1:Object3D = this;
             while (_local_1._parent != null)
@@ -235,7 +243,7 @@ package alternativa.engine3d.core
                 tB.composeMatrixFromSource(_local_1);
                 tA.appendMatrix(tB);
             };
-            return new Matrix4(tA.ma, tA.mb, tA.mc, tA.md, tA.me, tA.mf, tA.mg, tA.mh, tA.mi, tA.mj, tA.mk, tA.ml);
+            newMatrix.init(tA.ma, tA.mb, tA.mc, tA.md, tA.me, tA.mf, tA.mg, tA.mh, tA.mi, tA.mj, tA.mk, tA.ml);
         }
 
         public function set matrix(_arg_1:Matrix3D):void

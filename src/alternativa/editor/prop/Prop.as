@@ -177,7 +177,7 @@ package alternativa.editor.prop
       
       private function onMouseDown(param1:MouseEvent3D) : void
       {
-         param1.relatedObject = this;
+         param1._target = this;
       }
       
       protected function initBitmapData() : void

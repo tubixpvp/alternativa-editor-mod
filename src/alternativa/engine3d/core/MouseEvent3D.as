@@ -28,7 +28,7 @@ package alternativa.engine3d.core
         public var relatedObject:Object3D;
         public var localOrigin:Vector3D = new Vector3D();
         public var localDirection:Vector3D = new Vector3D();
-        alternativa3d var _target:Object3D;
+        public var _target:Object3D;
         alternativa3d var _currentTarget:Object3D;
         alternativa3d var _bubbles:Boolean;
         alternativa3d var _eventPhase:uint = 3;

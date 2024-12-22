@@ -42,6 +42,22 @@ package alternativa.types
          this.k = param11;
          this.l = param12;
       }
+
+      public function init(param1:Number = 1, param2:Number = 0, param3:Number = 0, param4:Number = 0, param5:Number = 0, param6:Number = 1, param7:Number = 0, param8:Number = 0, param9:Number = 0, param10:Number = 0, param11:Number = 1, param12:Number = 0) : void
+      {
+         this.a = param1;
+         this.b = param2;
+         this.c = param3;
+         this.d = param4;
+         this.e = param5;
+         this.f = param6;
+         this.g = param7;
+         this.h = param8;
+         this.i = param9;
+         this.j = param10;
+         this.k = param11;
+         this.l = param12;
+      }
       
       public static function inverseTranslationMatrix(param1:Number = 0, param2:Number = 0, param3:Number = 0) : Matrix4
       {
