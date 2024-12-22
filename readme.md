@@ -7,6 +7,9 @@ This is modded version of AlternativaEditor (Tanks map editor)
 ## Notice
 This editor is still under development, and doesn't support some features that were in the original version. It mainly caused by 3D engine upgrade.
 
+## How to run
+To run the editor you need to install [AIR 51](https://airsdk.harman.com/runtime).
+
 ## How to build
 Project is configured to compile in VS Code with [ActionScript & MXML](https://marketplace.visualstudio.com/items?itemName=bowlerhatllc.vscode-as3mxml) Plugin.
 
