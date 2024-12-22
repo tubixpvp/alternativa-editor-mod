@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" xmlns:local="*"
     xmlns:local1="alternativa.editor.*" applicationComplete="onApplicationComplete()"
-    backgroundAlpha="0" frameRate="60" backgroundFrameRate="10">
+    backgroundAlpha="0" frameRate="60" backgroundFrameRate="40">
 
     <mx:Script>
         <![CDATA[

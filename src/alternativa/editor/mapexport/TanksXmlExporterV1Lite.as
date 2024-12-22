@@ -245,7 +245,7 @@ package alternativa.editor.mapexport
          }
          for each(loc4 in loc3)
          {
-            param2.appendChild(loc4.getXml(param1.alternativa3d::_transformation));
+            param2.appendChild(loc4.getXml(param1.transformation));
          }
       }
    }

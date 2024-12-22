@@ -60,8 +60,8 @@ package alternativa.editor.mapexport
          this.size.z = loc7 - loc6;
          loc9 = new Point3D(0.5 * (loc3 + loc2),0.5 * (loc5 + loc4),0.5 * (loc7 + loc6));
          transform.toIdentity();
-         transform.rotate(param1.alternativa3d::_rotationX,param1.alternativa3d::_rotationY,param1.alternativa3d::_rotationZ);
-         transform.translate(param1.alternativa3d::_coords.x,param1.alternativa3d::_coords.y,param1.alternativa3d::_coords.z);
+         transform.rotate(param1.rotationX,param1.rotationY,param1.rotationZ);
+         transform.translate(param1.x,param1.y,param1.z);
          loc9.transform(transform);
          transform.d = loc9.x;
          transform.h = loc9.y;
