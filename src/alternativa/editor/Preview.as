@@ -20,6 +20,7 @@ package alternativa.editor
    import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.materials.Material;
    import alternativa.engine3d.materials.TextureMaterial;
+   import flash.display.Stage;
    
    public class Preview extends UIComponent
    {
@@ -36,6 +37,8 @@ package alternativa.editor
       private var propDistance:Map;
 
       private var _renderingBlocked:Boolean = false;
+
+      private var _stage3dBitmapData:BitmapData = null;
       
       public function Preview()
       {
@@ -178,13 +181,23 @@ package alternativa.editor
          this.cameraContainer.rotationZ = 0; //TODO adjust angle
 
          //draw to bitmap
-         var screenBitmap:BitmapData = new BitmapData(stage.width, stage.height, true, 0xff000000);
+         var stage:Stage = this.stage;
+         if(_stage3dBitmapData != null && 
+            (_stage3dBitmapData.width != stage.width || _stage3dBitmapData.height != stage.height))
+         {
+            _stage3dBitmapData.dispose();
+            _stage3dBitmapData = null;
+         }
+         if(_stage3dBitmapData == null)
+         {
+            _stage3dBitmapData = new BitmapData(stage.width, stage.height, true, 0xff000000);
+         }
 
          View.getStaticDevice().clear(1,1,1); //clear buffers to avoid context3d error
          
          this.scene.calculate(false);
 
-         view.getContext3D().drawToBitmapData(screenBitmap);
+         view.getContext3D().drawToBitmapData(_stage3dBitmapData);
          
          //clean up
          var mesh:Mesh = (param1.object as Mesh);
@@ -216,11 +229,11 @@ package alternativa.editor
 			matrix.tx = -imagePos.x * scale;
 			matrix.ty = -imagePos.y * scale;
 
-			bitmapData.draw(screenBitmap,matrix);
-			screenBitmap.dispose();
+			bitmapData.draw(_stage3dBitmapData,matrix);
 
 			return new Bitmap(bitmapData);
 
+         //original:
          /*var loc2:BitmapData = new BitmapData(ICON_SIZE,ICON_SIZE,false,0);
          var loc3:Matrix = tmpMatrix;
          loc3.a = ICON_SIZE / this.view.width;
