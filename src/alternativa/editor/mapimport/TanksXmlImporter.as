@@ -2,7 +2,6 @@ package alternativa.editor.mapimport
 {
    import alternativa.editor.LibraryManager;
    import alternativa.editor.events.EditorProgressEvent;
-   import alternativa.editor.mapimport.xml.IXMLImporter;
    import alternativa.editor.mapimport.xml.XMLImporterV1;
    import alternativa.editor.mapimport.xml.XMLImporterV1Full;
    import alternativa.editor.mapimport.xml.XMLImporterV2;
@@ -11,9 +10,12 @@ package alternativa.editor.mapimport
    import flash.events.Event;
    import flash.filesystem.FileStream;
    import mx.controls.Alert;
+   import alternativa.editor.mapimport.xml.IXMLImporter;
    
    public class TanksXmlImporter extends FileImporter
    {
+      private static const DEFAULT_IMPORTER:String = "1.0";
+
       private var importers:Object;
       
       public function TanksXmlImporter(param1:MainScene, param2:LibraryManager)
@@ -34,8 +36,8 @@ package alternativa.editor.mapimport
          var loc4:IXMLImporter = this.importers[loc3];
          if(loc4 == null)
          {
-            Alert.show("Unsupported version " + loc3);
-            return;
+            loc4 = this.importers[DEFAULT_IMPORTER];
+            Alert.show("Unsupported importer version " + loc3 + "! 1.0 is used as a default");
          }
          loc4.importMap(loc2,scene,libraryManager);
       }
@@ -48,8 +50,8 @@ package alternativa.editor.mapimport
          var loc4:IXMLImporter = this.importers[loc3];
          if(loc4 == null)
          {
-            Alert.show("Unsupported version " + loc3);
-            return;
+            loc4 = this.importers[DEFAULT_IMPORTER];
+            Alert.show("Unsupported importer version " + loc3 + "! 1.0 is used as a default");
          }
          loc4.addInternalObjectsToExistingScene(loc2,scene,libraryManager);
       }
