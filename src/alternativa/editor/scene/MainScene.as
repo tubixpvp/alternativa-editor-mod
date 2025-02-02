@@ -577,16 +577,6 @@ package alternativa.editor.scene
             this.deleteProp(param1);
          }
       }
-
-      private function isOneBonusSelected() : Boolean
-      {
-         if(this.selectedProps.length > 1)
-         {
-            return false;
-         }
-         var loc1:Prop = this.selectedProps.peek();
-         return loc1 is FreeBonusRegion;
-      }
       
       public function selectProps(param1:Set) : void
       {
