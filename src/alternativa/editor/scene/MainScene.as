@@ -43,6 +43,7 @@ package alternativa.editor.scene
    import alternativa.engine3d.core.EllipsoidCollider;
    import flash.geom.Vector3D;
    import alternativa.engine3d.core.Object3DContainer;
+   import alternativa.editor.prop.CTFFlagBase;
    
    public class MainScene extends EditorScene
    {
@@ -564,27 +565,27 @@ package alternativa.editor.scene
          {
             this.selectedProp = null;
          }
-         var loc2:Boolean = this.isOneBonusSelected();
-         if(loc2)
+         this.hideAllPropertyPanelItems();
+
+         if(this.selectedProps.length > 0)
          {
-            this.showPropertyPanelItem(this.bonusTypesPanel);
+            this.showPropertyPanel();
          }
-         else
-         {
-            this.hidePropertyPanelItem(this.bonusTypesPanel);
-         }
-         if(!loc2 && Boolean(this.noConflictBitmaps()))
-         {
-            this.showPropertyPanelItem(this.texturePanel);
-         }
-         else
-         {
-            this.hidePropertyPanelItem(this.texturePanel);
-         }
+
          if(param1 is BonusRegion && (param1 as BonusRegion).gameModes.length < 1)
          {
             this.deleteProp(param1);
          }
+      }
+
+      private function isOneBonusSelected() : Boolean
+      {
+         if(this.selectedProps.length > 1)
+         {
+            return false;
+         }
+         var loc1:Prop = this.selectedProps.peek();
+         return loc1 is FreeBonusRegion;
       }
       
       public function selectProps(param1:Set) : void
@@ -860,45 +861,52 @@ package alternativa.editor.scene
       {
          var loc1:Map = null;
          this.hideAllPropertyPanelItems();
-         if(this.isOneBonusSelected())
+         if(this.selectedProps.length == 1)
          {
-            this.showPropertyPanelItem(this.bonusTypesPanel);
-            this.bonusTypesPanel.setBonusRegion(FreeBonusRegion(this.selectedProps.peek()));
-         }
-         else if(this.isControlPointSelected())
-         {
-            this.showPropertyPanelItem(this.controlPointNameField);
-            this.controlPointNameField.setControlPoint(ControlPoint(this.selectedProp));
-         }
-         else if(this.isOneKillZoneSelected())
-         {
-            this.showPropertyPanelItem(this.killZonePanel);
-            this.killZonePanel.setBonusRegion(KillBox(this.selectedProp));
-         }
-         else
-         {
-            this.bonusTypesPanel.setBonusRegion(null);
-            loc1 = this.noConflictBitmaps();
-            if(loc1)
+            if(this.selectedProp is FreeBonusRegion)
             {
-               this.showTexturePanel(loc1);
+               this.showPropertyPanelItem(this.bonusTypesPanel);
+               this.bonusTypesPanel.setBonusRegion(this.selectedProp as FreeBonusRegion);
+               return;
+            }
+            if(this.selectedProp is ControlPoint)
+            {
+               this.showPropertyPanelItem(this.controlPointNameField);
+               this.controlPointNameField.setControlPoint(this.selectedProp as ControlPoint);
+               return;
+            }
+            if(this.selectedProp is KillBox)
+            {
+               this.showPropertyPanelItem(this.killZonePanel);
+               this.killZonePanel.setBonusRegion(this.selectedProp as KillBox);
+               return;
             }
          }
-      }
-      
-      private function showTexturePanel(param1:Map) : void
-      {
-         this.showPropertyPanelItem(this.texturePanel);
-         if(param1 != this.currentBitmaps)
+         this.bonusTypesPanel.setBonusRegion(null);
+
+         for(var item:* in this.selectedProps)
          {
-            this.texturePanel.fill(param1);
-            this.currentBitmaps = param1;
+            if(!(item is MeshProp))
+            {
+               return;
+            }
          }
+
+         this.showTexturePanel();
       }
       
-      private function isControlPointSelected() : Boolean
+      private function showTexturePanel() : void
       {
-         return this.selectedProps.length == 1 && this.selectedProp is ControlPoint;
+         var loc1:Map = this.noConflictBitmaps();
+         if(!loc1)
+            return;
+
+         this.showPropertyPanelItem(this.texturePanel);
+         if(loc1 != this.currentBitmaps)
+         {
+            this.texturePanel.fill(loc1);
+            this.currentBitmaps = loc1;
+         }
       }
       
       public function mirrorTextures() : void
@@ -1073,26 +1081,6 @@ package alternativa.editor.scene
             }
          }
          return loc1;
-      }
-      
-      private function isOneBonusSelected() : Boolean
-      {
-         if(this.selectedProps.length > 1)
-         {
-            return false;
-         }
-         var loc1:Prop = this.selectedProps.peek();
-         return loc1 is FreeBonusRegion;
-      }
-      
-      private function isOneKillZoneSelected() : Boolean
-      {
-         if(this.selectedProps.length > 1)
-         {
-            return false;
-         }
-         var loc1:KillBox = this.selectedProps.peek() as KillBox;
-         return loc1 != null;
       }
       
       public function drawDominationLinks(param1:Graphics) : void
