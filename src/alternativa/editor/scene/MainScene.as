@@ -44,6 +44,10 @@ package alternativa.editor.scene
    import flash.geom.Vector3D;
    import alternativa.engine3d.core.Object3DContainer;
    import alternativa.editor.prop.CTFFlagBase;
+   import alternativa.editor.PropGeneralPropertiesPanel;
+   import mx.controls.Alert;
+   import mx.containers.HBox;
+   import alternativa.editor.SceneContainer;
    
    public class MainScene extends EditorScene
    {
@@ -64,7 +68,7 @@ package alternativa.editor.scene
       
       private var texturePanel:TexturePanel;
       
-      private var propertyPanel:Panel;
+      private const propertyPanel:HBox = new HBox();
       
       private var bonusTypesPanel:BonusRegionPropertiesPanel;
       
@@ -85,12 +89,15 @@ package alternativa.editor.scene
       private var domSpawnPoint:SpawnPoint;
       
       private var controlPointNameField:ControlPointNameField;
+
+      private var propGeneralProperties:PropGeneralPropertiesPanel;
       
       public function MainScene()
       {
          this.hiddenProps = [];
          this.bonusTypesPanel = new BonusRegionPropertiesPanel();
          this.killZonePanel = new KillZonePropertiesPanel();
+         this.propGeneralProperties = new PropGeneralPropertiesPanel();
          this._selectablePropTypes = new Set();
          this.exporters = {};
          this.layers = new Layers();
@@ -112,6 +119,7 @@ package alternativa.editor.scene
          this.createControlPointNameTextField();
          collider = new EllipsoidCollider(30,30,30);
          __root = root;
+         this.propertyPanel.percentHeight = this.propertyPanel.percentWidth = 100;
          GlobalEventDispatcher.addListener(LayerVisibilityChangeEvent.VISIBILITY_CHANGED,this.onLayerVisibilityChange);
          GlobalEventDispatcher.addListener(LayerContentChangeEvent.LAYER_CONTENT_CHANGED,this.onLayerContentChange);
          GlobalEventDispatcher.addListener(DominationSpawnLinkStartEvent.DOMINATION_SPAWN_LINK_START,this.onDominationLinkStart);
@@ -178,6 +186,7 @@ package alternativa.editor.scene
       
       public function exportScene(param1:FileType, param2:FileStream) : void
       {
+         SceneContainer.instance.cursorScene.clear();
          FileExporter(this.exporters[param1]).exportToFileStream(param2);
          this._changed = false;
       }
@@ -391,7 +400,7 @@ package alternativa.editor.scene
       
       public function setPropertyPanel(param1:Panel) : void
       {
-         this.propertyPanel = param1;
+         param1.addChild(this.propertyPanel);
          this.texturePanel = new TexturePanel();
          this.texturePanel.addEventListener(PropListEvent.SELECT,this.onTexturePanelSelect);
       }
@@ -553,8 +562,7 @@ package alternativa.editor.scene
          }
          this.selectedProps.clear();
          this.selectedProp = null;
-         this.hidePropertyPanelItem(this.bonusTypesPanel);
-         this.hidePropertyPanelItem(this.texturePanel);
+         this.hideAllPropertyPanelItems();
       }
       
       public function deselectProp(param1:Prop) : void
@@ -569,6 +577,7 @@ package alternativa.editor.scene
 
          if(this.selectedProps.length > 0)
          {
+            this.selectedProp = this.selectedProps.peek();
             this.showPropertyPanel();
          }
 
@@ -593,7 +602,10 @@ package alternativa.editor.scene
                this.selectedProp = loc3;
             }
          }
-         this.showPropertyPanel();
+         if(this.selectedProp != null)
+         {
+            this.showPropertyPanel();
+         }
       }
       
       public function selectConflictingProps() : void
@@ -847,7 +859,7 @@ package alternativa.editor.scene
          }
       }
       
-      public function showPropertyPanel() : void
+      private function showPropertyPanel() : void
       {
          var loc1:Map = null;
          this.hideAllPropertyPanelItems();
@@ -874,15 +886,34 @@ package alternativa.editor.scene
          }
          this.bonusTypesPanel.setBonusRegion(null);
 
-         for(var item:* in this.selectedProps)
+
+         var item:*;
+         for(item in this.selectedProps)
          {
             if(!(item is MeshProp))
+               return;
+         }
+
+         this.showTexturePanel();
+
+
+         var collisionEnabled:Boolean = (this.selectedProp as MeshProp).collisionEnabled;
+
+         for(item in this.selectedProps)
+         {
+            if(item is Sprite3DProp)
+               continue;
+            if(collisionEnabled != (item as MeshProp).collisionEnabled)
             {
                return;
             }
          }
 
-         this.showTexturePanel();
+         this.texturePanel.percentWidth = 100 - this.propGeneralProperties.percentWidth;
+            
+         this.showPropertyPanelItem(this.propGeneralProperties);
+
+         this.propGeneralProperties.init(this.selectedProps, collisionEnabled);
       }
       
       private function showTexturePanel() : void
@@ -890,6 +921,8 @@ package alternativa.editor.scene
          var loc1:Map = this.noConflictBitmaps();
          if(!loc1)
             return;
+
+         this.texturePanel.percentWidth = 100;
 
          this.showPropertyPanelItem(this.texturePanel);
          if(loc1 != this.currentBitmaps)

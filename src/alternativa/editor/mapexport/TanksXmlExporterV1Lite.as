@@ -236,6 +236,10 @@ package alternativa.editor.mapexport
       
       protected function createTileCollisionXml(param1:MeshProp, param2:XML) : void
       {
+         if(!param1.collisionEnabled)
+         {
+            return;
+         }
          var loc4:CollisionPrimitive = null;
          var loc3:Vector.<CollisionPrimitive> = this.collPrimCache.getPrimitives(param1.libraryName,param1.groupName,param1.name);
          if(loc3 == null)

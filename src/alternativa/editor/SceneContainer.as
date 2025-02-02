@@ -34,6 +34,12 @@ package alternativa.editor
    
    public class SceneContainer extends UIComponent
    {
+      private static var _instance:SceneContainer;
+      public static function get instance() : SceneContainer
+      {
+         return _instance;
+      }
+
       private static const cameraPoint:Point3D = new Point3D(0,0,1000);
       
       private static const cameraOffset:Point3D = new Point3D();
@@ -100,6 +106,7 @@ package alternativa.editor
       
       public function SceneContainer()
       {
+         _instance = this;
          this.multiplePropMode = MultiPropMode.NONE;
          this.mouseDownPoint = new Point();
          this.rectProps = new Set();

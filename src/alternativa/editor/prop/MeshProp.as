@@ -20,6 +20,11 @@ package alternativa.editor.prop
    
    public class MeshProp extends Prop
    {
+      [Embed(source="no_collision_texture.png")]
+      private static const NO_COLLISION_TEXTURE_MASK_Class:Class;
+
+      private static const NO_COLLISION_TEXTURE_Bitmap:BitmapData = new NO_COLLISION_TEXTURE_MASK_Class().bitmapData;
+
       public var bitmaps:Map;
       
       protected var _textureName:String = "";
@@ -33,6 +38,12 @@ package alternativa.editor.prop
       private var bound:Mesh;
 
       private var _objects:Vector.<Object3D>;
+
+      private var _collisionEnabled:Boolean = true;
+
+      private var _noCollisionTexture:BitmapData = null;
+      private var _noCollisionMaterial:TextureMaterial = null;
+      
       
       public function MeshProp(mainObject:Object3D, objects:Vector.<Object3D>, param2:String, param3:String, param4:String, param5:Boolean = true)
       {
@@ -121,6 +132,7 @@ package alternativa.editor.prop
          {
             loc2 = loc1 as Mesh;
             loc2.setMaterialToAllFaces(this.collisionMaterial);
+            addChild(loc2);
          }
          setMaterial(null);
       }
@@ -133,6 +145,7 @@ package alternativa.editor.prop
          {
             loc2 = loc1 as Mesh;
             loc2.setMaterialToAllFaces(null);
+            removeChild(loc2);
          }
          setMaterial(_material);
       }
@@ -162,17 +175,27 @@ package alternativa.editor.prop
          {
             _material.dispose();
          }
-         _material = new TextureMaterial(bitmapData);
-         if(_selected)
-         {
-            this.disposeSelectTexture();
 
+         _material = new TextureMaterial(bitmapData);
+
+         this.disposeSelectTexture();
+
+         if(_selected)
+         {  
             select();
          }
          else
          {
             setMaterial(_material);
          }
+         if(_noCollisionTexture != null)
+         {
+            _noCollisionMaterial.dispose();
+            _noCollisionMaterial = null;
+            _noCollisionTexture.dispose();
+            _noCollisionTexture = null;
+         }
+         this.setToCollisionDisabledTextureIfNeeded();
          if(this._textureName == "DEFAULT")
          {
             this._textureName = "";
@@ -216,6 +239,7 @@ package alternativa.editor.prop
          loc2.bitmaps = this.bitmaps;
          loc2._textureName = this._textureName;
          loc2.height = height;
+         loc2.collisionEnabled = this._collisionEnabled;
          return loc2;
       }
       
@@ -258,6 +282,53 @@ package alternativa.editor.prop
             removeChild(this.bound);
             this.bound = null;
          }
+      }
+      
+      public function get collisionEnabled() : Boolean
+      {
+         return this._collisionEnabled;
+      }
+      public function set collisionEnabled(enabled:Boolean) : void
+      {
+         if(this._collisionEnabled == enabled)
+            return;
+
+         this._collisionEnabled = enabled;
+         
+         this.setToCollisionDisabledTextureIfNeeded();         
+      }
+      private function setToCollisionDisabledTextureIfNeeded() : void
+      {
+         if(_collisionEnabled)
+            return;
+         if(_selected) //shouldn't change texture of 'selected'
+            return;
+         if(hidden)
+            return;
+         if(this._textureName == InvisibleTexture.TEXTURE_NAME)
+            return;
+
+         if(_noCollisionTexture == null)
+         {
+            _noCollisionTexture = this.bitmapData.clone();
+
+            _matrix.a = this.bitmapData.width / NO_COLLISION_TEXTURE_Bitmap.width;
+            _matrix.d = this.bitmapData.height / NO_COLLISION_TEXTURE_Bitmap.height;
+            
+            _noCollisionTexture.draw(NO_COLLISION_TEXTURE_Bitmap, _matrix);
+
+            //_noCollisionTexture = NO_COLLISION_TEXTURE_Bitmap.clone();
+            _noCollisionMaterial = new TextureMaterial(_noCollisionTexture);
+         }
+
+         setMaterial(_noCollisionMaterial);
+      }
+      
+      public override function deselect() : void
+      {
+         super.deselect();
+
+         this.setToCollisionDisabledTextureIfNeeded();
       }
    }
 }

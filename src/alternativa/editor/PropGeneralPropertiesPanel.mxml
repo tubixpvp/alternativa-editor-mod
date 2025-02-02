@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns:s="library://ns.adobe.com/flex/spark"
+    xmlns:mx="library://ns.adobe.com/flex/mx"
+    creationComplete="onCreationComplete()" percentWidth="15" percentHeight="100"
+    title="Prop Parameters">
+
+    <fx:Script>
+        <![CDATA[
+            import alternativa.types.Set;
+            import alternativa.editor.prop.MeshProp;
+            import alternativa.editor.prop.Sprite3DProp;
+
+            private const _selectedProps:Vector.<MeshProp> = new Vector.<MeshProp>();
+            
+            private function onCreationComplete():void
+            {
+            }
+            
+            private function onCollisionChanged(param1:Event):void
+            {
+                for each(var prop:MeshProp in _selectedProps)
+                {
+                    prop.collisionEnabled = this.collision.selected;
+                }
+            }
+
+            public function init(selectedProps:Set, collisionEnabled:Boolean) : void
+            {
+                _selectedProps.length = 0;
+                for(var prop:* in selectedProps)
+                {
+                    if(prop is MeshProp && !(prop is Sprite3DProp))
+                    {
+                        _selectedProps.push(prop as MeshProp);
+                    }
+                }
+
+                this.collision.selected = collisionEnabled;
+            }
+
+        ]]>
+    </fx:Script>
+
+    <mx:VBox paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+        <mx:CheckBox id="collision" label="Collision enabled" change="onCollisionChanged(event)"/>
+    </mx:VBox>
+
+</mx:Panel>

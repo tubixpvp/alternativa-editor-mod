@@ -31,7 +31,7 @@ package alternativa.editor.prop
       
       public static const KILL_GEOMETRY:int = 6;
       
-      private static const _matrix:Matrix = new Matrix();
+      protected static const _matrix:Matrix = new Matrix();
       
       private static var redClass:Class = Prop_redClass;
       
