@@ -1,238 +1,223 @@
 package alternativa.editor.propslib
 {
-   import alternativa.editor.propslib.events.PropLibProgressEvent;
-   import alternativa.editor.propslib.loaders.MeshLoader;
-   import alternativa.editor.propslib.loaders.SpriteLoader;
-   import alternativa.editor.engine3d.loaders.TextureMapsInfo;
-   import alternativa.types.Map;
-   import flash.events.ErrorEvent;
-   import flash.events.Event;
    import flash.events.EventDispatcher;
-   import flash.events.IOErrorEvent;
-   import flash.events.SecurityErrorEvent;
    import flash.net.URLLoader;
+   import flash.net.URLLoaderDataFormat;
+   import flash.events.Event;
    import flash.net.URLRequest;
-   import flash.system.ApplicationDomain;
-   import flash.system.LoaderContext;
+   import alternativa.editor.propslib.loaders.MeshLoader;
+   import alternativa.types.Map;
+   import alternativa.editor.engine3d.loaders.TextureMapsInfo;
+   import alternativa.editor.propslib.events.PropLibProgressEvent;
+   import flash.events.IOErrorEvent;
+   import flash.events.ErrorEvent;
+   import alternativa.editor.propslib.loaders.SpriteLoader;
    
    public class PropsLibrary extends EventDispatcher
    {
       public var name:String;
-      
       public var rootGroup:PropGroup;
-      
-      private var url:String;
-      
-      private var configLoader:URLLoader;
-      
-      private var loaders:Vector.<ObjectLoaderPair>;
-      
-      private var currLoader:ObjectLoaderPair;
-      
-      private var propsLoaded:int;
-      
-      private var propsTotal:int;
-      
-      public function PropsLibrary(param1:String = null)
+
+      private var _url:String;
+      private var _propLoaders:Vector.<PropLoader> = new Vector.<PropLoader>();
+      private var _propCount:int;
+      private var _loadedPropCount:int = 0;
+
+      public function PropsLibrary(url:String = null)
       {
          super();
-         if(param1 != null)
-         {
-            this.load(param1);
-         }
+         if(url != null) load(url);
       }
       
-      private static function xmlReadAttrString(param1:XML, param2:String, param3:String = null) : String
+      public function load(url:String):void
       {
-         var loc4:XMLList = param1.attribute(param2);
-         if(loc4.length() > 0)
-         {
-            return loc4[0].toString();
-         }
-         return param3;
+         if(url == null) throw new ArgumentError();
+         _url = url + "/";
+         trace(_url);
+
+         var loader:URLLoader = new URLLoader();
+         loader.dataFormat = URLLoaderDataFormat.TEXT;
+         loader.addEventListener(Event.COMPLETE, parseLibraryInfo);
+         loader.addEventListener(IOErrorEvent.IO_ERROR, onError);
+         loader.load(new URLRequest(_url + "library.xml"));
       }
-      
-      private static function xmlReadAttrNumber(param1:XML, param2:String, param3:Number) : Number
+
+      private function onError(event:ErrorEvent):void
       {
-         var loc4:XMLList = param1.attribute(param2);
-         if(loc4.length() > 0)
-         {
-            return Number(loc4[0]);
-         }
-         return param3;
+         dispatchEvent(event);
       }
-      
-      public function load(param1:String) : void
+
+      private function parseLibraryInfo(event:Event):void
       {
-         if(param1 == null)
+         var loader:URLLoader = event.target as URLLoader;
+         loader.removeEventListener(Event.COMPLETE, parseLibraryInfo);
+
+         var libraryInfo:XML = new XML(loader.data);
+         name = libraryInfo.@name;
+         rootGroup = parsePropGroup(libraryInfo);
+
+         // Load props
+         _propCount = _propLoaders.length;
+         for each (var propLoader:PropLoader in _propLoaders)
          {
-            throw new ArgumentError();
-         }
-         this.url = param1.length > 0 && param1.charAt(param1.length - 1) != "/" ? param1 + "/" : param1;
-         this.configLoader = new URLLoader(new URLRequest(this.url + "library.xml"));
-         this.configLoader.addEventListener(Event.COMPLETE,this.onXMLLoadingComplete);
-         this.configLoader.addEventListener(IOErrorEvent.IO_ERROR,this.onErrorEvent);
-         this.configLoader.addEventListener(SecurityErrorEvent.SECURITY_ERROR,this.onErrorEvent);
-      }
-      
-      private function onErrorEvent(param1:ErrorEvent) : void
-      {
-         dispatchEvent(param1);
-      }
-      
-      private function onXMLLoadingComplete(param1:Event) : void
-      {
-         var loc2:XML = XML(this.configLoader.data);
-         this.configLoader.removeEventListener(Event.COMPLETE,this.onXMLLoadingComplete);
-         this.configLoader.removeEventListener(IOErrorEvent.IO_ERROR,this.onErrorEvent);
-         this.configLoader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,this.onErrorEvent);
-         this.configLoader = null;
-         this.name = loc2.@name;
-         this.loaders = new Vector.<ObjectLoaderPair>();
-         this.rootGroup = this.parseGroup(loc2);
-         this.propsLoaded = 0;
-         this.propsTotal = this.loaders.length;
-         this.loadPropObject();
-      }
-      
-      private function loadPropObject() : void
-      {
-         this.currLoader = this.loaders.pop();
-         this.currLoader.loader.addEventListener(Event.COMPLETE,this.onPropObjectLoadingComplete);
-         this.currLoader.loader.addEventListener(IOErrorEvent.IO_ERROR,this.onErrorEvent);
-         this.currLoader.loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR,this.onErrorEvent);
-         var loc1:LoaderContext = new LoaderContext();
-         loc1.applicationDomain = ApplicationDomain.currentDomain;
-         this.currLoader.loader.load(loc1);
-      }
-      
-      private function onPropObjectLoadingComplete(param1:Event) : void
-      {
-         var loc2:PropLibMesh = null;
-         var loc3:MeshLoader = null;
-         this.currLoader.loader.removeEventListener(Event.COMPLETE,this.onPropObjectLoadingComplete);
-         this.currLoader.loader.removeEventListener(IOErrorEvent.IO_ERROR,this.onErrorEvent);
-         this.currLoader.loader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,this.onErrorEvent);
-         if(this.currLoader.propObject is PropLibMesh)
-         {
-            loc2 = this.currLoader.propObject as PropLibMesh;
-            loc3 = this.currLoader.loader as MeshLoader;
-            loc2.mainObject = loc3.object;
-            loc2.bitmaps = loc3.bitmaps;
-            loc2.objects = loc3.objects;
-         }
-         else
-         {
-            this.currLoader.propObject.mainObject = (this.currLoader.loader as SpriteLoader).sprite;
-         }
-         ++this.propsLoaded;
-         if(hasEventListener(PropLibProgressEvent.PROGRESS))
-         {
-            dispatchEvent(new PropLibProgressEvent(this.propsLoaded,this.propsTotal));
-         }
-         if(this.loaders.length > 0)
-         {
-            this.loadPropObject();
-         }
-         else
-         {
-            this.currLoader = null;
-            dispatchEvent(new Event(Event.COMPLETE));
+            propLoader.addEventListener(Event.COMPLETE, onPropLoaded);
+            propLoader.addEventListener(IOErrorEvent.IO_ERROR, onError);
+            propLoader.load();
          }
       }
-      
-      private function parseGroup(param1:XML) : PropGroup
+
+      private function onPropLoaded(event:Event):void
       {
-         var loc2:XML = null;
-         var loc3:PropGroup = new PropGroup(param1.@name);
-         for each(loc2 in param1.prop)
-         {
-            loc3.addProp(this.parseProp(loc2));
-         }
-         for each(loc2 in param1.elements("prop-group"))
-         {
-            loc3.addGroup(this.parseGroup(loc2));
-         }
-         return loc3;
+         var propLoader:PropLoader = event.target as PropLoader;
+         propLoader.removeEventListener(Event.COMPLETE, onPropLoaded);
+         _loadedPropCount++;
+         
+         dispatchEvent(new PropLibProgressEvent(_loadedPropCount, _propCount));
+         if (_loadedPropCount == _propCount) dispatchEvent(new Event(Event.COMPLETE));
       }
-      
-      private function parseProp(param1:XML) : PropLibObject
+
+      private function parsePropGroup(propGroupInfo:XML):PropGroup
       {
-         var loc2:ObjectLoaderPair = this.createObjectLoaderPair(param1);
-         this.loaders.push(loc2);
-         return loc2.propObject;
-      }
-      
-      private function createObjectLoaderPair(param1:XML) : ObjectLoaderPair
-      {
-         if(param1.mesh.length() > 0)
+         var propGroup:PropGroup = new PropGroup(propGroupInfo.@name);
+         for each(var propInfo:XML in propGroupInfo.prop)
          {
-            return this.createMeshLoaderPair(param1);
+            var propLoader:PropLoader = parseProp(propInfo, propGroup);
+            if (propLoader != null) _propLoaders.push(propLoader);
          }
-         if(param1.sprite.length() > 0)
+         for each(var nestedPropGroupInfo:XML in propGroupInfo.elements("prop-group"))
          {
-            return this.createSpriteLoaderPair(param1);
+            var nestedPropGroup:PropGroup = parsePropGroup(nestedPropGroupInfo);
+            propGroup.addGroup(nestedPropGroup);
          }
-         throw new Error("Unknown prop: " + param1);
+         
+         return propGroup;
       }
-      
-      private function createMeshLoaderPair(param1:XML) : ObjectLoaderPair
+
+      private function parseProp(propInfo:XML, propGroup:PropGroup):PropLoader
       {
-         var loc3:Map = null;
-         var loc5:XML = null;
-         var loc6:String = null;
-         var loc7:String = null;
-         var loc2:XML = param1.mesh[0];
-         if(loc2.texture.length() > 0)
+         if (propInfo.hasOwnProperty("mesh"))
          {
-            loc3 = new Map();
-            for each(loc5 in loc2.texture)
+            // Mesh prop
+            var meshInfo:XML = propInfo.mesh[0];
+            var meshProp:PropLibMesh = new PropLibMesh(propInfo.@name);
+            
+            // Parse <texture> elements
+            var textureMap:Map = null;
+            if (meshInfo.texture.length() > 0) textureMap = new Map();
+            for each (var textureInfo:XML in meshInfo.texture)
             {
-               loc6 = loc5.attribute("diffuse-map").toString().toLowerCase();
-               loc7 = xmlReadAttrString(loc5,"opacity-map");
-               if(loc7 != null)
+               var diffuseMapUrl:String = _url + textureInfo.attribute("diffuse-map").toLowerCase();
+               var opacityMapUrl:String = null;
+               if (textureInfo.attribute("opacity-map").length() > 0)
                {
-                  loc7 = this.url + loc7.toLowerCase();
+                  opacityMapUrl = _url + textureInfo.attribute("opacity-map").toLowerCase();
                }
-               loc3.add(loc5.@name.toString(),new TextureMapsInfo(this.url + loc6,loc7));
+
+               var textureMapInfo:TextureMapsInfo = new TextureMapsInfo(diffuseMapUrl, opacityMapUrl);
+               textureMap.add(textureInfo.@name.toString(), textureMapInfo);
             }
+            
+            // Create prop loader
+            var meshFileUrl:String = _url + meshInfo.@file.toString().toLowerCase();
+            var meshObject:String = null;
+            if (meshInfo.@object.length() > 0) meshObject = meshInfo.@object.toString().toLowerCase();
+
+            return new PropLoader(
+               new MeshLoader(meshFileUrl, meshObject, textureMap, _url),
+               meshProp,
+               propGroup
+            );
          }
-         var loc4:ObjectLoaderPair = new ObjectLoaderPair();
-         loc4.propObject = new PropLibMesh(param1.@name);
-         loc4.loader = new MeshLoader(this.url + loc2.attribute("file").toString().toLowerCase(),xmlReadAttrString(loc2,"object"),loc3,this.url);
-         return loc4;
-      }
-      
-      private function createSpriteLoaderPair(param1:XML) : ObjectLoaderPair
-      {
-         var loc2:XML = param1.sprite[0];
-         var loc3:String = xmlReadAttrString(loc2,"alpha");
-         if(loc3 != null)
+         else if (propInfo.hasOwnProperty("sprite"))
          {
-            loc3 = this.url + loc3.toLowerCase();
+            // Sprite prop
+            var spriteInfo:XML = propInfo.sprite[0];
+            var spriteProp:PropLibObject = new PropLibObject(propInfo.@name);
+
+            // Create prop loader
+            var spriteFileUrl:String = _url + spriteInfo.@file.toString().toLowerCase();
+            var alphaTextureUrl:String = null;
+            if (spriteInfo.@alpha.length() > 0) alphaTextureUrl = _url + spriteInfo.@alpha.toString().toLowerCase();
+            var originX:Number = 0.5;
+            if (spriteInfo.attribute("origin-x").length() > 0) originX = spriteInfo.attribute("origin-x");
+            var originY:Number = 1;
+            if (spriteInfo.attribute("origin-y").length() > 0) originY = spriteInfo.attribute("origin-y");
+            var scale:Number = 1;
+            if (spriteInfo.@scale.length() > 0) scale = spriteInfo.attribute.@scale;
+            trace(spriteInfo.@alpha);
+            trace(alphaTextureUrl);
+
+            return new PropLoader(
+               new SpriteLoader(spriteFileUrl, alphaTextureUrl, originX, originY, scale),
+               spriteProp,
+               propGroup
+            );
          }
-         var loc4:Number = xmlReadAttrNumber(loc2,"origin-x",0.5);
-         var loc5:Number = xmlReadAttrNumber(loc2,"origin-y",1);
-         var loc6:Number = xmlReadAttrNumber(loc2,"scale",1);
-         var loc7:ObjectLoaderPair = new ObjectLoaderPair();
-         loc7.propObject = new PropLibObject(param1.@name);
-         loc7.loader = new SpriteLoader(this.url + loc2.attribute("file").toString().toLowerCase(),loc3,loc4,loc5,loc6);
-         return loc7;
+         else
+         {
+            // Unknown prop
+            throw new Error("Unknown prop: " + propInfo);
+         }
       }
    }
 }
 
+import flash.net.URLLoader;
+import flash.events.EventDispatcher;
 import alternativa.editor.propslib.loaders.ObjectLoader;
 import alternativa.editor.propslib.PropLibObject;
+import alternativa.editor.propslib.PropGroup;
+import flash.events.Event;
+import flash.system.LoaderContext;
+import flash.system.ApplicationDomain;
+import alternativa.editor.propslib.PropLibMesh;
+import alternativa.editor.propslib.loaders.SpriteLoader;
+import alternativa.editor.propslib.loaders.MeshLoader;
+import flash.events.ErrorEvent;
+import flash.events.IOErrorEvent;
 
-class ObjectLoaderPair
+class PropLoader extends EventDispatcher
 {
-   public var propObject:PropLibObject;
-   
-   public var loader:ObjectLoader;
-   
-   public function ObjectLoaderPair()
+   private static const _loaderContext:LoaderContext = new LoaderContext(false, ApplicationDomain.currentDomain, null);
+   private var _loader:ObjectLoader;
+   private var _object:PropLibObject;
+   private var _group:PropGroup;
+
+   public function PropLoader(loader:ObjectLoader, object:PropLibObject, group:PropGroup)
    {
-      super();
+      _loader = loader;
+      _object = object;
+      _group = group;
+   }
+   
+   public function load():void
+   {
+      _loader.addEventListener(Event.COMPLETE, onPropLoadComplete);
+      _loader.addEventListener(IOErrorEvent.IO_ERROR, onError);
+      _loader.load(_loaderContext);
+   }
+
+   private function onPropLoadComplete(event:Event):void
+   {
+      _loader.removeEventListener(Event.COMPLETE, onPropLoadComplete);
+      if (_object is PropLibMesh)
+      {
+         var meshLoader:MeshLoader = _loader as MeshLoader;
+         var meshObject:PropLibMesh = _object as PropLibMesh;
+         meshObject.mainObject = meshLoader.object;
+         meshObject.bitmaps = meshLoader.bitmaps;
+         meshObject.objects = meshLoader.objects;
+      }
+      else
+      {
+         _object.mainObject = (_loader as SpriteLoader).sprite;         
+      }
+      _group.addProp(_object);
+      dispatchEvent(new Event(Event.COMPLETE));
+   }
+
+   private function onError(event:ErrorEvent):void
+   {
+      dispatchEvent(event);
    }
 }
