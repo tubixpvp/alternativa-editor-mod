@@ -11,6 +11,13 @@ package alternativa.editor.mapexport.binary.types
         public var type:int; //SpawnPointType
 
 
+        public function SpawnPointData(position:Vector3D, rotation:Vector3D, type:int)
+        {
+            this.position = position;
+            this.rotation = rotation;
+            this.type = type;
+        }
+
         public function encode(buffer:ProtocolBuffer) : void
         {
             position.encode(buffer);

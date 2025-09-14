@@ -1,5 +1,7 @@
 package alternativa.editor.mapexport.binary.types
 {
+    import alternativa.editor.FunctionalProps;
+
     public class SpawnPointType
     {
         public static const TEAM_A:int = 0;
@@ -19,5 +21,17 @@ package alternativa.editor.mapexport.binary.types
         public static const SGE_TEAM_B:int = 14;
         public static const TJR_TEAM_A:int = 15;
         public static const TJR_TEAM_B:int = 16;
+
+        public static function fromString(name:String) : int
+        {
+            switch(name)
+            {
+                case FunctionalProps.BLUE_SPAWN:
+                    return TEAM_B;
+                case FunctionalProps.RED_SPAWN:
+                    return TEAM_A;
+            }
+            return DM;
+        }
     }
 }

@@ -92,6 +92,11 @@ package alternativa.editor.prop
 
          super.dispose();
       }
+
+      public function get isTextureMirrored() : Boolean
+      {
+         return _isMirror;
+      }
       
       private static function getMirrorBitmapData(param1:BitmapData) : BitmapData
       {

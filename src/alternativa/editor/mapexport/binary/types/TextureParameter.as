@@ -13,6 +13,14 @@ package alternativa.editor.mapexport.binary.types
         public var textureName:String;
 
 
+        public function TextureParameter(libraryName:String, name:String, textureName:String)
+        {
+            this.libraryName = libraryName;
+            this.name = name;
+            this.textureName = textureName;
+        }
+
+
         public function encode(buffer:ProtocolBuffer) : void
         {
             OptionalCodecDecorator.encodeIsNull(buffer, libraryName == null);
