@@ -1,11 +1,13 @@
 package alternativa.editor.mapexport
 {
-   import alternativa.engine3d.alternativa3d;
    import alternativa.engine3d.core.Face;
    import alternativa.engine3d.objects.Mesh;
    import alternativa.types.Matrix4;
    import alternativa.types.Point3D;
    import alternativa.engine3d.core.Vertex;
+   import alternativa.editor.mapexport.binary.types.BattleMap;
+   import alternativa.editor.mapexport.binary.types.CollisionPlaneData;
+   import alternativa.editor.mapexport.binary.types.Vector3D;
    
    public class CollisionRect extends CollisionPrimitive
    {
@@ -102,6 +104,21 @@ package alternativa.editor.mapexport
          loc2.appendChild(getVector3DXML(<position/>,transform.d,transform.h,transform.l,PRECISION));
          loc2.appendChild(getVector3DXML(<angles/>,loc1.x,loc1.y,loc1.z,ROT_PRECISION));
          return loc2;
+      }
+
+      public override function addToBinaryData(mapOutput:BattleMap, propTransform:Matrix4) : void
+      {
+         var matrix:Matrix4 = getPrimitiveTransformation(propTransform);
+         var rotation:Point3D = matrix.getRotations(tmpRotation);
+
+         var data:CollisionPlaneData = new CollisionPlaneData();
+
+         data.length = this.length;
+         data.width = this.width;
+         data.position = new Vector3D(matrix.d, matrix.h, matrix.l);
+         data.rotation = new Vector3D(rotation.x, rotation.y, rotation.z);
+
+         mapOutput.collisionGeometry.planes.push(data);
       }
    }
 }

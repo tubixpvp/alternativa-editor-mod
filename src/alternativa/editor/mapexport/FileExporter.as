@@ -7,13 +7,13 @@ package alternativa.editor.mapexport
    {
       public var sceneRoot:Object3DContainer;
       
-      public function FileExporter(param1:Object3DContainer)
+      public function FileExporter(sceneRoot:Object3DContainer)
       {
          super();
-         this.sceneRoot = param1;
+         this.sceneRoot = sceneRoot;
       }
       
-      public function exportToFileStream(param1:FileStream) : void
+      public function exportToFileStream(stream:FileStream) : void
       {
       }
    }

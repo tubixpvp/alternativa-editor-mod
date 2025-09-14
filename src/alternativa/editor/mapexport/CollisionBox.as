@@ -5,6 +5,9 @@ package alternativa.editor.mapexport
    import alternativa.engine3d.core.Vertex;
    import alternativa.types.Matrix4;
    import alternativa.types.Point3D;
+   import alternativa.editor.mapexport.binary.types.BattleMap;
+   import alternativa.editor.mapexport.binary.types.CollisionBoxData;
+   import alternativa.editor.mapexport.binary.types.Vector3D;
    
    public class CollisionBox extends CollisionPrimitive
    {
@@ -109,6 +112,21 @@ package alternativa.editor.mapexport
          loc2.appendChild(getVector3DXML(<angles/>,loc1.x,loc1.y,loc1.z,ROT_PRECISION));
          return loc2;
       }
+
+      public override function addToBinaryData(mapOutput:BattleMap, propTransform:Matrix4) : void
+      {
+         var matrix:Matrix4 = getPrimitiveTransformation(propTransform);
+         var rotation:Point3D = matrix.getRotations(tmpRotation);
+
+         var data:CollisionBoxData = new CollisionBoxData();
+
+         data.position = new Vector3D(matrix.d, matrix.h, matrix.l);
+         data.rotation = new Vector3D(rotation.x, rotation.y, rotation.z);
+         data.size = new Vector3D(this.size.x, this.size.y, this.size.z);
+
+         mapOutput.collisionGeometry.boxes.push(data);
+      }
+
    }
 }
 

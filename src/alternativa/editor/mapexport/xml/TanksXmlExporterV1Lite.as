@@ -1,4 +1,4 @@
-package alternativa.editor.mapexport
+package alternativa.editor.mapexport.xml
 {
    import alternativa.editor.FunctionalProps;
    import alternativa.editor.prop.CTFFlagBase;
@@ -12,6 +12,12 @@ package alternativa.editor.mapexport
    import alternativa.engine3d.core.Object3D;
    import flash.filesystem.FileStream;
    import alternativa.engine3d.core.Object3DContainer;
+   import alternativa.editor.mapexport.FileExporter;
+   import alternativa.editor.mapexport.CollisionPrimitivesCache;
+   import alternativa.editor.mapexport.CollisionPrimitive;
+   import alternativa.editor.mapexport.CollisionRect;
+   import alternativa.editor.mapexport.CollisionBox;
+   import alternativa.editor.mapexport.CollisionTriangle;
    
    public class TanksXmlExporterV1Lite extends FileExporter
    {
@@ -106,7 +112,7 @@ package alternativa.editor.mapexport
          loc4.appendChild(loc5);
       }
       
-      protected static function createPropCollisionPrimitives(param1:MeshProp) : Vector.<CollisionPrimitive>
+      public static function createPropCollisionPrimitives(param1:MeshProp) : Vector.<CollisionPrimitive>
       {
          var loc3:* = undefined;
          var loc4:Mesh = null;

@@ -507,6 +507,11 @@
             {
                 this.exportManager.exportMap(FileType.MAP_XML_VERSION_3);
             }
+
+            private function onExportToBinaryClick(item:NativeMenuItem) : void
+            {
+                this.exportManager.exportMap(FileType.BINARY);
+            }
             
             private function onBatchProcessingClick(param1:NativeMenuItem):void
             {
@@ -713,6 +718,7 @@
                 <menuitem type="separator"/>
                 <menuitem label="Export Tanks map 1.x" keyEquivalent="t" ctrlKey="true" click="onExportToTanksV1Click"/>
                 <menuitem label="Export Tanks map 3.x" keyEquivalent="t" ctrlKey="true" shiftKey="true" click="onExportToTanksV3Click"/>
+                <menuitem label="Export Binary Tanki map" click="onExportToBinaryClick"/>
                 <menuitem label="Import Tanks map" keyEquivalent="i" ctrlKey="true" click="onImportFromTanksClick"/>
                 <menuitem label="Append Tanks map" keyEquivalent="a" ctrlKey="true" click="appendFromXMLClick"/>
                 <menuitem label="Batch processing" click="onBatchProcessingClick"/>

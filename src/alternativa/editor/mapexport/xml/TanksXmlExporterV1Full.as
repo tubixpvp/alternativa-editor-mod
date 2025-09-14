@@ -1,4 +1,4 @@
-package alternativa.editor.mapexport
+package alternativa.editor.mapexport.xml
 {
    import alternativa.editor.FunctionalProps;
    import alternativa.editor.prop.CTFFlagBase;
