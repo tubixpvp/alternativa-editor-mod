@@ -74,7 +74,7 @@ package alternativa.editor.mapimport.xml
             loc3.maxy = Number(param1.maxY);
             loc3.maxz = Number(param1.maxZ);
             loc3.action = param1.action;
-            scene.calculate();
+            //scene.calculate();
          }
       }
    }
