@@ -183,6 +183,7 @@ package alternativa.editor.propslib
          var loc6:String = null;
          var loc7:String = null;
          var loc2:XML = param1.mesh[0];
+         var propName:String = param1.@name;
          if(loc2.texture.length() > 0)
          {
             loc3 = new Map();
@@ -190,7 +191,7 @@ package alternativa.editor.propslib
             {
                var textureName:String = loc5.@name.toString();
                loc6 = loc5.attribute("diffuse-map").toString().toLowerCase();
-               TextureDiffuseMapsRegistry.addTexture(this.name, groupName, textureName, loc6);
+               TextureDiffuseMapsRegistry.addTexture(this.name, groupName, propName, textureName, loc6);
                loc7 = xmlReadAttrString(loc5,"opacity-map");
                if(loc7 != null)
                {
@@ -200,8 +201,9 @@ package alternativa.editor.propslib
             }
          }
          var loc4:ObjectLoaderPair = new ObjectLoaderPair();
-         loc4.propObject = new PropLibMesh(param1.@name);
-         loc4.loader = new MeshLoader(this.url + loc2.attribute("file").toString().toLowerCase(),xmlReadAttrString(loc2,"object"),loc3,this.url);
+         loc4.propObject = new PropLibMesh(propName);
+         loc4.loader = new MeshLoader(this.url + loc2.attribute("file").toString().toLowerCase(),xmlReadAttrString(loc2,"object"),loc3,this.url,
+               this.name, groupName, propName);
          return loc4;
       }
       

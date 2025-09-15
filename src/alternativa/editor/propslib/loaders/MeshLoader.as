@@ -18,6 +18,7 @@ package alternativa.editor.propslib.loaders
    import mx.controls.Alert;
    import flash.display.BitmapData;
    import alternativa.engine3d.materials.FillMaterial;
+   import alternativa.editor.propslib.TextureDiffuseMapsRegistry;
    
    public class MeshLoader extends ObjectLoader
    {
@@ -40,14 +41,24 @@ package alternativa.editor.propslib.loaders
       private var loaderContext:LoaderContext;
 
       private var baseUrl:String;
+
+      private var libraryName:String;
+
+      private var groupName:String;
+
+      private var propName:String;
       
-      public function MeshLoader(param1:String, param2:String, param3:Map, baseUrl:String)
+      public function MeshLoader(param1:String, param2:String, param3:Map, baseUrl:String,
+         libraryName:String, groupName:String, propName:String)
       {
          super();
          this.url = param1;
          this.objectName = param2;
          this.textures = param3;
          this.baseUrl = baseUrl;
+         this.libraryName = libraryName;
+         this.groupName = groupName;
+         this.propName = propName;
       }
       
       override public function load(param1:LoaderContext) : void
@@ -91,7 +102,9 @@ package alternativa.editor.propslib.loaders
             var defaultMaterial:TextureMaterial = this.parser3DS.textureMaterials[0];
             this.textures = new Map();
             var opacityUrl:String = (defaultMaterial.opacityMapURL != null ? this.baseUrl + defaultMaterial.opacityMapURL.toLowerCase() : null);
-            this.textures.add("DEFAULT", new TextureMapsInfo(this.baseUrl+defaultMaterial.diffuseMapURL.toLowerCase(), opacityUrl));
+            var diffuseUrl:String = defaultMaterial.diffuseMapURL.toLowerCase();
+            TextureDiffuseMapsRegistry.addTexture(libraryName, groupName, propName, "DEFAULT", diffuseUrl);
+            this.textures.add("DEFAULT", new TextureMapsInfo(this.baseUrl+diffuseUrl, opacityUrl));
          }
          
          if(this.textures != null)

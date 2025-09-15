@@ -83,7 +83,7 @@ package alternativa.editor.mapexport.binary.atlasBuilder
          */
         public function tryAddMeshProp(prop:MeshProp, propIndex:int) : int
         {
-            var diffuseName:String = TextureDiffuseMapsRegistry.getDiffuseName(prop.libraryName, prop.groupName, prop.textureName);
+            var diffuseName:String = TextureDiffuseMapsRegistry.getDiffuseName(prop.libraryName, prop.groupName, prop.name, prop.textureName);
 
             var textureData:TextureData = texturesData[diffuseName];
 
