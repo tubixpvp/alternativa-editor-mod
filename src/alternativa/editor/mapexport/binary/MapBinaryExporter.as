@@ -94,6 +94,8 @@ package alternativa.editor.mapexport.binary
 
             var atlases:Vector.<AltasBuilder> = new Vector.<AltasBuilder>();
 
+            var mapExtra:MapExtraData = new MapExtraData();
+
             var children:Vector.<Object3D> = sceneRoot.children;
             for each(var propObj:Object3D in children)
             {
@@ -101,13 +103,14 @@ package alternativa.editor.mapexport.binary
                 if(prop == null)
                     continue;
 
-                constructPropData(prop, map, atlases);
+                constructPropData(prop, map, mapExtra, atlases);
             }
 
             var mapData:ExportedMapData = new ExportedMapData();
 
             mapData.map = map;
             mapData.atlasFiles = new Dictionary();
+            mapData.extra = mapExtra;
 
             for each(var atlas:AltasBuilder in atlases)
             {
@@ -115,13 +118,15 @@ package alternativa.editor.mapexport.binary
                 
                 atlas.addAllBatchesAndMaterials(map);
 
-                mapData.atlasFiles[atlas.atlas.name] = atlas.createAtlasBitmap();
+                var fileName:String = atlas.atlas.name;
+                fileName = fileName + ".png";
+                mapData.atlasFiles[fileName] = atlas.createAtlasBitmap();
             }
 
             return mapData;
         }
 
-        private function constructPropData(prop:Prop, mapOutput:BattleMap, atlases:Vector.<AltasBuilder>) : void
+        private function constructPropData(prop:Prop, mapOutput:BattleMap, extraOutput:MapExtraData, atlases:Vector.<AltasBuilder>) : void
         {
             if(prop.type == Prop.TILE)
             {
@@ -205,10 +210,13 @@ package alternativa.editor.mapexport.binary
 
 import alternativa.editor.mapexport.binary.types.BattleMap;
 import flash.utils.Dictionary;
+import alternativa.editor.mapexport.binary.MapExtraData;
 
 class ExportedMapData
 {
     public var map:BattleMap;
 
     public var atlasFiles:Dictionary;
+
+    public var extra:MapExtraData;
 }

@@ -14,6 +14,7 @@ package alternativa.editor.mapexport.binary.atlasBuilder
     import flash.geom.Matrix;
     import alternativa.editor.mapexport.binary.types.BattleMap;
     import alternativa.editor.propslib.TextureDiffuseMapsRegistry;
+    import alternativa.editor.prop.Sprite3DProp;
 
     public class AltasBuilder
     {
@@ -33,6 +34,9 @@ package alternativa.editor.mapexport.binary.atlasBuilder
         private const materialsOutput:Vector.<MaterialData> = new Vector.<MaterialData>();
 
 
+        private var _atlasIndex:int;
+
+
         private var _atlasLayerWidth:int = 0;
         private var _atlasLayerHeight:int = 0;
         private var _atlasLayerY:int = 0;
@@ -40,12 +44,21 @@ package alternativa.editor.mapexport.binary.atlasBuilder
 
         public function AltasBuilder(id:int)
         {
+            _atlasIndex = id;
+
             atlas = new Atlas();
             atlas.height = 0;
             atlas.width = 0;
-            atlas.name = "atlas_" + id + ".png";
+            atlas.name = createAtlasName(id);
             atlas.padding = 0;
             atlas.rects = new Vector.<AtlasRect>();
+        }
+
+        private static function createAtlasName(index:int) : String
+        {
+            if(index == 0)
+                return "atlas";
+            return "atlas" + (index+1);
         }
 
         private function createMaterial(name:String, libraryName:String, diffuseName:String, shader:String) : MaterialData
@@ -86,9 +99,25 @@ package alternativa.editor.mapexport.binary.atlasBuilder
         }
 
         /**
-         * Returns: material id
+         * Returns: material id, unique for each texture, or -1 if failed to add to the atlas
          */
         public function tryAddMeshProp(prop:MeshProp, propIndex:int) : int
+        {
+            var textureData:TextureData = tryGetOrCreateTextureData(prop, propIndex);
+
+            if(textureData == null)
+                return -1;
+
+            if(!(prop is Sprite3DProp))
+            {
+                var batch:BatchInfo = batches[textureData.batchIndex];
+                batch.batch.propsIds += propIndex + ',';
+            }
+
+            return textureData.material.id;
+        }
+
+        private function tryGetOrCreateTextureData(prop:MeshProp, propIndex:int) : TextureData
         {
             var diffuseName:String = TextureDiffuseMapsRegistry.getDiffuseName(prop.libraryName, prop.groupName, prop.name, prop.textureName);
 
@@ -105,7 +134,7 @@ package alternativa.editor.mapexport.binary.atlasBuilder
                 var rect:AtlasRect = createAtlasRect(texture, diffuseName, prop);
 
                 if(rect == null)
-                    return -1;
+                    return null;
 
                 var atlasRectIndex:int = atlas.rects.length;
 
@@ -125,10 +154,7 @@ package alternativa.editor.mapexport.binary.atlasBuilder
                 textureData.texture = texture;
             }
 
-            var batch:BatchInfo = batches[textureData.batchIndex];
-            batch.batch.propsIds += propIndex + ',';
-
-            return textureData.material.id;
+            return textureData;
         }
 
         private function createAtlasRect(texture:BitmapData, textureDiffuseName:String, prop:Prop) : AtlasRect
@@ -189,7 +215,7 @@ package alternativa.editor.mapexport.binary.atlasBuilder
 
             i = batches.length;
 
-            var name:String = "batch" + i;
+            var name:String = "batch" + i + "_" + _atlasIndex;
 
             var material:MaterialData = createMaterial(name, null, atlas.name, shader);
             var batch:Batch = createBatch(name, material);

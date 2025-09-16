@@ -171,7 +171,7 @@ package alternativa.editor.propslib
          }
          if(param1.sprite.length() > 0)
          {
-            return this.createSpriteLoaderPair(param1);
+            return this.createSpriteLoaderPair(param1, groupName);
          }
          throw new Error("Unknown prop: " + param1);
       }
@@ -207,20 +207,23 @@ package alternativa.editor.propslib
          return loc4;
       }
       
-      private function createSpriteLoaderPair(param1:XML) : ObjectLoaderPair
+      private function createSpriteLoaderPair(param1:XML, groupName:String) : ObjectLoaderPair
       {
          var loc2:XML = param1.sprite[0];
          var loc3:String = xmlReadAttrString(loc2,"alpha");
          if(loc3 != null)
          {
-            loc3 = this.url + loc3.toLowerCase();
+            loc3 = loc3.toLowerCase();
          }
          var loc4:Number = xmlReadAttrNumber(loc2,"origin-x",0.5);
          var loc5:Number = xmlReadAttrNumber(loc2,"origin-y",1);
          var loc6:Number = xmlReadAttrNumber(loc2,"scale",1);
          var loc7:ObjectLoaderPair = new ObjectLoaderPair();
-         loc7.propObject = new PropLibObject(param1.@name);
-         loc7.loader = new SpriteLoader(this.url + loc2.attribute("file").toString().toLowerCase(),loc3,loc4,loc5,loc6);
+         var propName:String = param1.@name;
+         var fileName:String = loc2.attribute("file").toString().toLowerCase();
+         loc7.propObject = new PropLibObject(propName);
+         loc7.loader = new SpriteLoader(this.url, fileName,loc3,loc4,loc5,loc6,
+            this.name, groupName, propName);
          return loc7;
       }
    }

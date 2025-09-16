@@ -45,9 +45,9 @@ package alternativa.editor.prop
       private var _noCollisionMaterial:TextureMaterial = null;
       
       
-      public function MeshProp(mainObject:Object3D, objects:Vector.<Object3D>, param2:String, param3:String, param4:String, param5:Boolean = true)
+      public function MeshProp(mainObject:Object3D, objects:Vector.<Object3D>, name:String, libraryName:String, groupName:String, param5:Boolean = true)
       {
-         super(mainObject,param2,param3,param4,param5);
+         super(mainObject,name,libraryName,groupName,param5);
          _objects = objects;
          type = Prop.TILE;
          this.parseCollisionData(mainObject, objects);
@@ -302,7 +302,7 @@ package alternativa.editor.prop
          
          this.setToCollisionDisabledTextureIfNeeded();         
       }
-      private function setToCollisionDisabledTextureIfNeeded() : void
+      protected function setToCollisionDisabledTextureIfNeeded() : void
       {
          if(_collisionEnabled)
             return;
