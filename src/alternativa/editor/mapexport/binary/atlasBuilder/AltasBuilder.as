@@ -21,6 +21,8 @@ package alternativa.editor.mapexport.binary.atlasBuilder
 
         private static const DEFAULT_SHADER:String = "TankiOnline/SingleTextureShader";
 
+        private static const MAX_ATLAS_SIZE:int = 4096;
+
 
         public var atlas:Atlas;
 
@@ -29,6 +31,11 @@ package alternativa.editor.mapexport.binary.atlasBuilder
         private const texturesData:Dictionary = new Dictionary();
 
         private const materialsOutput:Vector.<MaterialData> = new Vector.<MaterialData>();
+
+
+        private var _atlasLayerWidth:int = 0;
+        private var _atlasLayerHeight:int = 0;
+        private var _atlasLayerY:int = 0;
 
 
         public function AltasBuilder(id:int)
@@ -89,6 +96,21 @@ package alternativa.editor.mapexport.binary.atlasBuilder
 
             if(textureData == null)
             {
+                var texture:BitmapData = prop.bitmaps[prop.textureName];
+                if(texture == null)
+                {
+                    texture = prop.bitmaps["DEFAULT"];
+                }
+                
+                var rect:AtlasRect = createAtlasRect(texture, diffuseName, prop);
+
+                if(rect == null)
+                    return -1;
+
+                var atlasRectIndex:int = atlas.rects.length;
+
+                atlas.rects.push(rect);
+
                 var shader:String = "TankiOnline/SingleTextureShader";
 
                 textureData = new TextureData();
@@ -98,42 +120,59 @@ package alternativa.editor.mapexport.binary.atlasBuilder
                 textureData.material = createMaterial(diffuseName, prop.libraryName, diffuseName, shader);
 
                 textureData.batchIndex = getBatchIndexByShader(shader);
-
-                var texture:BitmapData = prop.bitmaps[prop.textureName];
-                if(texture == null)
-                {
-                    texture = prop.bitmaps["DEFAULT"];
-                }
+                textureData.atlasRectIndex = atlasRectIndex;
 
                 textureData.texture = texture;
-
-                textureData.atlasRectIndex = atlas.rects.length;
-                atlas.rects.push(createAtlasRect(texture, diffuseName, prop));
             }
 
             var batch:BatchInfo = batches[textureData.batchIndex];
             batch.batch.propsIds += propIndex + ',';
 
             return textureData.material.id;
-            
-            //TODO: deny (return -1) if atlas is too big
         }
 
         private function createAtlasRect(texture:BitmapData, textureDiffuseName:String, prop:Prop) : AtlasRect
         {
+            var texHeight:int = texture.height;
+            var texWidth:int = texture.width;
+            var rectX:int = 0;
+
+            if(_atlasLayerWidth + texWidth > MAX_ATLAS_SIZE)
+            {
+                if(atlas.height + texHeight > MAX_ATLAS_SIZE)
+                {
+                    atlas.height = MAX_ATLAS_SIZE;
+                    return null; // max size of atlas is reached
+                }
+
+                _atlasLayerWidth = texWidth;
+                rectX = 0;
+
+                atlas.width = MAX_ATLAS_SIZE;
+
+                _atlasLayerY += _atlasLayerHeight;
+                _atlasLayerHeight = texHeight;
+            }
+            else
+            {
+                rectX = _atlasLayerWidth;
+
+                _atlasLayerWidth += texWidth;
+                _atlasLayerHeight = Math.max(_atlasLayerHeight, texHeight);
+                
+                atlas.width = Math.max(atlas.width, _atlasLayerWidth);
+            }
+
+            atlas.height = _atlasLayerY + _atlasLayerHeight;
+
             var rect:AtlasRect = new AtlasRect();
 
-            rect.height = texture.height;
-            rect.width = texture.width;
+            rect.height = texHeight;
+            rect.width = texWidth;
             rect.libraryName = prop.libraryName;
             rect.name = textureDiffuseName;
-
-            //test:
-            rect.y = 0;
-            rect.x = atlas.width;
-
-            atlas.height = Math.max(atlas.height, rect.height);
-            atlas.width += rect.width;
+            rect.x = rectX;
+            rect.y = _atlasLayerY;
 
             return rect;
         }
