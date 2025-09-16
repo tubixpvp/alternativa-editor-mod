@@ -30,6 +30,10 @@ package alternativa.editor.mapexport.binary
     import alternativa.editor.mapexport.binary.types.SpawnPointType;
     import alternativa.editor.mapexport.binary.types.Atlas;
     import alternativa.editor.mapexport.binary.types.Batch;
+    import alternativa.editor.prop.FreeBonusRegion;
+    import alternativa.editor.prop.CTFFlagBase;
+    import alternativa.editor.prop.ControlPoint;
+    import alternativa.editor.prop.KillBox;
 
     public class MapBinaryExporter extends FileExporter
     {
@@ -72,6 +76,8 @@ package alternativa.editor.mapexport.binary
             }
 
             archive.addFileFromString("map.json", JSON.stringify(mapData.map));
+
+            archive.addFileFromString("extra.json", JSON.stringify(mapData.extra, null, 4));
 
             archive.serialize(stream);
         }
@@ -130,15 +136,31 @@ package alternativa.editor.mapexport.binary
         {
             if(prop.type == Prop.TILE)
             {
-                constructMeshProp(prop as MeshProp, mapOutput, atlases);
+                addMeshProp(prop as MeshProp, mapOutput, atlases);
             }
             else if(prop.type == Prop.SPAWN)
             {
-                constructSpawnPoint(prop as SpawnPoint, mapOutput);
+                addSpawnPoint(prop as SpawnPoint, mapOutput, false);
+            }
+            else if(prop.type == Prop.BONUS)
+            {
+                addBonusRegion(prop as FreeBonusRegion, extraOutput);
+            }
+            else if(prop.type == Prop.FLAG)
+            {
+                addFlagBase(prop as CTFFlagBase, extraOutput);
+            }
+            else if(prop.type == Prop.DOMINATION_CONTROL_POINT)
+            {
+                addDominationPoint(prop as ControlPoint, mapOutput, extraOutput);
+            }
+            else if(prop.type == Prop.KILL_GEOMETRY)
+            {
+                addSpecialGeometry(prop as KillBox, extraOutput);
             }
         }
 
-        private function constructMeshProp(prop:MeshProp, mapOutput:BattleMap, atlases:Vector.<AltasBuilder>) : void
+        private function addMeshProp(prop:MeshProp, mapOutput:BattleMap, atlases:Vector.<AltasBuilder>) : void
         {
             if(prop.collisionEnabled)
             {
@@ -196,21 +218,121 @@ package alternativa.editor.mapexport.binary
             return atlas.tryAddMeshProp(prop, propIndex);
         }
 
-        private function constructSpawnPoint(prop:SpawnPoint, mapOutput:BattleMap) : void
+        private function addSpawnPoint(prop:SpawnPoint, mapOutput:BattleMap, linkedToDominationPoint:Boolean) : void
         {
             mapOutput.spawnPoints.push(new SpawnPointData(
                 new Vector3D(prop.x, prop.y, prop.z),
                 new Vector3D(prop.rotationX, prop.rotationY, prop.rotationZ),
-                SpawnPointType.fromString(prop.name)
+                SpawnPointType.fromString(prop.name, linkedToDominationPoint)
             ));
+        }
+
+        private function addBonusRegion(prop:FreeBonusRegion, extraOutput:MapExtraData) : void
+        {
+            if(prop.typeNames.isEmpty() || prop.gameModes.isEmpty())
+                return;
+
+            var region:BonusRegionData = new BonusRegionData();
+
+            region.bonusTypes = prop.typeNames.toArray();
+            region.gameModes = prop.gameModes.toArray();
+            region.spawnOnGround = !prop.parachute;
+
+            extraOutput.bonusRegions.push(region);
+        }
+
+        private function addFlagBase(prop:CTFFlagBase, extraOutput:MapExtraData) : void
+        {
+            var flagTeam:String = (prop.name == "red_flag" ? "RED" : prop.name == "blue_flag" ? "BLUE" : "NONE");
+
+            var flagsInGameMode:Vector.<FlagData> = extraOutput.flags[prop.gameMode];
+
+            if(flagsInGameMode == null)
+            {
+                flagsInGameMode = extraOutput.flags[prop.gameMode] = new Vector.<FlagData>();
+            }
+
+            flagsInGameMode.push(new FlagData(flagTeam, new Vector3D(prop.x, prop.y, prop.z)));
+        }
+
+        private function addDominationPoint(prop:ControlPoint, mapOutput:BattleMap, extraOutput:MapExtraData) : void
+        {
+            var spawnPoints:Vector.<SpawnPoint> = prop.getSpawnPoints();
+            for each(var spawnPoint:SpawnPoint in spawnPoints)
+            {
+                addSpawnPoint(spawnPoint, mapOutput, true);
+            }
+
+            var pointsInGameMode:Object = extraOutput.dominationControlPoints[prop.gameMode];
+
+            if(pointsInGameMode == null)
+            {
+                pointsInGameMode = extraOutput.dominationControlPoints[prop.gameMode] = {};
+            }
+
+            pointsInGameMode[prop.controlPointName] = new Vector3D(prop.x, prop.y, prop.z);
+        }
+
+        private function addSpecialGeometry(prop:KillBox, extraOutput:MapExtraData) : void
+        {
+            var data:SpecialGeometryData = new SpecialGeometryData();
+
+            data.boundMin = new Vector3D(prop.minX, prop.minY, prop.minZ);
+            data.boundMax = new Vector3D(prop.maxx, prop.maxy, prop.maxz);
+            data.action = prop.action;
+
+            extraOutput.specialGeometry.push(data);
         }
 
     }
 }
 
+class SpecialGeometryData
+{
+    public var boundMin:Vector3D;
+    public var boundMax:Vector3D;
+    public var action:String;
+}
+
+class FlagData
+{
+    public var team:String;
+
+    public var position:Vector3D;
+
+
+    public function FlagData(team:String, position:Vector3D)
+    {
+        this.team = team;
+        this.position = position;
+    }
+}
+
+class BonusRegionData
+{
+    public var bonusTypes:Array;
+
+    public var gameModes:Array;
+
+    public var spawnOnGround:Boolean;
+}
+
+class MapExtraData
+{
+    public const version:int = 1;
+
+    public const bonusRegions:Vector.<BonusRegionData> = new Vector.<BonusRegionData>();
+
+    public const flags:Object = {};
+
+    public const dominationControlPoints:Object = {};
+
+    public const specialGeometry:Vector.<SpecialGeometryData> = new Vector.<SpecialGeometryData>();
+}
+
 import alternativa.editor.mapexport.binary.types.BattleMap;
 import flash.utils.Dictionary;
-import alternativa.editor.mapexport.binary.MapExtraData;
+import alternativa.editor.mapexport.binary.types.Vector3D;
 
 class ExportedMapData
 {

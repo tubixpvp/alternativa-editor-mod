@@ -118,7 +118,7 @@ package alternativa.editor
          this.initKeyMapper();
       }
       
-      private static function getMeshBounds(param1:Mesh, param2:Point3D, param3:Point3D) : void
+      private static function getMeshBounds(param1:Mesh, param2:Point3D, param3:Point3D, prop:Object3D) : void
       {
          /*var loc4:Vertex = null;
          var loc5:Point3D = null;
@@ -152,9 +152,9 @@ package alternativa.editor
                param3.z = loc5.z;
             }
          }*/
-        param1.calculateBounds();
-        param2.reset(param1.boundMaxX,param1.boundMaxY,param1.boundMaxZ);
-        param3.reset(param1.boundMinX,param1.boundMinY,param1.boundMinZ);
+        //param1.calculateBounds();
+        param2.reset(prop.x+param1.boundMaxX, prop.y+param1.boundMaxY, prop.z+param1.boundMaxZ);
+        param3.reset(prop.x+param1.boundMinX, prop.y+param1.boundMinY, prop.z+param1.boundMinZ);
       }
       
       private static function fillBBPoints(param1:Point3D, param2:Point3D, param3:Array) : void
@@ -641,7 +641,7 @@ package alternativa.editor
          {
             return;
          }
-         getMeshBounds(loc2,this.min,this.max);
+         getMeshBounds(loc2,this.min,this.max,param1);
          fillBBPoints(this.min,this.max,this.bbPoints);
          var loc3:Number = this.mainScene.camera.focalLength;
          var loc6:Number = 0.5 * this.mainScene.view.width;

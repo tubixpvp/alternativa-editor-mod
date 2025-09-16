@@ -18,6 +18,7 @@ package alternativa.editor.mapexport.xml
    import alternativa.editor.mapexport.CollisionRect;
    import alternativa.editor.mapexport.CollisionBox;
    import alternativa.editor.mapexport.CollisionTriangle;
+   import alternativa.editor.prop.Sprite3DProp;
    
    public class TanksXmlExporterV1Lite extends FileExporter
    {
@@ -75,6 +76,10 @@ package alternativa.editor.mapexport.xml
          if(param1.free)
          {
             loc2.@free = "true";
+         }
+         if(!param1.collisionEnabled && !(param1 is Sprite3DProp))
+         {
+            loc2.@noCollision = "true";
          }
          return loc2;
       }

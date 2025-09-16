@@ -127,10 +127,10 @@ package alternativa.editor.mapimport.xml
             {
                position = getPoint3DFromXML(item.position[0]);
                rotation = Number(item.rotation.z);
-               if(prop is Sprite3DProp)
+               /*if(prop is Sprite3DProp) - multiple import/export will cause growing offset
                {
                   position.z += 0.1;
-               }
+               }*/
                prop = this.scene.addProp(prop,position,rotation,true,false);
                free = item.@free.toString() == "true";
                if(!(free && prop is Sprite3DProp))
@@ -141,6 +141,10 @@ package alternativa.editor.mapimport.xml
                tile = prop as MeshProp;
                if(tile)
                {
+                  if(!(tile is Sprite3DProp))
+                  {
+                     tile.collisionEnabled = !(item.@noCollision.toString() == "true");
+                  }
                   try
                   {
                      if(textureName != "")
@@ -232,16 +236,16 @@ package alternativa.editor.mapimport.xml
                if(loc6)
                {
                   loc7 = loc4.child("bonus-type");
-                  FreeBonusRegion(loc6).typeNames.clear();
+                  loc6.typeNames.clear();
                   for each(loc8 in loc7)
                   {
-                     FreeBonusRegion(loc6).typeNames.add(loc8.toString());
+                     loc6.typeNames.add(loc8.toString());
                   }
                   loc9 = loc4.child("game-mode");
-                  FreeBonusRegion(loc6).gameModes.clear();
+                  loc6.gameModes.clear();
                   for each(loc10 in loc9)
                   {
-                     FreeBonusRegion(loc6).gameModes.add(loc10.toString());
+                     loc6.gameModes.add(loc10.toString());
                   }
                   loc6 = FreeBonusRegion(this.scene.addProp(loc6,new Point3D(Number(loc4.position.x),Number(loc4.position.y),Number(loc4.position.z)),0,true,false));
                   loc6.minX = Number(loc4.min.x);

@@ -30,9 +30,9 @@
                 _selectedProps.length = 0;
                 for(var prop:* in selectedProps)
                 {
-                    if(prop is MeshProp && !(prop is Sprite3DProp))
+                    if(!(prop is Sprite3DProp))
                     {
-                        _selectedProps.push(prop as MeshProp);
+                        _selectedProps.push(prop);
                     }
                 }
 

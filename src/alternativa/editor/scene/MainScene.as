@@ -901,6 +901,8 @@ package alternativa.editor.scene
 
          this.showTexturePanel();
 
+         if(this.selectedProp is Sprite3DProp)
+            return;
 
          var collisionEnabled:Boolean = (this.selectedProp as MeshProp).collisionEnabled;
 

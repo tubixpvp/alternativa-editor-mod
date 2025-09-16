@@ -73,7 +73,7 @@
             
             private var exportManager:ExportManager;
             
-            private var miVisulaGeometry:NativeMenuItem;
+            private var miVisualGeometry:NativeMenuItem;
             
             private var miCollisionGeometry:NativeMenuItem;
             
@@ -112,8 +112,6 @@
             
             private function onApplicationComplete():void
             {
-                var loc1:NativeMenuItem = null;
-                var loc2:NativeMenuItem = null;
                 this.createPropPreview();
                 this.initPropList();
                 this.mainScene = this.sceneContainer.mainScene;
@@ -123,14 +121,6 @@
                 this.createLibraryManager();
                 this.createImportManager();
                 this.exportManager = new ExportManager(this.mainScene);
-                loc1 = this.getMenuItemByLabel("Export Tanks map 1.x");
-                loc1.keyEquivalent = null;
-                loc1 = this.getMenuItemByLabel("File");
-                loc2 = loc1.submenu.addItemAt(new NativeMenuItem("Export Tanks map 1.x.Full"), 3);
-                loc2.keyEquivalent = "t";
-                loc2.addEventListener(Event.SELECT, this.onExportToTanksV1FullClick);
-                loc2 = loc1.submenu.addItemAt(new NativeMenuItem("Import Specials"), 5);
-                loc2.addEventListener(Event.SELECT, this.specialAppendFromXMLClick);
                 this.initMenuItems();
                 this.setSnapping(true);
                 this.waitForContextAndInitFunctionalLibrary();
@@ -197,7 +187,7 @@
             
             private function initMenuItems():void
             {
-                this.miVisulaGeometry = this.getMenuItem(2, 0);
+                this.miVisualGeometry = this.getMenuItem(2, 0);
                 this.miCollisionGeometry = this.getMenuItem(2, 1);
                 this.miShowGrid = this.getMenuItem(2, 4);
                 this.miSnap = this.getMenuItem(4, 1);
@@ -337,7 +327,7 @@
             {
                 this.showCollisionGeometry = !this.showCollisionGeometry;
                 this.viewButton.down = this.showCollisionGeometry;
-                this.miVisulaGeometry.checked = !this.showCollisionGeometry;
+                this.miVisualGeometry.checked = !this.showCollisionGeometry;
                 this.miCollisionGeometry.checked = this.showCollisionGeometry;
                 if (this.showCollisionGeometry)
                 {
@@ -582,7 +572,7 @@
             
             private function onToggleGeometryClick(param1:NativeMenuItem):void
             {
-                if (param1 == this.miCollisionGeometry && !this.showCollisionGeometry || param1 == this.miVisulaGeometry && this.showCollisionGeometry)
+                if (param1 == this.miCollisionGeometry && !this.showCollisionGeometry || param1 == this.miVisualGeometry && this.showCollisionGeometry)
                 {
                     this.toggleGeometryViewMode();
                 }
@@ -716,12 +706,18 @@
             <menuitem label="File">
                 <menuitem label="New" keyEquivalent="n" ctrlKey="true" click="onNewLevelClick"/>
                 <menuitem type="separator"/>
-                <menuitem label="Export Tanks map 1.x" keyEquivalent="t" ctrlKey="true" click="onExportToTanksV1Click"/>
-                <menuitem label="Export Tanks map 3.x" keyEquivalent="t" ctrlKey="true" shiftKey="true" click="onExportToTanksV3Click"/>
-                <menuitem label="Export Binary Tanki map" click="onExportToBinaryClick"/>
-                <menuitem label="Import Tanks map" keyEquivalent="i" ctrlKey="true" click="onImportFromTanksClick"/>
-                <menuitem label="Append Tanks map" keyEquivalent="a" ctrlKey="true" click="appendFromXMLClick"/>
-                <menuitem label="Batch processing" click="onBatchProcessingClick"/>
+                <menuitem label="Import">
+                    <menuitem label="Import Tanki map" keyEquivalent="i" ctrlKey="true" click="onImportFromTanksClick"/>
+                    <menuitem label="Append Tanki map" keyEquivalent="a" ctrlKey="true" click="appendFromXMLClick"/>
+                    <menuitem label="Append special geometry" click="specialAppendFromXMLClick"/>
+                    <menuitem label="Batch processing" click="onBatchProcessingClick"/>
+                </menuitem>
+                <menuitem label="Export">
+                    <menuitem label="Flash Tanki map 1.0 (xml)" keyEquivalent="t" ctrlKey="true" click="onExportToTanksV1FullClick"/>
+                    <menuitem label="Flash Tanki map 1.0 (xml) - limited" click="onExportToTanksV1Click"/>
+                    <menuitem label="Flash Tanki map 3.0 (xml)" click="onExportToTanksV3Click"/>
+                    <menuitem label="HTML5 Tanki map    (zip)" click="onExportToBinaryClick"/>
+                </menuitem>
             </menuitem>
             <menuitem label="Edit">
                 <menuitem label="Undo" keyEquivalent="z" ctrlKey="true" click="onUndoClick"/>

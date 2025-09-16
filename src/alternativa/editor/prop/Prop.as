@@ -268,7 +268,7 @@ package alternativa.editor.prop
          }
          if(!parent)
          {
-            if(this._multi)
+            /*if(this._multi)
             {
                this.checkRemainder(loc9,"x",500);
                this.checkRemainder(loc10,"x",500);
@@ -297,7 +297,7 @@ package alternativa.editor.prop
                   ErrorHandler.addText("Prop" + this + "is out of size along y:" + loc8);
                   ErrorHandler.showWindow();
                }
-            }
+            }*/
          }
       }
       

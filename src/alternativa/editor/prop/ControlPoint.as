@@ -14,6 +14,8 @@ package alternativa.editor.prop
       public var controlPointName:String;
 
       public var spawnPoints:Dictionary;
+
+      public var gameMode:String = "CP";
       
       public function ControlPoint(param1:Object3D, param2:String, param3:String, param4:String, param5:Boolean = true)
       {

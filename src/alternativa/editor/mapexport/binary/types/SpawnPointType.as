@@ -22,8 +22,19 @@ package alternativa.editor.mapexport.binary.types
         public static const TJR_TEAM_A:int = 15;
         public static const TJR_TEAM_B:int = 16;
 
-        public static function fromString(name:String) : int
+        public static function fromString(name:String, linkedToControlPoint:Boolean) : int
         {
+            if(linkedToControlPoint)
+            {
+                switch(name)
+                {
+                    case FunctionalProps.BLUE_SPAWN:
+                        return DOM_TEAM_B;
+                    case FunctionalProps.RED_SPAWN:
+                        return DOM_TEAM_A;
+                }
+                return DOM;
+            }
             switch(name)
             {
                 case FunctionalProps.BLUE_SPAWN:
