@@ -102,6 +102,8 @@ package alternativa.editor.mapexport.binary
 
             var mapExtra:MapExtraData = new MapExtraData();
 
+            var cache:MapExportCache = new MapExportCache();
+
             var children:Vector.<Object3D> = sceneRoot.children;
             for each(var propObj:Object3D in children)
             {
@@ -109,7 +111,7 @@ package alternativa.editor.mapexport.binary
                 if(prop == null)
                     continue;
 
-                constructPropData(prop, map, mapExtra, atlases);
+                constructPropData(prop, map, mapExtra, atlases, cache);
             }
 
             var mapData:ExportedMapData = new ExportedMapData();
@@ -132,7 +134,7 @@ package alternativa.editor.mapexport.binary
             return mapData;
         }
 
-        private function constructPropData(prop:Prop, mapOutput:BattleMap, extraOutput:MapExtraData, atlases:Vector.<AltasBuilder>) : void
+        private function constructPropData(prop:Prop, mapOutput:BattleMap, extraOutput:MapExtraData, atlases:Vector.<AltasBuilder>, cache:MapExportCache) : void
         {
             if(prop.type == Prop.TILE)
             {
@@ -152,7 +154,7 @@ package alternativa.editor.mapexport.binary
             }
             else if(prop.type == Prop.DOMINATION_CONTROL_POINT)
             {
-                addDominationPoint(prop as ControlPoint, mapOutput, extraOutput);
+                addDominationPoint(prop as ControlPoint, mapOutput, extraOutput, cache);
             }
             else if(prop.type == Prop.KILL_GEOMETRY)
             {
@@ -255,22 +257,28 @@ package alternativa.editor.mapexport.binary
             flagsInGameMode.push(new FlagData(flagTeam, new Vector3D(prop.x, prop.y, prop.z)));
         }
 
-        private function addDominationPoint(prop:ControlPoint, mapOutput:BattleMap, extraOutput:MapExtraData) : void
+        private function addDominationPoint(prop:ControlPoint, mapOutput:BattleMap, extraOutput:MapExtraData, cache:MapExportCache) : void
         {
+            var bindedSpawns:Vector.<int> = new Vector.<int>();
+
             var spawnPoints:Vector.<SpawnPoint> = prop.getSpawnPoints();
             for each(var spawnPoint:SpawnPoint in spawnPoints)
             {
                 addSpawnPoint(spawnPoint, mapOutput, true);
+
+                bindedSpawns.push(cache.dominationLinkedSpawnsCounter++);
             }
 
-            var pointsInGameMode:Object = extraOutput.dominationControlPoints[prop.gameMode];
+            var pointsInGameMode:Vector.<DominationPointData> = extraOutput.dominationControlPoints[prop.gameMode];
 
             if(pointsInGameMode == null)
             {
-                pointsInGameMode = extraOutput.dominationControlPoints[prop.gameMode] = {};
+                pointsInGameMode = extraOutput.dominationControlPoints[prop.gameMode] = new Vector.<DominationPointData>();
             }
 
-            pointsInGameMode[prop.controlPointName] = new Vector3D(prop.x, prop.y, prop.z);
+            var position:Vector3D = new Vector3D(prop.x, prop.y, prop.z);
+
+            pointsInGameMode.push(new DominationPointData(prop.controlPointName, bindedSpawns, position));
         }
 
         private function addSpecialGeometry(prop:KillBox, extraOutput:MapExtraData) : void
@@ -292,6 +300,29 @@ class SpecialGeometryData
     public var boundMin:Vector3D;
     public var boundMax:Vector3D;
     public var action:String;
+}
+
+class DominationPointData
+{
+    /**
+     * Letter of the point (A/B/C/D/E/F/G...)
+     */
+    public var name:String;
+
+    /**
+     * Indices of DOM-related spawns that are linked to this point.
+     * To get actual spawn points, you have to collect all DOM spawns (SpawnPointType.DOM/SpawnPointType.DOM_TEAM_A/SpawnPointType.DOM_TEAM_B) from common spawns list into array and use this indices on it.
+     */
+    public var bindedSpawns:Vector.<int>;
+
+    public var position:Vector3D;
+
+    public function DominationPointData(name:String, bindedSpawns:Vector.<int>, position:Vector3D)
+    {
+        this.name = name;
+        this.bindedSpawns = bindedSpawns;
+        this.position = position;
+    }
 }
 
 class FlagData
@@ -319,12 +350,21 @@ class BonusRegionData
 
 class MapExtraData
 {
+    /**
+     * Version of 'extra.json' file format
+     */
     public const version:int = 1;
 
     public const bonusRegions:Vector.<BonusRegionData> = new Vector.<BonusRegionData>();
 
+    /**
+     * Flags: { mode -> FlagData[] }
+     */
     public const flags:Object = {};
 
+    /**
+     * Control Points { mode -> DominationPointData[] }
+     */
     public const dominationControlPoints:Object = {};
 
     public const specialGeometry:Vector.<SpecialGeometryData> = new Vector.<SpecialGeometryData>();
@@ -341,4 +381,9 @@ class ExportedMapData
     public var atlasFiles:Dictionary;
 
     public var extra:MapExtraData;
+}
+
+class MapExportCache
+{
+    public var dominationLinkedSpawnsCounter:int = 0;
 }

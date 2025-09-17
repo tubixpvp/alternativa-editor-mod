@@ -18,11 +18,15 @@ package alternativa.editor.mapexport.binary.atlasBuilder
 
     public class AltasBuilder
     {
+        private static const LOG_2:Number = Math.log(2);
+
         private static const BATCH_KEY:String = "batch";
 
         private static const DEFAULT_SHADER:String = "TankiOnline/SingleTextureShader";
 
         private static const MAX_ATLAS_SIZE:int = 4096;
+
+        private static const TEXTURE_OUTER_BUFFER_SIZE:int = 16;
 
 
         public var atlas:Atlas;
@@ -39,7 +43,7 @@ package alternativa.editor.mapexport.binary.atlasBuilder
 
         private var _atlasLayerWidth:int = 0;
         private var _atlasLayerHeight:int = 0;
-        private var _atlasLayerY:int = 0;
+        private var _atlasLayerY:int = TEXTURE_OUTER_BUFFER_SIZE;
 
 
         public function AltasBuilder(id:int)
@@ -159,8 +163,8 @@ package alternativa.editor.mapexport.binary.atlasBuilder
 
         private function createAtlasRect(texture:BitmapData, textureDiffuseName:String, prop:Prop) : AtlasRect
         {
-            var texHeight:int = texture.height;
-            var texWidth:int = texture.width;
+            var texHeight:int = texture.height + TEXTURE_OUTER_BUFFER_SIZE*2;
+            var texWidth:int = texture.width + TEXTURE_OUTER_BUFFER_SIZE*2;
             var rectX:int = 0;
 
             if(_atlasLayerWidth + texWidth > MAX_ATLAS_SIZE)
@@ -172,7 +176,7 @@ package alternativa.editor.mapexport.binary.atlasBuilder
                 }
 
                 _atlasLayerWidth = texWidth;
-                rectX = 0;
+                rectX = TEXTURE_OUTER_BUFFER_SIZE;
 
                 atlas.width = MAX_ATLAS_SIZE;
 
@@ -181,7 +185,7 @@ package alternativa.editor.mapexport.binary.atlasBuilder
             }
             else
             {
-                rectX = _atlasLayerWidth;
+                rectX = _atlasLayerWidth + TEXTURE_OUTER_BUFFER_SIZE;
 
                 _atlasLayerWidth += texWidth;
                 _atlasLayerHeight = Math.max(_atlasLayerHeight, texHeight);
@@ -193,8 +197,8 @@ package alternativa.editor.mapexport.binary.atlasBuilder
 
             var rect:AtlasRect = new AtlasRect();
 
-            rect.height = texHeight;
-            rect.width = texWidth;
+            rect.height = texture.height;
+            rect.width = texture.width;
             rect.libraryName = prop.libraryName;
             rect.name = textureDiffuseName;
             rect.x = rectX;
@@ -226,6 +230,9 @@ package alternativa.editor.mapexport.binary.atlasBuilder
 
         public function createAtlasBitmap() : BitmapData
         {
+            atlas.width = toPowerOf2(atlas.width);
+            atlas.height = toPowerOf2(atlas.height);
+
             var bitmap:BitmapData = new BitmapData(atlas.width, atlas.height, true, 0x00000000);
 
             var matrix:Matrix = new Matrix();
@@ -237,10 +244,64 @@ package alternativa.editor.mapexport.binary.atlasBuilder
                 matrix.tx = rect.x;
                 matrix.ty = rect.y;
 
-                bitmap.draw(textureData.texture, matrix);
+                var texture:BitmapData = textureData.texture;
+
+                bitmap.draw(texture, matrix);
+
+                for(var x:int = 0; x < rect.width; x++)
+                {
+                    for(var y:int = 0; y < TEXTURE_OUTER_BUFFER_SIZE; y++)
+                    {
+                        bitmap.setPixel32(rect.x + x, rect.y - y - 1, texture.getPixel32(x,0));
+                        bitmap.setPixel32(rect.x + x, rect.y+rect.height + y, texture.getPixel32(x, rect.height-1));
+                    }
+                }
+                for(y = 0; y < rect.height; y++)
+                {
+                    for(x = 0; x < TEXTURE_OUTER_BUFFER_SIZE; x++)
+                    {
+                        bitmap.setPixel32(rect.x - x - 1, rect.y + y, texture.getPixel32(0, y));
+                        bitmap.setPixel32(rect.x + x+rect.width, rect.y + y, texture.getPixel32(rect.width-1, y));
+                    }
+                }
+
+                //corners
+                var colors:Array = [
+                    texture.getPixel32(0,0),
+                    texture.getPixel32(rect.width-1, 0),
+                    texture.getPixel32(0, rect.height-1),
+                    texture.getPixel32(rect.width-1, rect.height-1)
+                ];
+                var coords:Array = [
+                    rect.x-TEXTURE_OUTER_BUFFER_SIZE, rect.y - TEXTURE_OUTER_BUFFER_SIZE,
+                    rect.x+rect.width, rect.y - TEXTURE_OUTER_BUFFER_SIZE,
+                    rect.x-TEXTURE_OUTER_BUFFER_SIZE, rect.y+rect.height,
+                    rect.x+rect.width, rect.y+rect.height
+                ];
+                for(var i:int = 0; i < 4; i++)
+                {
+                    var color:uint = colors[i];
+                    var startX:int = coords[i*2];
+                    var startY:int = coords[i*2+1];
+
+                    for(y = 0; y < TEXTURE_OUTER_BUFFER_SIZE; y++)
+                    {
+                        for(x = 0; x < TEXTURE_OUTER_BUFFER_SIZE; x++)
+                        {
+                            bitmap.setPixel32(startX+x, startY+y, color);
+                        }
+                    }
+                }
             }
 
             return bitmap;
+        }
+
+        private function toPowerOf2(size:int) : int
+        {
+            var nextPower:int = Math.ceil(Math.log(size) / LOG_2);
+
+            return Math.min(Math.pow(2, nextPower), MAX_ATLAS_SIZE);
         }
 
         public function addAllBatchesAndMaterials(map:BattleMap) : void
