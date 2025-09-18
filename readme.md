@@ -8,6 +8,8 @@ This is modded version of AlternativaEditor (Tanks map editor)
 ## Notice
 This editor doesn't support *all* features that were in the original Editor, and may have some bugs. It mainly caused by 3D engine upgrade.
 
+The editor itself was originally created by [AlternativaGames](https://github.com/AlternativaPlatform) and the sources are not officialy public, so use the code only in educational purposes; commercial use is not recommended.
+
 ## How to run
 To run the editor you need to install [AIR 51](https://airsdk.harman.com/runtime).
 
