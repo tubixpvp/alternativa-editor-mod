@@ -181,7 +181,7 @@
             private function initFunctionalLibrary():void
             {
                 this.libraryManager.addLibrary(FunctionalProps.getFunctionalLibrary());
-                this.cbPropLibNames.selectedItem = "Functional";
+                this.cbPropLibNames.selectedItem = FunctionalProps.LIBRARY_NAME;
                 this.onComboBoxChange(null);
             }
             
@@ -248,8 +248,10 @@
             private function onLibraryManagerChange(param1:Event):void
             {
                 this.cursorScene.clear();
-                var loc2:Array = this.libraryManager.libraryNames;
-                this.cbPropLibNames.selectedItem = loc2[loc2.length - 1];
+                var names:Array = this.libraryManager.libraryNames;
+                var lastItem:String = names[names.length - 1];
+                names.sort();
+                this.cbPropLibNames.selectedItem = lastItem;
                 this.onComboBoxChange(null);
                 this.hideProgressBar();
             }
@@ -463,7 +465,7 @@
                 this.importManager.importFromXML();
             }
             
-            private function specialAppendFromXMLClick(param1:Event):void
+            private function specialAppendFromXMLClick(param1:NativeMenuItem):void
             {
                 this.importManager.importFromXML(true);
             }
@@ -534,6 +536,7 @@
             private function onClearAndLoadLibClick(param1:NativeMenuItem):void
             {
                 this.libraryManager.clearAndLoadLibrary();
+                this.cbPropLibNames.selectedItem = FunctionalProps.LIBRARY_NAME;
             }
             
             private function onLoadLibClick(param1:NativeMenuItem):void
@@ -696,6 +699,7 @@
             private function onClearLibClick(param1:NativeMenuItem):void
             {
                 this.libraryManager.clearLibraries();
+                this.cbPropLibNames.selectedItem = FunctionalProps.LIBRARY_NAME;
             }
         ]]>
     </mx:Script>

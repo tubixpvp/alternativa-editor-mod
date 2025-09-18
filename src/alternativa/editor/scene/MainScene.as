@@ -901,26 +901,11 @@ package alternativa.editor.scene
 
          this.showTexturePanel();
 
-         if(this.selectedProp is Sprite3DProp)
-            return;
-
-         var collisionEnabled:Boolean = (this.selectedProp as MeshProp).collisionEnabled;
-
-         for(item in this.selectedProps)
-         {
-            if(item is Sprite3DProp)
-               continue;
-            if(collisionEnabled != (item as MeshProp).collisionEnabled)
-            {
-               return;
-            }
-         }
-
          this.texturePanel.percentWidth = 100 - this.propGeneralProperties.percentWidth;
             
          this.showPropertyPanelItem(this.propGeneralProperties);
 
-         this.propGeneralProperties.init(this.selectedProps, collisionEnabled);
+         this.propGeneralProperties.init(this.selectedProp,this.selectedProps);
       }
       
       private function showTexturePanel() : void

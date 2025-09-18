@@ -311,16 +311,13 @@ package alternativa.editor
          }
          if(loc2 == FunctionalProps.LIBRARY_NAME)
          {
-            if(funcIsNotLoadedYet)
-            {
-               this.propsByLibraryName.add(loc2,loc3);
-               this.libraryNames.push(loc2);
-               funcIsNotLoadedYet = false;
-            }
+            if(!funcIsNotLoadedYet)
+               return;
+            funcIsNotLoadedYet = true;
          }
-         else
+         this.propsByLibraryName.add(loc2,loc3);
+         if(!this.libraryNames.includes(loc2))
          {
-            this.propsByLibraryName.add(loc2,loc3);
             this.libraryNames.push(loc2);
          }
       }
