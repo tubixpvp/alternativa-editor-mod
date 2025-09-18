@@ -75,15 +75,15 @@ package alternativa.editor.prop
       
       public var data:*;
       
-      public function Prop(param1:Object3D, param2:String, param3:String, param4:String, param5:Boolean = true)
+      public function Prop(param1:Object3D, name:String, libraryName:String, groupName:String, param5:Boolean = true)
       {
          super();
-         this.name = param2;
+         this.name = name;
          addChild(param1);
          this._object = param1;
          this._object.addEventListener(MouseEvent3D.MOUSE_DOWN,this.onMouseDown);
-         this._libraryName = param3;
-         this._groupName = param4;
+         this._libraryName = libraryName;
+         this._groupName = groupName;
          this.initBitmapData();
          if(param5)
          {
@@ -268,7 +268,7 @@ package alternativa.editor.prop
          }
          if(!parent)
          {
-            if(this._multi)
+            /*if(this._multi)
             {
                this.checkRemainder(loc9,"x",500);
                this.checkRemainder(loc10,"x",500);
@@ -297,7 +297,7 @@ package alternativa.editor.prop
                   ErrorHandler.addText("Prop" + this + "is out of size along y:" + loc8);
                   ErrorHandler.showWindow();
                }
-            }
+            }*/
          }
       }
       

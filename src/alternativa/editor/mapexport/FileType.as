@@ -9,6 +9,8 @@ package alternativa.editor.mapexport
       public static const MAP_XML_VERSION_2:FileType = new FileType("MAP_XML_VERSION_2");
       
       public static const MAP_XML_VERSION_3:FileType = new FileType("MAP_XML_VERSION_3");
+
+      public static const BINARY:FileType = new FileType("BINARY");
       
       private var value:String;
       

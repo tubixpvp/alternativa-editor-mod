@@ -147,7 +147,7 @@ package alternativa.editor.propslib
          var loc3:PropGroup = new PropGroup(param1.@name);
          for each(loc2 in param1.prop)
          {
-            loc3.addProp(this.parseProp(loc2));
+            loc3.addProp(this.parseProp(loc2, loc3.name));
          }
          for each(loc2 in param1.elements("prop-group"))
          {
@@ -156,67 +156,74 @@ package alternativa.editor.propslib
          return loc3;
       }
       
-      private function parseProp(param1:XML) : PropLibObject
+      private function parseProp(param1:XML, groupName:String) : PropLibObject
       {
-         var loc2:ObjectLoaderPair = this.createObjectLoaderPair(param1);
+         var loc2:ObjectLoaderPair = this.createObjectLoaderPair(param1, groupName);
          this.loaders.push(loc2);
          return loc2.propObject;
       }
       
-      private function createObjectLoaderPair(param1:XML) : ObjectLoaderPair
+      private function createObjectLoaderPair(param1:XML, groupName:String) : ObjectLoaderPair
       {
          if(param1.mesh.length() > 0)
          {
-            return this.createMeshLoaderPair(param1);
+            return this.createMeshLoaderPair(param1, groupName);
          }
          if(param1.sprite.length() > 0)
          {
-            return this.createSpriteLoaderPair(param1);
+            return this.createSpriteLoaderPair(param1, groupName);
          }
          throw new Error("Unknown prop: " + param1);
       }
       
-      private function createMeshLoaderPair(param1:XML) : ObjectLoaderPair
+      private function createMeshLoaderPair(param1:XML, groupName:String) : ObjectLoaderPair
       {
          var loc3:Map = null;
          var loc5:XML = null;
          var loc6:String = null;
          var loc7:String = null;
          var loc2:XML = param1.mesh[0];
+         var propName:String = param1.@name;
          if(loc2.texture.length() > 0)
          {
             loc3 = new Map();
             for each(loc5 in loc2.texture)
             {
+               var textureName:String = loc5.@name.toString();
                loc6 = loc5.attribute("diffuse-map").toString().toLowerCase();
+               TextureDiffuseMapsRegistry.addTexture(this.name, groupName, propName, textureName, loc6);
                loc7 = xmlReadAttrString(loc5,"opacity-map");
                if(loc7 != null)
                {
                   loc7 = this.url + loc7.toLowerCase();
                }
-               loc3.add(loc5.@name.toString(),new TextureMapsInfo(this.url + loc6,loc7));
+               loc3.add(textureName, new TextureMapsInfo(this.url + loc6,loc7));
             }
          }
          var loc4:ObjectLoaderPair = new ObjectLoaderPair();
-         loc4.propObject = new PropLibMesh(param1.@name);
-         loc4.loader = new MeshLoader(this.url + loc2.attribute("file").toString().toLowerCase(),xmlReadAttrString(loc2,"object"),loc3,this.url);
+         loc4.propObject = new PropLibMesh(propName);
+         loc4.loader = new MeshLoader(this.url + loc2.attribute("file").toString().toLowerCase(),xmlReadAttrString(loc2,"object"),loc3,this.url,
+               this.name, groupName, propName);
          return loc4;
       }
       
-      private function createSpriteLoaderPair(param1:XML) : ObjectLoaderPair
+      private function createSpriteLoaderPair(param1:XML, groupName:String) : ObjectLoaderPair
       {
          var loc2:XML = param1.sprite[0];
          var loc3:String = xmlReadAttrString(loc2,"alpha");
          if(loc3 != null)
          {
-            loc3 = this.url + loc3.toLowerCase();
+            loc3 = loc3.toLowerCase();
          }
          var loc4:Number = xmlReadAttrNumber(loc2,"origin-x",0.5);
          var loc5:Number = xmlReadAttrNumber(loc2,"origin-y",1);
          var loc6:Number = xmlReadAttrNumber(loc2,"scale",1);
          var loc7:ObjectLoaderPair = new ObjectLoaderPair();
-         loc7.propObject = new PropLibObject(param1.@name);
-         loc7.loader = new SpriteLoader(this.url + loc2.attribute("file").toString().toLowerCase(),loc3,loc4,loc5,loc6);
+         var propName:String = param1.@name;
+         var fileName:String = loc2.attribute("file").toString().toLowerCase();
+         loc7.propObject = new PropLibObject(propName);
+         loc7.loader = new SpriteLoader(this.url, fileName,loc3,loc4,loc5,loc6,
+            this.name, groupName, propName);
          return loc7;
       }
    }

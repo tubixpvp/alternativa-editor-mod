@@ -10,8 +10,9 @@
             import alternativa.types.Set;
             import alternativa.editor.prop.MeshProp;
             import alternativa.editor.prop.Sprite3DProp;
+            import alternativa.editor.prop.Prop;
 
-            private const _selectedProps:Vector.<MeshProp> = new Vector.<MeshProp>();
+            private const _selectedPropsWithCollisionParam:Vector.<MeshProp> = new Vector.<MeshProp>();
             
             private function onCreationComplete():void
             {
@@ -19,30 +20,74 @@
             
             private function onCollisionChanged(param1:Event):void
             {
-                for each(var prop:MeshProp in _selectedProps)
+                for each(var prop:MeshProp in _selectedPropsWithCollisionParam)
                 {
                     prop.collisionEnabled = this.collision.selected;
                 }
             }
 
-            public function init(selectedProps:Set, collisionEnabled:Boolean) : void
+            public function init(mainSelectedProp:Prop, selectedProps:Set) : void
             {
-                _selectedProps.length = 0;
+                initCollisionParameter(mainSelectedProp, selectedProps);
+
+                if(selectedProps.length == 1)
+                {
+                    this.propName.text = "Name: " + mainSelectedProp.name;
+                    this.propName.visible = true;
+                    this.groupName.text = "Group: " + mainSelectedProp.groupName;
+                    this.groupName.visible = true;
+                    this.libName.text = "Library: " + mainSelectedProp.libraryName;
+                    this.libName.visible = true;
+                }
+                else
+                {
+                    this.propName.visible = false;
+                    this.groupName.visible = false;
+                    this.libName.visible = false;
+                }
+            }
+
+            private function initCollisionParameter(selectedProp:Prop, selectedProps:Set) : void
+            {
+                this.collision.visible = false;
+
+                if(selectedProp is Sprite3DProp)
+                    return;
+
+                var collisionEnabled:Boolean = (selectedProp as MeshProp).collisionEnabled;
+
+                for(var item:* in selectedProps)
+                {
+                    if(item is Sprite3DProp)
+                        continue;
+                    if(collisionEnabled != (item as MeshProp).collisionEnabled)
+                    {
+                        return;
+                    }
+                }
+
+                _selectedPropsWithCollisionParam.length = 0;
                 for(var prop:* in selectedProps)
                 {
-                    if(prop is MeshProp && !(prop is Sprite3DProp))
+                    if(!(prop is Sprite3DProp))
                     {
-                        _selectedProps.push(prop as MeshProp);
+                        _selectedPropsWithCollisionParam.push(prop);
                     }
                 }
 
                 this.collision.selected = collisionEnabled;
+                this.collision.visible = true;
             }
 
         ]]>
     </fx:Script>
 
     <mx:VBox paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+
+        <mx:Label id="propName" text=""/>
+        <mx:Label id="groupName" text=""/>
+        <mx:Label id="libName" text=""/>
+
         <mx:CheckBox id="collision" label="Collision enabled" change="onCollisionChanged(event)"/>
     </mx:VBox>
 

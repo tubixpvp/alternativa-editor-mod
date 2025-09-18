@@ -1,4 +1,4 @@
-package alternativa.editor.mapexport
+package alternativa.editor.mapexport.xml
 {
    import alternativa.editor.prop.BonusRegion;
    import alternativa.editor.prop.CTFFlagBase;
@@ -11,6 +11,11 @@ package alternativa.editor.mapexport
    import alternativa.engine3d.core.Object3D;
    import flash.filesystem.FileStream;
    import alternativa.engine3d.core.Object3DContainer;
+   import alternativa.editor.mapexport.FileExporter;
+   import alternativa.editor.mapexport.CollisionPrimitive;
+   import alternativa.editor.mapexport.CollisionRect;
+   import alternativa.editor.mapexport.CollisionBox;
+   import alternativa.editor.mapexport.CollisionTriangle;
    
    use namespace alternativa3d;
    

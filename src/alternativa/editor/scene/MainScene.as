@@ -14,9 +14,9 @@ package alternativa.editor.scene
    import alternativa.editor.events.LayerVisibilityChangeEvent;
    import alternativa.editor.mapexport.FileExporter;
    import alternativa.editor.mapexport.FileType;
-   import alternativa.editor.mapexport.TanksXmlExporterV1Full;
-   import alternativa.editor.mapexport.TanksXmlExporterV1Lite;
-   import alternativa.editor.mapexport.TanksXmlExporterV3;
+   import alternativa.editor.mapexport.xml.TanksXmlExporterV1Full;
+   import alternativa.editor.mapexport.xml.TanksXmlExporterV1Lite;
+   import alternativa.editor.mapexport.xml.TanksXmlExporterV3;
    import alternativa.editor.prop.BonusRegion;
    import alternativa.editor.prop.ControlPoint;
    import alternativa.editor.prop.FreeBonusRegion;
@@ -48,6 +48,10 @@ package alternativa.editor.scene
    import mx.controls.Alert;
    import mx.containers.HBox;
    import alternativa.editor.SceneContainer;
+   import alternativa.editor.mapexport.xml.TanksXmlExporterV1Lite;
+   import alternativa.editor.mapexport.xml.TanksXmlExporterV1Full;
+   import alternativa.editor.mapexport.xml.TanksXmlExporterV3;
+   import alternativa.editor.mapexport.binary.MapBinaryExporter;
    
    public class MainScene extends EditorScene
    {
@@ -116,6 +120,7 @@ package alternativa.editor.scene
          this.exporters[FileType.MAP_XML_VERSION_1_LITE] = new TanksXmlExporterV1Lite(root);
          this.exporters[FileType.MAP_XML_VERSION_1_FULL] = new TanksXmlExporterV1Full(root);
          this.exporters[FileType.MAP_XML_VERSION_3] = new TanksXmlExporterV3(root);
+         this.exporters[FileType.BINARY] = new MapBinaryExporter(root);
          this.createControlPointNameTextField();
          collider = new EllipsoidCollider(30,30,30);
          __root = root;
@@ -896,24 +901,11 @@ package alternativa.editor.scene
 
          this.showTexturePanel();
 
-
-         var collisionEnabled:Boolean = (this.selectedProp as MeshProp).collisionEnabled;
-
-         for(item in this.selectedProps)
-         {
-            if(item is Sprite3DProp)
-               continue;
-            if(collisionEnabled != (item as MeshProp).collisionEnabled)
-            {
-               return;
-            }
-         }
-
          this.texturePanel.percentWidth = 100 - this.propGeneralProperties.percentWidth;
             
          this.showPropertyPanelItem(this.propGeneralProperties);
 
-         this.propGeneralProperties.init(this.selectedProps, collisionEnabled);
+         this.propGeneralProperties.init(this.selectedProp,this.selectedProps);
       }
       
       private function showTexturePanel() : void

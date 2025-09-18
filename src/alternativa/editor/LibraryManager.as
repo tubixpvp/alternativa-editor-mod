@@ -224,7 +224,7 @@ package alternativa.editor
       private function loadNextLib() : void
       {
          var loc1:String = this.libUrls.pop();
-         ErrorHandler.addText("Start loading " + loc1 + "---------------------------------");
+         //ErrorHandler.addText("Start loading " + loc1 + "---------------------------------");
          this.currentLib = new PropsLibrary();
          this.currentLib.addEventListener(Event.COMPLETE,this.onLoadingComplete);
          this.currentLib.addEventListener(IOErrorEvent.IO_ERROR,this.onLoadingError);
@@ -245,7 +245,7 @@ package alternativa.editor
          ++this.loadedLibs;
          this.currentLib.removeEventListener(PropLibProgressEvent.PROGRESS,this.onProgress);
          this.currentLib.removeEventListener(Event.COMPLETE,this.onLoadingComplete);
-         ErrorHandler.addText("Complete loading" + this.currentLib.name);
+         //ErrorHandler.addText("Complete loading" + this.currentLib.name);
          this.addLibrary(this.currentLib);
          if(this.libUrls.length == 0)
          {
@@ -311,16 +311,13 @@ package alternativa.editor
          }
          if(loc2 == FunctionalProps.LIBRARY_NAME)
          {
-            if(funcIsNotLoadedYet)
-            {
-               this.propsByLibraryName.add(loc2,loc3);
-               this.libraryNames.push(loc2);
-               funcIsNotLoadedYet = false;
-            }
+            if(!funcIsNotLoadedYet)
+               return;
+            funcIsNotLoadedYet = true;
          }
-         else
+         this.propsByLibraryName.add(loc2,loc3);
+         if(!this.libraryNames.includes(loc2))
          {
-            this.propsByLibraryName.add(loc2,loc3);
             this.libraryNames.push(loc2);
          }
       }

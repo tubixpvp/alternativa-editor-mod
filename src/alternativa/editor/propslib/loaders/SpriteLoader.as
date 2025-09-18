@@ -2,15 +2,17 @@ package alternativa.editor.propslib.loaders
 {
    import alternativa.engine3d.objects.Sprite3D;
    import alternativa.editor.engine3d.loaders.TextureMapsLoader;
-   import alternativa.types.Texture;
-   import flash.display.BlendMode;
    import flash.events.Event;
    import flash.events.IOErrorEvent;
    import flash.system.LoaderContext;
    import alternativa.engine3d.materials.TextureMaterial;
+   import flash.display.BitmapData;
+   import alternativa.editor.propslib.TextureDiffuseMapsRegistry;
    
    public class SpriteLoader extends ObjectLoader
    {
+      private var baseUrl:String;
+
       private var file:String;
       
       private var alpha:String;
@@ -24,29 +26,49 @@ package alternativa.editor.propslib.loaders
       private var loader:TextureMapsLoader;
       
       public var sprite:Sprite3D;
+
+      private var _libraryName:String,
+                  _groupName:String,
+                  _propName:String;
       
-      public function SpriteLoader(param1:String, param2:String, param3:Number, param4:Number, param5:Number)
+      public function SpriteLoader(baseUrl:String, diffuseFileName:String, alphaFileName:String, originX:Number, originY:Number, scale:Number,
+         libraryName:String,
+         groupName:String,
+         propName:String)
       {
          super();
-         this.file = param1;
-         this.alpha = param2;
-         this.originX = param3;
-         this.originY = param4;
-         this.scale = param5;
+         this.baseUrl = baseUrl;
+         this.file = diffuseFileName;
+         this.alpha = alphaFileName;
+         this.originX = originX;
+         this.originY = originY;
+         this.scale = scale;
+         this._libraryName = libraryName;
+         this._groupName = groupName;
+         this._propName = propName;
       }
       
       override public function load(param1:LoaderContext) : void
       {
-         this.loader = new TextureMapsLoader(this.file,this.alpha,param1);
+         var alpha:String = this.alpha;
+         if(alpha != null)
+         {
+            alpha = this.baseUrl + alpha;
+         }
+         this.loader = new TextureMapsLoader(this.baseUrl + this.file,alpha,param1);
          this.loader.addEventListener(Event.COMPLETE,this.onLoadingComplete);
          this.loader.addEventListener(IOErrorEvent.IO_ERROR,onErrorEvent);
       }
       
       private function onLoadingComplete(param1:Event) : void
       {
+         var bitmap:BitmapData = this.loader.bitmapData;
+
+         TextureDiffuseMapsRegistry.addTexture(_libraryName, _groupName, _propName, "DEFAULT", this.file);
+
          this.sprite = new Sprite3D(100,100);
          //this.sprite.material = new SpriteTextureMaterial(new Texture(this.loader.bitmapData),1,true,BlendMode.NORMAL,this.originX,this.originY);
-         this.sprite.material = new TextureMaterial(this.loader.bitmapData);
+         this.sprite.material = new TextureMaterial(bitmap);
          this.sprite.originX = this.originX;
          this.sprite.originY = this.originY;
 

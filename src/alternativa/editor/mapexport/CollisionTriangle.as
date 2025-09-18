@@ -1,11 +1,12 @@
 package alternativa.editor.mapexport
 {
-   import alternativa.engine3d.alternativa3d;
-   import alternativa.engine3d.core.Face;
    import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.core.Vertex;
    import alternativa.types.Matrix4;
    import alternativa.types.Point3D;
+   import alternativa.editor.mapexport.binary.types.BattleMap;
+   import alternativa.editor.mapexport.binary.types.CollisionTriangleData;
+   import alternativa.editor.mapexport.binary.types.Vector3D;
    
    public class CollisionTriangle extends CollisionPrimitive
    {
@@ -119,6 +120,26 @@ package alternativa.editor.mapexport
          param1.@y = param2.y.toFixed(param3);
          return param1;
       }
+
+      public override function addToBinaryData(mapOutput:BattleMap, propTransform:Matrix4) : void
+      {
+         var matrix:Matrix4 = getPrimitiveTransformation(propTransform);
+         var rotation:Point3D = matrix.getRotations(tmpRotation);
+
+         var data:CollisionTriangleData = new CollisionTriangleData();
+
+         data.length = 1.0; //TODO: height of the triangle?
+
+         data.position = new Vector3D(matrix.d, matrix.h, matrix.l);
+         data.rotation = new Vector3D(rotation.x, rotation.y, rotation.z);
+
+         data.v0 = new Vector3D(this.v0.x, this.v0.y, this.v0.z);
+         data.v1 = new Vector3D(this.v1.x, this.v1.y, this.v1.z);
+         data.v2 = new Vector3D(this.v2.x, this.v2.y, this.v2.z);
+
+         mapOutput.collisionGeometry.triangles.push(data);
+      }
+
    }
 }
 

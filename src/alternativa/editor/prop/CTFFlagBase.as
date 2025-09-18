@@ -8,6 +8,9 @@ package alternativa.editor.prop
    
    public class CTFFlagBase extends Prop
    {
+      
+      public var gameMode:String = "CTF";
+
       public function CTFFlagBase(param1:Object3D, param2:String, param3:String, param4:String, param5:Boolean = true)
       {
          super(param1,param2,param3,param4,param5);
