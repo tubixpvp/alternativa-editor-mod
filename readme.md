@@ -4,6 +4,7 @@ This is modded version of AlternativaEditor (Tanks map editor)
 **Main features**:
 - **Hardware acceleration support** - this editor uses Alternativa3D 7.11 which provides much better performance because of GPU rendering
 - **Disabling collision for props** - you can easily disable collision of any prop on the scene, so tanks can go through it
+- **Exporting to HTML5 Tanki map format (.bin)** - test feature, still in development.
 
 ## Notice
 This editor doesn't support *all* features that were in the original Editor, and may have some bugs. It mainly caused by 3D engine upgrade.
