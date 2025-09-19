@@ -50,7 +50,7 @@ package alternativa.editor.mapexport.xml
          super(param1);
       }
       
-      override public function exportToFileStream(param1:FileStream) : void
+      override public function exportToFileStream(param1:FileStream, exportSettings:Object) : void
       {
          var loc7:XML = null;
          var loc8:PropRegistryData = null;

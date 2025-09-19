@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+       xmlns:mx="library://ns.adobe.com/flex/mx"
+       width="300" height="180"
+         backgroundColor="#FFFFFF" 
+         borderStyle="solid" 
+         borderColor="#000000" 
+         paddingTop="10" 
+         paddingBottom="10" 
+         paddingLeft="10" 
+         paddingRight="10"
+       creationComplete="onCreationComplete()">
+
+
+    <fx:Script>
+        <![CDATA[
+            import mx.events.FlexEvent;
+            import mx.managers.PopUpManager;
+            import alternativa.editor.mapexport.binary.BinaryExporterSettings;
+
+            private var _exportCallback:Function;
+
+            private function onCreationComplete():void {
+                PopUpManager.centerPopUp(this);
+            }
+
+            public function init(exportCallback:Function) : void
+            {
+                _exportCallback = exportCallback;
+            }
+
+            private function exportClicked() : void
+            {
+                var settings:BinaryExporterSettings = new BinaryExporterSettings();
+
+                settings.maxAtlasSize = int(atlasSize.selectedLabel);
+                settings.sizeOfAtlasAsPowerOf2 = atlasSizePower2.selected;
+                settings.exportAllTextureVariations = allTexVariations.selected;
+                settings.textureOuterRepeatingBufferSize = int(repeatingTexSize.selectedLabel);
+
+                hideWindow();
+
+                _exportCallback(settings);
+            }
+            private function cancelClicked() : void
+            {
+                hideWindow();
+            }
+
+            private function hideWindow() : void
+            {
+                PopUpManager.removePopUp(this);
+            }
+
+        ]]>
+    </fx:Script>
+
+    <mx:Label fontWeight="bold" text="Binary exporter settings"/>
+
+    <mx:HBox>
+        <mx:Label text="Max atlas size:"/>
+        <mx:ComboBox id="atlasSize" dataProvider="[4096, 2048, 1024]" selectedIndex="0"/>
+    </mx:HBox>
+    <mx:HBox>
+        <mx:Label text="Atlas textures margin:"/>
+        <mx:ComboBox id="repeatingTexSize" dataProvider="[0, 8, 16, 32, 64]" selectedIndex="2"/>
+    </mx:HBox>
+    
+    <mx:CheckBox id="atlasSizePower2" label="Round atlas size to power of 2" selected="true"/>
+    <mx:CheckBox id="allTexVariations" label="Include all variations of used props" selected="true"/>
+
+    <mx:HBox horizontalGap="10">
+        <mx:Button label="Export" click="exportClicked();"/>
+        <mx:Button label="Cancel" click="cancelClicked();"/>
+    </mx:HBox>
+
+</mx:VBox>

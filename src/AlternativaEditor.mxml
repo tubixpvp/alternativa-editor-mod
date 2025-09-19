@@ -54,6 +54,8 @@
             import mx.managers.PopUpManager;
             import alternativa.gfx.core.Device;
             import alternativa.engine3d.core.View;
+            import alternativa.editor.mapexport.binary.BinaryExportSettingsWindow;
+            import alternativa.editor.mapexport.binary.BinaryExporterSettings;
             
             public static var preview:Preview;
             
@@ -175,6 +177,8 @@
             private function context3DCreated(e:Event):void
             {
                 View.getStaticDevice().removeEventListener(Event.CONTEXT3D_CREATE, context3DCreated);
+
+                //stage.color = 0x000000;
 
                 initFunctionalLibrary();
             }
@@ -487,22 +491,28 @@
             
             private function onExportToTanksV1Click(param1:NativeMenuItem):void
             {
-                this.exportManager.exportMap(FileType.MAP_XML_VERSION_1_LITE);
+                this.exportManager.exportMap(FileType.MAP_XML_VERSION_1_LITE, null);
             }
             
             private function onExportToTanksV1FullClick(param1:Event):void
             {
-                this.exportManager.exportMap(FileType.MAP_XML_VERSION_1_FULL);
+                this.exportManager.exportMap(FileType.MAP_XML_VERSION_1_FULL, null);
             }
             
             private function onExportToTanksV3Click(param1:NativeMenuItem):void
             {
-                this.exportManager.exportMap(FileType.MAP_XML_VERSION_3);
+                this.exportManager.exportMap(FileType.MAP_XML_VERSION_3, null);
             }
 
             private function onExportToBinaryClick(item:NativeMenuItem) : void
             {
-                this.exportManager.exportMap(FileType.BINARY);
+                //this.exportManager.exportMap(FileType.BINARY);
+                var window:BinaryExportSettingsWindow = PopUpManager.createPopUp(this, BinaryExportSettingsWindow, true) as BinaryExportSettingsWindow;
+                window.init(exportBinaryMapWithSettings);
+            }
+            private function exportBinaryMapWithSettings(settings:BinaryExporterSettings) : void
+            {
+                this.exportManager.exportMap(FileType.BINARY, settings);
             }
             
             private function onBatchProcessingClick(param1:NativeMenuItem):void

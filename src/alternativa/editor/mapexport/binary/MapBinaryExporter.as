@@ -48,9 +48,11 @@ package alternativa.editor.mapexport.binary
             super(sceneRoot);
         }
         
-        public override function exportToFileStream(stream:FileStream) : void
+        public override function exportToFileStream(stream:FileStream, exportSettings:Object) : void
         {
-            var mapData:ExportedMapData = constructMapData();
+            var settings:BinaryExporterSettings = exportSettings as BinaryExporterSettings;
+
+            var mapData:ExportedMapData = constructMapData(settings);
             
             var mapBytes:ByteArray = new ByteArray();
             var buffer:ProtocolBuffer = new ProtocolBuffer(mapBytes, mapBytes, new OptionalMap());
@@ -82,7 +84,7 @@ package alternativa.editor.mapexport.binary
             archive.serialize(stream);
         }
 
-        private function constructMapData() : ExportedMapData
+        private function constructMapData(settings:BinaryExporterSettings) : ExportedMapData
         {
             var map:BattleMap = new BattleMap();
 
@@ -111,7 +113,7 @@ package alternativa.editor.mapexport.binary
                 if(prop == null)
                     continue;
 
-                constructPropData(prop, map, mapExtra, atlases, cache);
+                constructPropData(prop, map, mapExtra, atlases, cache, settings);
             }
 
             var mapData:ExportedMapData = new ExportedMapData();
@@ -134,11 +136,11 @@ package alternativa.editor.mapexport.binary
             return mapData;
         }
 
-        private function constructPropData(prop:Prop, mapOutput:BattleMap, extraOutput:MapExtraData, atlases:Vector.<AltasBuilder>, cache:MapExportCache) : void
+        private function constructPropData(prop:Prop, mapOutput:BattleMap, extraOutput:MapExtraData, atlases:Vector.<AltasBuilder>, cache:MapExportCache, settings:BinaryExporterSettings) : void
         {
             if(prop.type == Prop.TILE)
             {
-                addMeshProp(prop as MeshProp, mapOutput, atlases);
+                addMeshProp(prop as MeshProp, mapOutput, atlases, settings);
             }
             else if(prop.type == Prop.SPAWN)
             {
@@ -162,7 +164,7 @@ package alternativa.editor.mapexport.binary
             }
         }
 
-        private function addMeshProp(prop:MeshProp, mapOutput:BattleMap, atlases:Vector.<AltasBuilder>) : void
+        private function addMeshProp(prop:MeshProp, mapOutput:BattleMap, atlases:Vector.<AltasBuilder>, settings:BinaryExporterSettings) : void
         {
             if(prop.collisionEnabled)
             {
@@ -197,27 +199,48 @@ package alternativa.editor.mapexport.binary
                     propData.scale = new Vector3D(prop.scaleX, prop.scaleY, prop.scaleZ);
                 }
 
-                propData.materialId = getMaterialIndex(prop, propData.id, atlases);
+                var selectedTexName:String = prop.textureName;
+                if(selectedTexName == "")
+                    selectedTexName = "DEFAULT";
+
+                if(settings.exportAllTextureVariations)
+                {
+                    propData.materialId = -1;
+                    for(var texName:String in prop.bitmaps)
+                    {
+                        var materialIndex:int = getMaterialIndex(prop, texName, propData.id, atlases, settings);
+                        if(texName == selectedTexName)
+                        {
+                            propData.materialId = materialIndex;
+                        }
+                    }
+                    if(propData.materialId == -1)
+                        throw new Error("Prop texture not found: " + selectedTexName + ", available: " + prop.bitmaps.toString());
+                }
+                else
+                {
+                    propData.materialId = getMaterialIndex(prop, selectedTexName, propData.id, atlases, settings);
+                }
 
                 mapOutput.staticGeometry.props.push(propData);
             }
         }
 
-        private function getMaterialIndex(prop:MeshProp, propIndex:int, atlases:Vector.<AltasBuilder>) : int
+        private function getMaterialIndex(prop:MeshProp, textureName:String, propIndex:int, atlases:Vector.<AltasBuilder>, settings:BinaryExporterSettings) : int
         {
             for each(var atlas:AltasBuilder in atlases)
             {
-                var index:int = atlas.tryAddMeshProp(prop, propIndex);
+                var index:int = atlas.tryAddMeshProp(prop, textureName, propIndex);
                 if(index != -1)
                 {
                     return index;
                 }
             }
 
-            atlas = new AltasBuilder(atlases.length);
+            atlas = new AltasBuilder(atlases.length, settings);
             atlases.push(atlas);
 
-            return atlas.tryAddMeshProp(prop, propIndex);
+            return atlas.tryAddMeshProp(prop, textureName, propIndex);
         }
 
         private function addSpawnPoint(prop:SpawnPoint, mapOutput:BattleMap, linkedToDominationPoint:Boolean) : void

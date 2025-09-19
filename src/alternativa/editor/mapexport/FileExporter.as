@@ -13,7 +13,7 @@ package alternativa.editor.mapexport
          this.sceneRoot = sceneRoot;
       }
       
-      public function exportToFileStream(stream:FileStream) : void
+      public function exportToFileStream(stream:FileStream, exportSettings:Object) : void
       {
       }
    }

@@ -82,7 +82,7 @@ package
       {
          var loc2:FileStream = new FileStream();
          loc2.open(this.getCurrentFile(),FileMode.WRITE);
-         this.mainScene.exportScene(FileType.MAP_XML_VERSION_1_FULL,loc2);
+         this.mainScene.exportScene(FileType.MAP_XML_VERSION_1_FULL,loc2,null);
          this.processNextFile();
       }
       

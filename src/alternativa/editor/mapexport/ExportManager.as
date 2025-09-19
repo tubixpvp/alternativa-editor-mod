@@ -14,6 +14,8 @@ package alternativa.editor.mapexport
       
       private var fileType:FileType;
       
+      private var _exporterSettings:Object;
+      
       public function ExportManager(param1:MainScene)
       {
          super();
@@ -22,8 +24,9 @@ package alternativa.editor.mapexport
          this.file.addEventListener(Event.SELECT,this.onFileSelected);
       }
       
-      public function exportMap(param1:FileType) : void
+      public function exportMap(param1:FileType, settings:Object) : void
       {
+         this._exporterSettings = settings;
          this.fileType = param1;
          this.file.browseForSave("Save");
       }
@@ -32,7 +35,7 @@ package alternativa.editor.mapexport
       {
          var loc2:FileStream = new FileStream();
          loc2.open(this.file,FileMode.WRITE);
-         this.mainScene.exportScene(this.fileType,loc2);
+         this.mainScene.exportScene(this.fileType,loc2,this._exporterSettings);
          loc2.close();
       }
    }

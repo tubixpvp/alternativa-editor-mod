@@ -189,10 +189,10 @@ package alternativa.editor.scene
          }
       }
       
-      public function exportScene(param1:FileType, param2:FileStream) : void
+      public function exportScene(param1:FileType, param2:FileStream, exportSettings:Object) : void
       {
          SceneContainer.instance.cursorScene.clear();
-         FileExporter(this.exporters[param1]).exportToFileStream(param2);
+         FileExporter(this.exporters[param1]).exportToFileStream(param2, exportSettings);
          this._changed = false;
       }
       

@@ -40,7 +40,7 @@ package alternativa.editor.mapexport.xml
          return loc2;
       }
       
-      override public function exportToFileStream(param1:FileStream) : void
+      override public function exportToFileStream(param1:FileStream, exportSettings:Object) : void
       {
          var loc9:Prop = null;
          var loc10:MeshProp = null;
