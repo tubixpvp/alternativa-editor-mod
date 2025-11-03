@@ -14,6 +14,8 @@ package alternativa.editor.propslib
    import flash.net.URLRequest;
    import flash.system.ApplicationDomain;
    import flash.system.LoaderContext;
+   import flash.utils.Dictionary;
+   import flash.net.URLLoaderDataFormat;
    
    public class PropsLibrary extends EventDispatcher
    {
@@ -32,6 +34,8 @@ package alternativa.editor.propslib
       private var propsLoaded:int;
       
       private var propsTotal:int;
+
+      private const _imagesRedirect:Dictionary = new Dictionary();
       
       public function PropsLibrary(param1:String = null)
       {
@@ -68,22 +72,61 @@ package alternativa.editor.propslib
          {
             throw new ArgumentError();
          }
-         this.url = param1.length > 0 && param1.charAt(param1.length - 1) != "/" ? param1 + "/" : param1;
-         this.configLoader = new URLLoader(new URLRequest(this.url + "library.xml"));
-         this.configLoader.addEventListener(Event.COMPLETE,this.onXMLLoadingComplete);
-         this.configLoader.addEventListener(IOErrorEvent.IO_ERROR,this.onErrorEvent);
-         this.configLoader.addEventListener(SecurityErrorEvent.SECURITY_ERROR,this.onErrorEvent);
+         this.url = (param1.length > 0 && param1.charAt(param1.length - 1) != "/" ? param1 + "/" : param1);
+         this.configLoader = new URLLoader();
+         this.configLoader.dataFormat = URLLoaderDataFormat.TEXT;
+         this.tryLoadImagesXML();
+      }
+
+      private function tryLoadImagesXML() : void
+      {
+         this.configLoader.addEventListener(Event.COMPLETE,this.onImagesXMLLoadingComplete);
+         this.configLoader.addEventListener(IOErrorEvent.IO_ERROR,this.onImagesXMLLoadingFailed);
+         this.configLoader.addEventListener(SecurityErrorEvent.SECURITY_ERROR,this.onImagesXMLLoadingFailed);
+         this.configLoader.load(new URLRequest(this.url + "images.xml"));
       }
       
       private function onErrorEvent(param1:ErrorEvent) : void
       {
          dispatchEvent(param1);
       }
+
+      private function onImagesXMLLoadingComplete(e:Event) : void
+      {
+         var imagesXML:XML = XML(this.configLoader.data);
+
+         for each(var image:XML in imagesXML.image)
+         {
+            var originalName:String = image.@name;
+            var diffuse:String = image.attribute("new-name").toString();
+            var alpha:String = xmlReadAttrString(image, "alpha");
+
+            _imagesRedirect[originalName] = new ImageData(diffuse, alpha);
+         }
+
+         loadLibraryXML();
+      }
+      private function onImagesXMLLoadingFailed(e:Event) : void
+      {
+         loadLibraryXML();
+      }
+
+      private function loadLibraryXML() : void
+      {
+         this.configLoader.removeEventListener(Event.COMPLETE,this.onImagesXMLLoadingComplete);
+         this.configLoader.removeEventListener(IOErrorEvent.IO_ERROR,this.onImagesXMLLoadingFailed);
+         this.configLoader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,this.onImagesXMLLoadingFailed);
+
+         this.configLoader.addEventListener(Event.COMPLETE,this.onLibraryXMLLoadingComplete);
+         this.configLoader.addEventListener(IOErrorEvent.IO_ERROR,this.onErrorEvent);
+         this.configLoader.addEventListener(SecurityErrorEvent.SECURITY_ERROR,this.onErrorEvent);
+         this.configLoader.load(new URLRequest(this.url + "library.xml"));
+      }
       
-      private function onXMLLoadingComplete(param1:Event) : void
+      private function onLibraryXMLLoadingComplete(param1:Event) : void
       {
          var loc2:XML = XML(this.configLoader.data);
-         this.configLoader.removeEventListener(Event.COMPLETE,this.onXMLLoadingComplete);
+         this.configLoader.removeEventListener(Event.COMPLETE,this.onLibraryXMLLoadingComplete);
          this.configLoader.removeEventListener(IOErrorEvent.IO_ERROR,this.onErrorEvent);
          this.configLoader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,this.onErrorEvent);
          this.configLoader = null;
@@ -180,8 +223,6 @@ package alternativa.editor.propslib
       {
          var loc3:Map = null;
          var loc5:XML = null;
-         var loc6:String = null;
-         var loc7:String = null;
          var loc2:XML = param1.mesh[0];
          var propName:String = param1.@name;
          if(loc2.texture.length() > 0)
@@ -190,40 +231,66 @@ package alternativa.editor.propslib
             for each(loc5 in loc2.texture)
             {
                var textureName:String = loc5.@name.toString();
-               loc6 = loc5.attribute("diffuse-map").toString().toLowerCase();
-               TextureDiffuseMapsRegistry.addTexture(this.name, groupName, propName, textureName, loc6);
-               loc7 = xmlReadAttrString(loc5,"opacity-map");
-               if(loc7 != null)
+
+               var diffuseName:String = loc5.attribute("diffuse-map").toString().toLowerCase();
+               TextureDiffuseMapsRegistry.addTexture(this.name, groupName, propName, textureName, diffuseName);
+
+               var alphaName:String = xmlReadAttrString(loc5,"opacity-map");
+
+               var replacement:ImageData = _imagesRedirect[diffuseName];
+               if(replacement != null)
                {
-                  loc7 = this.url + loc7.toLowerCase();
+                  diffuseName = replacement.diffuseName;
+                  alphaName = replacement.alphaName;
                }
-               loc3.add(textureName, new TextureMapsInfo(this.url + loc6,loc7));
+
+               if(alphaName != null)
+               {
+                  alphaName = this.url + alphaName.toLowerCase();
+               }
+               loc3.add(textureName, new TextureMapsInfo(this.url + diffuseName,alphaName));
             }
          }
          var loc4:ObjectLoaderPair = new ObjectLoaderPair();
          loc4.propObject = new PropLibMesh(propName);
          loc4.loader = new MeshLoader(this.url + loc2.attribute("file").toString().toLowerCase(),xmlReadAttrString(loc2,"object"),loc3,this.url,
-               this.name, groupName, propName);
+               this.name, groupName, propName, _imagesRedirect);
          return loc4;
       }
       
       private function createSpriteLoaderPair(param1:XML, groupName:String) : ObjectLoaderPair
       {
          var loc2:XML = param1.sprite[0];
-         var loc3:String = xmlReadAttrString(loc2,"alpha");
-         if(loc3 != null)
+
+         var diffuseName:String = loc2.attribute("file").toString().toLowerCase();
+         var alphaName:String = null;
+
+         var replacement:ImageData = _imagesRedirect[diffuseName];
+         if(replacement != null)
          {
-            loc3 = loc3.toLowerCase();
+            diffuseName = replacement.diffuseName;
+            alphaName = replacement.alphaName;
          }
+         else
+         {
+            alphaName = xmlReadAttrString(loc2,"alpha");
+            if(alphaName != null)
+            {
+               alphaName = alphaName.toLowerCase();
+            }
+         }
+
          var loc4:Number = xmlReadAttrNumber(loc2,"origin-x",0.5);
          var loc5:Number = xmlReadAttrNumber(loc2,"origin-y",1);
          var loc6:Number = xmlReadAttrNumber(loc2,"scale",1);
-         var loc7:ObjectLoaderPair = new ObjectLoaderPair();
+
          var propName:String = param1.@name;
-         var fileName:String = loc2.attribute("file").toString().toLowerCase();
+
+         var loc7:ObjectLoaderPair = new ObjectLoaderPair();
          loc7.propObject = new PropLibObject(propName);
-         loc7.loader = new SpriteLoader(this.url, fileName,loc3,loc4,loc5,loc6,
+         loc7.loader = new SpriteLoader(this.url, diffuseName, alphaName,loc4,loc5,loc6,
             this.name, groupName, propName);
+
          return loc7;
       }
    }

@@ -19,6 +19,8 @@ package alternativa.editor.propslib.loaders
    import flash.display.BitmapData;
    import alternativa.engine3d.materials.FillMaterial;
    import alternativa.editor.propslib.TextureDiffuseMapsRegistry;
+   import flash.utils.Dictionary;
+   import alternativa.editor.propslib.ImageData;
    
    public class MeshLoader extends ObjectLoader
    {
@@ -47,9 +49,12 @@ package alternativa.editor.propslib.loaders
       private var groupName:String;
 
       private var propName:String;
+
+      private var _imagesRedirects:Dictionary;
       
       public function MeshLoader(param1:String, param2:String, param3:Map, baseUrl:String,
-         libraryName:String, groupName:String, propName:String)
+         libraryName:String, groupName:String, propName:String,
+         imagesRedirects:Dictionary)
       {
          super();
          this.url = param1;
@@ -59,6 +64,7 @@ package alternativa.editor.propslib.loaders
          this.libraryName = libraryName;
          this.groupName = groupName;
          this.propName = propName;
+         this._imagesRedirects = imagesRedirects;
       }
       
       override public function load(param1:LoaderContext) : void
@@ -101,9 +107,22 @@ package alternativa.editor.propslib.loaders
          {
             var defaultMaterial:TextureMaterial = this.parser3DS.textureMaterials[0];
             this.textures = new Map();
-            var opacityUrl:String = (defaultMaterial.opacityMapURL != null ? this.baseUrl + defaultMaterial.opacityMapURL.toLowerCase() : null);
+
             var diffuseUrl:String = defaultMaterial.diffuseMapURL.toLowerCase();
+            var opacityUrl:String = defaultMaterial.opacityMapURL;
+
             TextureDiffuseMapsRegistry.addTexture(libraryName, groupName, propName, "DEFAULT", diffuseUrl);
+
+            var replacement:ImageData = _imagesRedirects[diffuseUrl];
+            if(replacement != null)
+            {
+               diffuseUrl = replacement.diffuseName;
+               opacityUrl = replacement.alphaName;
+            }
+
+            if(opacityUrl != null)
+               opacityUrl = this.baseUrl + opacityUrl.toLowerCase();
+            
             this.textures.add("DEFAULT", new TextureMapsInfo(this.baseUrl+diffuseUrl, opacityUrl));
          }
          

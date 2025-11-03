@@ -494,7 +494,7 @@
                 this.exportManager.exportMap(FileType.MAP_XML_VERSION_1_LITE, null);
             }
             
-            private function onExportToTanksV1FullClick(param1:Event):void
+            private function onExportToTanksV1FullClick(param1:NativeMenuItem):void
             {
                 this.exportManager.exportMap(FileType.MAP_XML_VERSION_1_FULL, null);
             }
