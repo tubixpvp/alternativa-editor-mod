@@ -56,6 +56,8 @@
             import alternativa.engine3d.core.View;
             import alternativa.editor.mapexport.binary.BinaryExportSettingsWindow;
             import alternativa.editor.mapexport.binary.BinaryExporterSettings;
+            import flash.net.SharedObject;
+            import alternativa.editor.RecentLibraries;
             
             public static var preview:Preview;
             
@@ -106,6 +108,10 @@
             private var batchProcessor:BatchProcessor;
             
             private var layersWindow:LayersWindowBase;
+
+            private var _storage:SharedObject;
+
+            private var _recentLibraries:RecentLibraries;
             
             private static function onPreviewPanelResize(param1:Event):void
             {
@@ -114,6 +120,7 @@
             
             private function onApplicationComplete():void
             {
+                _storage = SharedObject.getLocal("editor");
                 this.createPropPreview();
                 this.initPropList();
                 this.mainScene = this.sceneContainer.mainScene;
@@ -199,6 +206,14 @@
                 this.miLockGroup = this.getMenuItemByLabel("Same props intersections denied");
                 this.miLock = this.getMenuItemByLabel("All intersections denied");
                 this.miShowLayers = this.getMenuItem(2, 5);
+
+                _recentLibraries = new RecentLibraries(_storage, getMenuItemByLabel("Recent"), libraryManager);
+                _recentLibraries.initRecentLibrariesList();
+            }
+
+            public function appendRecentDirectory(path:String) : void
+            {
+                _recentLibraries.appendRecentDirectory(path);
             }
             
             private function getMenuItem(...rest):NativeMenuItem
@@ -662,7 +677,7 @@
             
             private function createLibraryManager():void
             {
-                this.libraryManager = new LibraryManager();
+                this.libraryManager = new LibraryManager(this);
                 this.libraryManager.addEventListener(Event.OPEN, this.onStartLibLoading);
                 this.libraryManager.addEventListener(Event.COMPLETE, this.onLibraryManagerChange);
                 this.libraryManager.addEventListener(EditorProgressEvent.PROGRESS, this.onLibraryLoadingProgress);
@@ -750,7 +765,10 @@
             <menuitem label="Library">
                 <menuitem label="Clear" keyEquivalent="l" ctrlKey="true" altKey="true" click="onClearLibClick"/>
                 <menuitem label="Clear and load" keyEquivalent="l" ctrlKey="true" altKey="true" click="onClearAndLoadLibClick"/>
-                <menuitem label="Load" keyEquivalent="l" ctrlKey="true" click="onLoadLibClick"/>
+                <menuitem label="Load">
+                    <menuitem label="Load from directory" keyEquivalent="l" ctrlKey="true" click="onLoadLibClick"/>
+                    <menuitem label="Recent"/>
+                </menuitem>
             </menuitem>
             <menuitem label="Options">
                 <menuitem label="Props intersection check">

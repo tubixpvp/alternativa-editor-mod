@@ -24,6 +24,7 @@ package alternativa.editor
    import flash.events.EventDispatcher;
    import flash.events.IOErrorEvent;
    import flash.filesystem.File;
+   import mx.controls.Alert;
    
    public class LibraryManager extends EventDispatcher
    {
@@ -46,15 +47,16 @@ package alternativa.editor
       private var totalLibs:int;
       
       private var loadedLibs:int;
+
+      private var mainPage:AlternativaEditor;
       
-      public function LibraryManager()
+      public function LibraryManager(editor:AlternativaEditor)
       {
-         this.file = new File();
+         this.mainPage = editor;
          this.libraryNames = [];
          this.propsByLibraryName = new Map();
          this.propByKey = new Map();
          super();
-         this.file.addEventListener(Event.SELECT,this.onFileSelect);
       }
       
       private static function createFunctionalProp(param1:PropLibObject, param2:String) : Prop
@@ -136,18 +138,23 @@ package alternativa.editor
       public function clearAndLoadLibrary() : void
       {
          this.clearLibrariesBeforeLoad = true;
-         this.load();
+         this.requestFileDirectory();
       }
       
-      private function load() : void
+      private function requestFileDirectory() : void
       {
+         if(this.file == null)
+         {
+            this.file = new File();
+         }
+         this.file.addEventListener(Event.SELECT,this.onFileSelect);
          this.file.browseForDirectory("Load library");
       }
       
       public function loadLibrary() : void
       {
          this.clearLibrariesBeforeLoad = false;
-         this.load();
+         this.requestFileDirectory();
       }
       
       public function getPropsByLibName(param1:String) : Array
@@ -187,8 +194,28 @@ package alternativa.editor
          }
          this.startLoadingLibs();
       }
+
+      public function loadFromDirectory(rootDir:String) : void
+      {
+         this.file = new File(rootDir);
+         if(!this.file.exists)
+         {
+            Alert.show("Folder no longer exists: " + rootDir);
+            return;
+         }
+         this.startLoading();
+      }
       
       private function onFileSelect(param1:Event) : void
+      {
+         this.file.removeEventListener(Event.SELECT,this.onFileSelect);
+
+         this.mainPage.appendRecentDirectory(this.file.nativePath);
+
+         this.startLoading();
+      }
+
+      private function startLoading() : void
       {
          this.libUrls = [];
          this.searchForLibrariesInDir(this.file);
