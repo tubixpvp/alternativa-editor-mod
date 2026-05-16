@@ -1,9 +1,12 @@
-package alternativa.editor
+package mod
 {
     import flash.net.SharedObject;
     import flash.display.NativeMenuItem;
     import flash.events.Event;
     import flash.display.NativeMenu;
+    import alternativa.editor.LibraryManager;
+    import mod.locale.Locale;
+    import mod.locale.TextId;
 
     public class RecentLibraries
     {
@@ -21,6 +24,11 @@ package alternativa.editor
 
 
         private var _recentLibraryDirectories:Array;
+
+
+        private var _clearItem:NativeMenuItem;
+
+        private var _separator:NativeMenuItem;
 
 
         public function RecentLibraries(storage:SharedObject, menu:NativeMenuItem, libraryManager:LibraryManager)
@@ -53,25 +61,34 @@ package alternativa.editor
                 _recentLibrariesMenu.submenu.addItem(createRecentDirectoryMenuItem(directory));
             }
 
-            var separator:NativeMenuItem = _recentLibrariesMenu.submenu.addItem(new NativeMenuItem("", true));
-            var clearItem:NativeMenuItem = _recentLibrariesMenu.submenu.addItem(new NativeMenuItem("Clear"));
+            _separator = _recentLibrariesMenu.submenu.addItem(new NativeMenuItem("", true));
+            _clearItem = _recentLibrariesMenu.submenu.addItem(new NativeMenuItem(""));
 
-            clearItem.addEventListener(Event.SELECT, function(e:Event):void
-                {
-                    _recentLibraryDirectories.length = 0;
+            _clearItem.addEventListener(Event.SELECT, onClearClicked);
 
-                    var numItems:int = _recentLibrariesMenu.submenu.numItems;
-                    for (var i:int = 0; i < numItems - 2; i++)
-                    {
-                        _recentLibrariesMenu.submenu.getItemAt(i).removeEventListener(Event.SELECT, onRecentLibraryLoadClicked);
-                    }
-                    _recentLibrariesMenu.submenu.removeAllItems();
+            Locale.addListener(applyLocalization);
+        }
 
-                    _recentLibrariesMenu.submenu.addItem(separator);
-                    _recentLibrariesMenu.submenu.addItem(clearItem);
+        private function applyLocalization() : void
+        {
+            _clearItem.label = Locale.getText(TextId.MENUITEM_LIBRARY_RECENT_CLEAR);
+        }
 
-                    saveRecentLibraries();
-                });
+        private function onClearClicked(e:Event):void
+        {
+            _recentLibraryDirectories.length = 0;
+
+            var numItems:int = _recentLibrariesMenu.submenu.numItems;
+            for (var i:int = 0; i < numItems - 2; i++)
+            {
+                _recentLibrariesMenu.submenu.getItemAt(i).removeEventListener(Event.SELECT, onRecentLibraryLoadClicked);
+            }
+            _recentLibrariesMenu.submenu.removeAllItems();
+
+            _recentLibrariesMenu.submenu.addItem(_separator);
+            _recentLibrariesMenu.submenu.addItem(_clearItem);
+
+            saveRecentLibraries();
         }
 
         public function appendRecentDirectory(path:String):void

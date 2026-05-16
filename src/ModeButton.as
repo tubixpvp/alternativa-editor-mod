@@ -61,7 +61,7 @@ package
          super.clickHandler(param1);
       }
       
-      private function update() : void
+      public function update() : void
       {
          if(this._down)
          {

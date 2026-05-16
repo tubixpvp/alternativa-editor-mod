@@ -72,7 +72,7 @@ package alternativa.editor
       
       private var dominationOverlay:Shape;
       
-      private var _showBoundBoxes:Boolean;
+      private var _showBoundBoxes:Boolean = false;
       
       private var mouseDownPoint:Point;
       

@@ -57,7 +57,11 @@
             import alternativa.editor.mapexport.binary.BinaryExportSettingsWindow;
             import alternativa.editor.mapexport.binary.BinaryExporterSettings;
             import flash.net.SharedObject;
-            import alternativa.editor.RecentLibraries;
+            import mod.RecentLibraries;
+            import mod.locale.Locale;
+            import mod.locale.TextId;
+            import flash.utils.Dictionary;
+            import flash.display.NativeMenuItem;
             
             public static var preview:Preview;
             
@@ -80,12 +84,8 @@
             private var miVisualGeometry:NativeMenuItem;
             
             private var miCollisionGeometry:NativeMenuItem;
-            
-            private var miLock:NativeMenuItem;
-            
-            private var miLockGroup:NativeMenuItem;
-            
-            private var miUnlock:NativeMenuItem;
+
+            private var miIntersectionModes:Vector.<NativeMenuItem>;
             
             private var miSnap:NativeMenuItem;
             
@@ -97,9 +97,9 @@
             
             private var libraryManager:LibraryManager;
             
-            private var showCollisionGeometry:Boolean;
+            private var showCollisionGeometry:Boolean = false;
             
-            private var snappingEnabled:Boolean;
+            private var snappingEnabled:Boolean = false;
             
             private var showGrid:Boolean = true;
             
@@ -112,6 +112,8 @@
             private var _storage:SharedObject;
 
             private var _recentLibraries:RecentLibraries;
+
+            private const _idToMenuItemCache:Dictionary = new Dictionary();
             
             private static function onPreviewPanelResize(param1:Event):void
             {
@@ -131,7 +133,8 @@
                 this.createImportManager();
                 this.exportManager = new ExportManager(this.mainScene);
                 this.initMenuItems();
-                this.setSnapping(true);
+                this.setSnappingEnabled(true);
+                this.updateButtonsStates();
                 this.waitForContextAndInitFunctionalLibrary();
                 this.batchProcessor = new BatchProcessor(this.mainScene, this.libraryManager);
                 this.batchProcessor.addEventListener(Event.COMPLETE, this.onBatchProcessingComplete);
@@ -139,6 +142,9 @@
                 this.batchSelector.addEventListener(Event.SELECT, this.onBatchFileSelect);
                 addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, this.fileHoverHandler);
                 addEventListener(NativeDragEvent.NATIVE_DRAG_DROP, this.fileDroppedHandler);
+
+                Locale.addListener(applyLocalization);
+                Locale.init(_storage, getMenuItemById("menuitem_options_languages"));
             }
             
             private function fileHoverHandler(param1:NativeDragEvent):void
@@ -198,16 +204,18 @@
             
             private function initMenuItems():void
             {
-                this.miVisualGeometry = this.getMenuItem(2, 0);
-                this.miCollisionGeometry = this.getMenuItem(2, 1);
-                this.miShowGrid = this.getMenuItem(2, 4);
-                this.miSnap = this.getMenuItem(4, 1);
-                this.miUnlock = this.getMenuItemByLabel("All intersections allowed");
-                this.miLockGroup = this.getMenuItemByLabel("Same props intersections denied");
-                this.miLock = this.getMenuItemByLabel("All intersections denied");
-                this.miShowLayers = this.getMenuItem(2, 5);
+                this.miVisualGeometry = this.getMenuItemById("menuitem_view_geometry_visual");
+                this.miCollisionGeometry = this.getMenuItemById("menuitem_view_geometry_collision");
+                this.miShowGrid = this.getMenuItemById("menuitem_view_showgrid");
+                this.miSnap = this.getMenuItemById("menuitem_options_snap");
+                this.miShowLayers = this.getMenuItemById("menuitem_view_showlayers");
 
-                _recentLibraries = new RecentLibraries(_storage, getMenuItemByLabel("Recent"), libraryManager);
+                this.miIntersectionModes = new Vector.<NativeMenuItem>();
+                this.miIntersectionModes.push(this.getMenuItemById("menuitem_options_propsintersect_allallowed"));
+                this.miIntersectionModes.push(this.getMenuItemById("menuitem_options_propsintersect_samedenied"));
+                this.miIntersectionModes.push(this.getMenuItemById("menuitem_options_propsintersect_alldenied"));
+
+                _recentLibraries = new RecentLibraries(_storage, getMenuItemById("menuitem_library_recent"), libraryManager);
                 _recentLibraries.initRecentLibrariesList();
             }
 
@@ -216,38 +224,28 @@
                 _recentLibraries.appendRecentDirectory(path);
             }
             
-            private function getMenuItem(...rest):NativeMenuItem
+            private function getMenuItemById(id:String, submenu:NativeMenu = null):NativeMenuItem
             {
-                var loc2:NativeMenuItem = menu.nativeMenu.getItemAt(rest[0]);
-                var loc3:int = 1;
-                while (loc3 < rest.length)
+                if (_idToMenuItemCache[id] != null)
+                    return _idToMenuItemCache[id];
+
+                if (submenu == null)
+                    submenu = this.menu.nativeMenu;
+
+                for each(var item:NativeMenuItem in submenu.items)
                 {
-                    loc2 = loc2.submenu.getItemAt(rest[loc3]);
-                    loc3++;
-                }
-                return loc2;
-            }
-            
-            private function getMenuItemByLabel(param1:String, param2:NativeMenu = null):NativeMenuItem
-            {
-                var loc4:NativeMenuItem = null;
-                if (!param2)
-                {
-                    param2 = this.menu.nativeMenu;
-                }
-                var loc3:int = 0;
-                while (loc3 < param2.numItems)
-                {
-                    loc4 = param2.getItemAt(loc3);
-                    if (loc4.label == param1)
+                    var data:XML = item.data as XML;
+                    if (data != null && data.@name == id)
                     {
-                        return loc4;
+                        _idToMenuItemCache[id] = item;
+                        return item;
                     }
-                    if (Boolean(loc4.submenu) && Boolean(this.getMenuItemByLabel(param1, loc4.submenu)))
+                    if (item.submenu != null)
                     {
-                        return this.getMenuItemByLabel(param1, loc4.submenu);
+                        var subItem:NativeMenuItem = getMenuItemById(id, item.submenu);
+                        if (subItem != null)
+                            return subItem;
                     }
-                    loc3++;
                 }
                 return null;
             }
@@ -303,26 +301,43 @@
                 }
                 this.workspace.setFocus();
             }
-            
-            private function toggleSnapMode():void
+
+            private function updateButtonsStates() : void
             {
-                this.setSnapping(!this.snappingEnabled);
+                this.setGeometryViewButtonsState();
+                this.setShowGridButtonsState();
+                this.setIntersectionModeButtonsState();
             }
             
-            private function setSnapping(param1:Boolean):void
+
+            private function setSnappingEnabled(enabled:Boolean):void
             {
-                this.snappingEnabled = param1;
-                this.sceneContainer.snapMode = param1;
-                this.miSnap.checked = param1;
-                this.snapButton.down = param1;
+                if (this.snappingEnabled == enabled)
+                    return;
+                this.snappingEnabled = enabled;
+                this.sceneContainer.snapMode = enabled;
+                this.miSnap.checked = enabled;
+                this.snapButton.down = enabled;
+            }
+            private function onSnapItemClicked(item:NativeMenuItem):void
+            {
+                this.setSnappingEnabled(!item.checked);
+            }
+            private function onToggleSnapButtonClicked() : void
+            {
+                this.setSnappingEnabled(this.snapButton.down);
             }
             
-            private function toggleGrid():void
+
+            private function setShowGrid(show:Boolean) : void
             {
-                this.showGrid = !this.showGrid;
-                this.btnToggleGrid.down = this.showGrid;
-                this.miShowGrid.checked = this.showGrid;
-                if (this.showGrid)
+                if (this.showGrid == show)
+                    return;
+                this.showGrid = show;
+
+                this.setShowGridButtonsState();
+
+                if (show)
                 {
                     this.mainScene.showGrid();
                 }
@@ -330,6 +345,19 @@
                 {
                     this.mainScene.hideGrid();
                 }
+            }
+            private function setShowGridButtonsState() : void
+            {
+                this.btnToggleGrid.down = this.showGrid;
+                this.miShowGrid.checked = this.showGrid;
+            }
+            private function onToggleGridButtonClicked() : void
+            {
+                this.setShowGrid(this.btnToggleGrid.down);
+            }
+            private function onShowGridClick(item:NativeMenuItem):void
+            {
+                this.setShowGrid(!item.checked);
             }
             
             private function showPropertyPanel():void
@@ -343,14 +371,17 @@
                     this.vbox.removeChild(this.propertyPanel);
                 }
             }
+
             
-            private function toggleGeometryViewMode():void
+            private function setGeometryViewMode(showCollisions:Boolean):void
             {
-                this.showCollisionGeometry = !this.showCollisionGeometry;
-                this.viewButton.down = this.showCollisionGeometry;
-                this.miVisualGeometry.checked = !this.showCollisionGeometry;
-                this.miCollisionGeometry.checked = this.showCollisionGeometry;
-                if (this.showCollisionGeometry)
+                if (this.showCollisionGeometry == showCollisions)
+                    return;
+                this.showCollisionGeometry = showCollisions;
+
+                this.setGeometryViewButtonsState();
+
+                if (showCollisions)
                 {
                     this.mainScene.showCollisionBoxes();
                 }
@@ -359,6 +390,45 @@
                     this.mainScene.hideCollisionBoxes();
                 }
             }
+            private function setGeometryViewButtonsState():void
+            {
+                this.viewButton.down = this.showCollisionGeometry;
+                this.miVisualGeometry.checked = !this.showCollisionGeometry;
+                this.miCollisionGeometry.checked = this.showCollisionGeometry;
+            }
+
+            private function onGeometryViewModeItemClick(item:NativeMenuItem):void
+            {
+                this.setGeometryViewMode(item == this.miCollisionGeometry);
+            }
+            private function onGeometryViewModeButtonClick():void
+            {
+                this.setGeometryViewMode(this.viewButton.down);
+            }
+
+
+            public function onIntersectionModeItemClicked(item:NativeMenuItem):void
+            {
+                var modeName:String = (item.data as XML).@modename;
+                var mode:MultiPropMode = MultiPropMode.getByName(modeName);
+
+                if (this.sceneContainer.multiplePropMode == mode)
+                    return;
+
+                this.sceneContainer.multiplePropMode = mode;
+
+                this.setIntersectionModeButtonsState();
+            }
+            private function setIntersectionModeButtonsState() : void
+            {
+                var currentMode:String = this.sceneContainer.multiplePropMode.name;
+                for each(var item:NativeMenuItem in miIntersectionModes)
+                {
+                    var itemMode:String = (item.data as XML).@modename;
+                    item.checked = (currentMode == itemMode);
+                }
+            }
+
             
             private function onComboBoxChange(param1:Event):void
             {
@@ -579,51 +649,10 @@
                 this.progressBar.setProgress(param1.progress, 1);
             }
             
-            public function onToggleIntersectionCheckMode(param1:NativeMenuItem):void
-            {
-                this.getMenuItemByLabel("All intersections allowed").checked = false;
-                this.getMenuItemByLabel("Same props intersections denied").checked = false;
-                this.getMenuItemByLabel("All intersections denied").checked = false;
-                switch (param1)
-                {
-                    case this.getMenuItemByLabel("All intersections allowed"):
-                        this.sceneContainer.multiplePropMode = MultiPropMode.ANY;
-                        break;
-                    case this.getMenuItemByLabel("Same props intersections denied"):
-                        this.sceneContainer.multiplePropMode = MultiPropMode.GROUP;
-                        break;
-                    case this.getMenuItemByLabel("All intersections denied"):
-                        this.sceneContainer.multiplePropMode = MultiPropMode.NONE;
-                }
-                param1.checked = true;
-            }
-            
-            private function onToggleGeometryClick(param1:NativeMenuItem):void
-            {
-                if (param1 == this.miCollisionGeometry && !this.showCollisionGeometry || param1 == this.miVisualGeometry && this.showCollisionGeometry)
-                {
-                    this.toggleGeometryViewMode();
-                }
-                else
-                {
-                    param1.checked = true;
-                }
-            }
-            
-            private function onSnapClick(param1:NativeMenuItem):void
-            {
-                this.toggleSnapMode();
-            }
-            
             private function onShowBoundBoxesClick(param1:NativeMenuItem):void
             {
                 this.sceneContainer.showBoundBoxes = !this.sceneContainer.showBoundBoxes;
                 param1.checked = this.sceneContainer.showBoundBoxes;
-            }
-            
-            private function onShowGridClick(param1:NativeMenuItem):void
-            {
-                this.toggleGrid();
             }
             
             private function onHelpClick(param1:NativeMenuItem):void
@@ -692,9 +721,9 @@
                 this.importManager.addEventListener(Event.OPEN, this.onImportStart);
             }
             
-            private function onShowLayersWindow(param1:NativeMenuItem):void
+            private function onShowLayersWindow(item:NativeMenuItem):void
             {
-                if (param1.checked)
+                if (!item.checked)
                 {
                     this.showLayersWindow();
                 }
@@ -706,6 +735,7 @@
             
             private function showLayersWindow():void
             {
+                this.miShowLayers.checked = true;
                 if (this.layersWindow == null)
                 {
                     this.layersWindow = LayersWindowBase(PopUpManager.createPopUp(this, LayersWindow));
@@ -717,7 +747,8 @@
             
             private function closeLayersWindow(param1:Event = null):void
             {
-                this.layersWindow.visible = false;
+                if (this.layersWindow != null)
+                    this.layersWindow.visible = false;
                 this.miShowLayers.checked = false;
             }
             
@@ -726,65 +757,99 @@
                 this.libraryManager.clearLibraries();
                 this.cbPropLibNames.selectedItem = FunctionalProps.LIBRARY_NAME;
             }
+
+
+            private function applyLocalization() : void
+            {
+                snapButton.upToolTip = Locale.getText(TextId.SNAP_BTN_UP_TOOLTIP);
+                snapButton.downToolTip = Locale.getText(TextId.SNAP_BTN_DOWN_TOOLTIP);
+                snapButton.update();
+
+                applyLocalizationToMenu(this.menu.nativeMenu);
+
+            }
+
+            private function applyLocalizationToMenu(submenu:NativeMenu) : void
+            {
+                for each(var item:NativeMenuItem in submenu.items)
+                {
+                    var data:XML = item.data as XML;
+                    if (data == null)
+                        continue;
+                    var name:String = data.@name;
+                    if (name == null || name == "")
+                        continue;
+                    item.label = Locale.getText(name.toUpperCase());
+
+                    if (item.submenu != null)
+                    {
+                        applyLocalizationToMenu(item.submenu);
+                    }
+                }
+            }
+            
         ]]>
     </mx:Script>
 
-    <!-- Define Menu Data -->
+
     <mx:XML id="menuData">
         <root>
-            <menuitem label="File">
-                <menuitem label="New" keyEquivalent="n" ctrlKey="true" click="onNewLevelClick"/>
+            <menuitem name="menuitem_file">
+                <menuitem name="menuitem_file_new" keyEquivalent="n" ctrlKey="true" click="onNewLevelClick"/>
                 <menuitem type="separator"/>
-                <menuitem label="Import">
-                    <menuitem label="Import Tanki map" keyEquivalent="i" ctrlKey="true" click="onImportFromTanksClick"/>
-                    <menuitem label="Append Tanki map" keyEquivalent="a" ctrlKey="true" click="appendFromXMLClick"/>
-                    <menuitem label="Append special geometry" click="specialAppendFromXMLClick"/>
-                    <menuitem label="Batch processing" click="onBatchProcessingClick"/>
+                <menuitem name="menuitem_file_import">
+                    <menuitem name="menuitem_file_import_importtankimap" keyEquivalent="i" ctrlKey="true" click="onImportFromTanksClick"/>
+                    <menuitem name="menuitem_file_import_appendtankimap" keyEquivalent="a" ctrlKey="true" click="appendFromXMLClick"/>
+                    <menuitem name="menuitem_file_import_appendspecialgeometry" click="specialAppendFromXMLClick"/>
+                    <menuitem name="menuitem_file_import_batchprocessing" click="onBatchProcessingClick"/>
                 </menuitem>
-                <menuitem label="Export">
-                    <menuitem label="Flash Tanki map 1.0 (xml)" keyEquivalent="t" ctrlKey="true" click="onExportToTanksV1FullClick"/>
-                    <menuitem label="Flash Tanki map 1.0 (xml) - limited" click="onExportToTanksV1Click"/>
-                    <menuitem label="Flash Tanki map 3.0 (xml)" click="onExportToTanksV3Click"/>
-                    <menuitem label="HTML5 Tanki map    (zip)" click="onExportToBinaryClick"/>
+                <menuitem name="menuitem_file_export">
+                    <menuitem name="menuitem_file_export_flashmap1" keyEquivalent="t" ctrlKey="true" click="onExportToTanksV1FullClick"/>
+                    <menuitem name="menuitem_file_export_flashmap1nofunc" click="onExportToTanksV1Click"/>
+                    <menuitem name="menuitem_file_export_flashmap3" click="onExportToTanksV3Click"/>
+                    <menuitem name="menuitem_file_export_html5map" click="onExportToBinaryClick"/>
                 </menuitem>
             </menuitem>
-            <menuitem label="Edit">
-                <menuitem label="Undo" keyEquivalent="z" ctrlKey="true" click="onUndoClick"/>
-                <menuitem label="Redo" keyEquivalent="y" ctrlKey="true" click="onRedoClick"/>
-                <menuitem label="Clear" keyEquivalent="c" ctrlKey="true" altKey="true" click="onClearLevelClick"/>
-                <menuitem label="Select all" keyEquivalent="a" ctrlKey="true" click="onSelectAll"/>
+            <menuitem name="menuitem_edit">
+                <menuitem name="menuitem_edit_undo" keyEquivalent="z" ctrlKey="true" click="onUndoClick"/>
+                <menuitem name="menuitem_edit_redo" keyEquivalent="y" ctrlKey="true" click="onRedoClick"/>
+                <menuitem name="menuitem_edit_clear" keyEquivalent="c" ctrlKey="true" altKey="true" click="onClearLevelClick"/>
+                <menuitem name="menuitem_edit_selectall" keyEquivalent="a" ctrlKey="true" click="onSelectAll"/>
             </menuitem>
-            <menuitem label="View">
-                <menuitem label="Visual geometry" type="check" toggled="true" keyEquivalent="1" ctrlKey="true" click="onToggleGeometryClick"/>
-                <menuitem label="Collision geometry" type="check" keyEquivalent="2" ctrlKey="true" click="onToggleGeometryClick"/>
+            <menuitem name="menuitem_view">
+                <menuitem name="menuitem_view_geometry">
+                    <menuitem name="menuitem_view_geometry_visual" keyEquivalent="1" ctrlKey="true" click="onGeometryViewModeItemClick"/>
+                    <menuitem name="menuitem_view_geometry_collision" keyEquivalent="2" ctrlKey="true" click="onGeometryViewModeItemClick"/>
+                </menuitem>
                 <menuitem type="separator"/>
-                <menuitem label="Show bound boxes" type="check" keyEquivalent="b" ctrlKey="true" click="onShowBoundBoxesClick"/>
-                <menuitem label="Show grid" type="check" toggled="true" keyEquivalent="g" click="onShowGridClick"/>
-                <menuitem label="Show layers" type="check" toggled="false" keyEquivalent="l" click="onShowLayersWindow"/>
+                <menuitem name="menuitem_view_showboundboxes" keyEquivalent="b" ctrlKey="true" click="onShowBoundBoxesClick"/>
+                <menuitem name="menuitem_view_showgrid" keyEquivalent="g" click="onShowGridClick"/>
+                <menuitem name="menuitem_view_showlayers" keyEquivalent="l" click="onShowLayersWindow"/>
             </menuitem>
-            <menuitem label="Library">
-                <menuitem label="Clear" keyEquivalent="l" ctrlKey="true" altKey="true" click="onClearLibClick"/>
-                <menuitem label="Clear and load" keyEquivalent="l" ctrlKey="true" altKey="true" click="onClearAndLoadLibClick"/>
-                <menuitem label="Load">
-                    <menuitem label="Load from directory" keyEquivalent="l" ctrlKey="true" click="onLoadLibClick"/>
-                    <menuitem label="Recent"/>
+            <menuitem name="menuitem_library">
+                <menuitem name="menuitem_library_clear" keyEquivalent="l" ctrlKey="true" altKey="true" click="onClearLibClick"/>
+                <menuitem name="menuitem_library_clearandload" keyEquivalent="l" ctrlKey="true" altKey="true" click="onClearAndLoadLibClick"/>
+                <menuitem name="menuitem_library_load">
+                    <menuitem name="menuitem_library_loadfromdir" keyEquivalent="l" ctrlKey="true" click="onLoadLibClick"/>
+                    <menuitem name="menuitem_library_recent"/>
                 </menuitem>
             </menuitem>
-            <menuitem label="Options">
-                <menuitem label="Props intersection check">
-                    <menuitem label="All intersections allowed" type="check" click="onToggleIntersectionCheckMode"/>
-                    <menuitem label="Same props intersections denied" type="check" click="onToggleIntersectionCheckMode"/>
-                    <menuitem label="All intersections denied" type="check" toggled="true" click="onToggleIntersectionCheckMode"/>
+            <menuitem name="menuitem_options">
+                <menuitem name="menuitem_options_propsintersect">
+                    <menuitem name="menuitem_options_propsintersect_allallowed" modename="ANY" click="onIntersectionModeItemClicked"/>
+                    <menuitem name="menuitem_options_propsintersect_samedenied" modename="GROUP" click="onIntersectionModeItemClicked"/>
+                    <menuitem name="menuitem_options_propsintersect_alldenied" modename="NONE" click="onIntersectionModeItemClicked"/>
                 </menuitem>
-                <menuitem label="Snap" keyEquivalent="n" click="onSnapClick"/>
+                <menuitem name="menuitem_options_snap" keyEquivalent="n" click="onSnapItemClicked"/>
+                <menuitem name="menuitem_options_languages"/>
             </menuitem>
-            <menuitem label="Help">
-                <menuitem label="Show help" click="onHelpClick"/>
+            <menuitem name="menuitem_help">
+                <menuitem name="menuitem_help_show" click="onHelpClick"/>
             </menuitem>
         </root>
     </mx:XML>
 
-    <!-- Flex Native Menu -->
+
     <mx:menu>
         <mx:FlexNativeMenu dataProvider="{menuData}" 
             labelField="@label" 
@@ -796,37 +861,37 @@
 
     <mx:ControlBar percentWidth="100" height="26" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
         <local:ModeButton id="snapButton"
-            click="toggleSnapMode();"
+            click="onToggleSnapButtonClicked();"
             width="24" height="24"
             upToolTip="Enable snapping"
             downToolTip="Disable snapping"
-            upModeIcon="@Embed(source='icons/editor/snap_icon_on.png')"
-            downModeIcon="@Embed(source='icons/editor/snap_icon.png')"/>
+            upModeIcon="@Embed(source='icons/editor/snap_icon.png')"
+            downModeIcon="@Embed(source='icons/editor/snap_icon_on.png')"/>
 
         <local:ModeButton id="viewButton"
-            click="toggleGeometryViewMode();"
+            click="onGeometryViewModeButtonClick();"
             width="24" height="24"
             upToolTip="Show collision geometry"
             downToolTip="Show visual geometry"
-            upModeIcon="@Embed(source='icons/editor/boxes_icon_on.png')"
-            downModeIcon="@Embed(source='icons/editor/boxes_icon.png')"/>
+            upModeIcon="@Embed(source='icons/editor/boxes_icon.png')"
+            downModeIcon="@Embed(source='icons/editor/boxes_icon_on.png')"/>
 
         <local:ModeButton id="btnToggleGrid"
-            click="toggleGrid();"
+            click="onToggleGridButtonClicked();"
             width="24" height="24"
             upToolTip="Show grid"
             downToolTip="Hide grid"
             down="true"
-            upModeIcon="@Embed(source='icons/editor/grid_icon_on.png')"
-            downModeIcon="@Embed(source='icons/editor/grid_icon.png')"/>
+            upModeIcon="@Embed(source='icons/editor/grid_icon.png')"
+            downModeIcon="@Embed(source='icons/editor/grid_icon_on.png')"/>
 
         <local:ModeButton id="showPropertyButton"
             click="showPropertyPanel()"
             width="24" height="24"
             upToolTip="Show property panel"
             downToolTip="Hide property panel"
-            upModeIcon="@Embed(source='icons/editor/textures_icon_on.png')"
-            downModeIcon="@Embed(source='icons/editor/textures_icon.png')"/>
+            upModeIcon="@Embed(source='icons/editor/textures_icon.png')"
+            downModeIcon="@Embed(source='icons/editor/textures_icon_on.png')"/>
 
         <mx:Button id="hideSelectedButton"
             click="hideSelectedProps()"
@@ -848,7 +913,7 @@
     </mx:ControlBar>
 
     <mx:HDividedBox percentWidth="100" percentHeight="100" y="26" backgroundAlpha="0">
-        <!-- Left VBox Section -->
+        <!-- Left Section -->
         <mx:VBox id="vbox" percentWidth="100" percentHeight="100" backgroundAlpha="0">
             <mx:HDividedBox percentWidth="100" percentHeight="100" backgroundAlpha="0">
                 <mx:Panel id="workspace" title="Workspace" percentWidth="100" percentHeight="100" layout="absolute" horizontalScrollPolicy="off" backgroundAlpha="0">
@@ -857,7 +922,7 @@
             </mx:HDividedBox>
         </mx:VBox>
 
-        <!-- Right VDividedBox Section -->
+        <!-- Right Section -->
         <mx:VDividedBox width="300" percentHeight="100" backgroundAlpha="0">
             <mx:Panel id="previewPanel" title="Preview" percentWidth="100" height="300" backgroundAlpha="0"/>
 

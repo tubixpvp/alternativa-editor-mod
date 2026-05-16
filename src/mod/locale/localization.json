@@ -1,0 +1,108 @@
+{
+    "_default":"EN",
+
+    "RU": {
+        "MENUITEM_FILE": "Файл",
+        "MENUITEM_FILE_NEW":"Новый",
+        "MENUITEM_FILE_IMPORT":"Загрузить",
+        "MENUITEM_FILE_IMPORT_IMPORTTANKIMAP": "Очистить и загрузить уровень",
+        "MENUITEM_FILE_IMPORT_APPENDTANKIMAP": "Добавить уровень",
+        "MENUITEM_FILE_IMPORT_APPENDSPECIALGEOMETRY": "Добавить специальную геометрию",
+        "MENUITEM_FILE_IMPORT_BATCHPROCESSING": "Пакетная обработка",
+        "MENUITEM_FILE_EXPORT":"Сохранить",
+        "MENUITEM_FILE_EXPORT_FLASHMAP1": "XML 1.0 - Флеш ТО  (xml)",
+        "MENUITEM_FILE_EXPORT_FLASHMAP1NOFUNC": "XML 1.0 БЕЗ-СПЕЦ-ГЕОМЕТРИИ - Флеш ТО  (xml)",
+        "MENUITEM_FILE_EXPORT_FLASHMAP3": "XML 3.0 - Флеш ТО  (xml)",
+        "MENUITEM_FILE_EXPORT_HTML5MAP": "BIN 1.0 - HTML5 ТО  (zip)",
+
+        "MENUITEM_EDIT": "Правка",
+        "MENUITEM_EDIT_UNDO":"Отменить",
+        "MENUITEM_EDIT_REDO":"Повторить",
+        "MENUITEM_EDIT_CLEAR":"Очистить",
+        "MENUITEM_EDIT_SELECTALL":"Выбрать всё",
+
+        "MENUITEM_VIEW":"Вид",
+        "MENUITEM_VIEW_GEOMETRY":"Отображать геометрию",
+        "MENUITEM_VIEW_GEOMETRY_VISUAL":"Видимая",
+        "MENUITEM_VIEW_GEOMETRY_COLLISION":"Коллизии",
+        "MENUITEM_VIEW_SHOWBOUNDBOXES":"Показывать границы объектов",
+        "MENUITEM_VIEW_SHOWGRID":"Показывать сетку",
+        "MENUITEM_VIEW_SHOWLAYERS":"Показывать окно слоёв",
+
+        "MENUITEM_LIBRARY":"Библиотека",
+        "MENUITEM_LIBRARY_CLEAR": "Очистить",
+        "MENUITEM_LIBRARY_CLEARANDLOAD": "Очистить и загрузить",
+        "MENUITEM_LIBRARY_LOAD": "Загрузить",
+        "MENUITEM_LIBRARY_LOADFROMDIR": "Загрузить из папки",
+        "MENUITEM_LIBRARY_LOADFROMTARA": "Загрузить из TARA пакета",
+        "MENUITEM_LIBRARY_RECENT": "Недавние",
+        "MENUITEM_LIBRARY_RECENT_CLEAR": "Очистить",
+
+        "MENUITEM_OPTIONS":"Параметры",
+        "MENUITEM_OPTIONS_PROPSINTERSECT": "Проверка пересечения пропов",
+        "MENUITEM_OPTIONS_PROPSINTERSECT_ALLALLOWED": "Разрешить все пересечения",
+        "MENUITEM_OPTIONS_PROPSINTERSECT_SAMEDENIED": "Запретить пересечение пропов одного типа",
+        "MENUITEM_OPTIONS_PROPSINTERSECT_ALLDENIED": "Запретить любые пересечения",
+        "MENUITEM_OPTIONS_SNAP": "Выравнивать пропы по сетке",
+        "MENUITEM_OPTIONS_LANGUAGES": "Язык",
+
+        "MENUITEM_HELP":"Помощь",
+        "MENUITEM_HELP_SHOW": "Показать сводку",
+
+
+        "SNAP_BTN_UP_TOOLTIP": "Включить выравнивание по сетке",
+        "SNAP_BTN_DOWN_TOOLTIP": "Выключить выравнивание по сетке"
+    },
+    "EN" : {
+        "MENUITEM_FILE":"File",
+        "MENUITEM_FILE_NEW":"New",
+        "MENUITEM_FILE_IMPORT":"Import",
+        "MENUITEM_FILE_IMPORT_IMPORTTANKIMAP":"Clear and import Tanki map",
+        "MENUITEM_FILE_IMPORT_APPENDTANKIMAP":"Append Tanki map",
+        "MENUITEM_FILE_IMPORT_APPENDSPECIALGEOMETRY":"Append special geometry",
+        "MENUITEM_FILE_IMPORT_BATCHPROCESSING":"Batch processing",
+        "MENUITEM_FILE_EXPORT":"Export",
+        "MENUITEM_FILE_EXPORT_FLASHMAP1":"XML 1.0 - Flash Tanki  (xml)",
+        "MENUITEM_FILE_EXPORT_FLASHMAP1NOFUNC": "XML 1.0 NO-SPECIAL-GEOMETRY - Flash Tanki  (xml)",
+        "MENUITEM_FILE_EXPORT_FLASHMAP3":"XML 3.0 - Flash Tanki  (xml)",
+        "MENUITEM_FILE_EXPORT_HTML5MAP":"BIN 1.0 - HTML5 Tanki  (zip)",
+
+        "MENUITEM_EDIT":"Edit",
+        "MENUITEM_EDIT_UNDO": "Undo",
+        "MENUITEM_EDIT_REDO": "Redo",
+        "MENUITEM_EDIT_CLEAR": "Clear",
+        "MENUITEM_EDIT_SELECTALL": "Select all",
+
+        "MENUITEM_VIEW":"View",
+        "MENUITEM_VIEW_GEOMETRY":"Show geometry",
+        "MENUITEM_VIEW_GEOMETRY_VISUAL":"Visual",
+        "MENUITEM_VIEW_GEOMETRY_COLLISION":"Collision",
+        "MENUITEM_VIEW_SHOWBOUNDBOXES":"Show bound boxes",
+        "MENUITEM_VIEW_SHOWGRID":"Show grid",
+        "MENUITEM_VIEW_SHOWLAYERS":"Show layers",
+
+        "MENUITEM_LIBRARY": "Library",
+        "MENUITEM_LIBRARY_CLEAR": "Clear",
+        "MENUITEM_LIBRARY_CLEARANDLOAD": "Clear and load",
+        "MENUITEM_LIBRARY_LOAD": "Load",
+        "MENUITEM_LIBRARY_LOADFROMDIR": "Load from directory",
+        "MENUITEM_LIBRARY_LOADFROMTARA": "Load from TARA package",
+        "MENUITEM_LIBRARY_RECENT": "Recent",
+        "MENUITEM_LIBRARY_RECENT_CLEAR": "Clear",
+
+        "MENUITEM_OPTIONS":"Options",
+        "MENUITEM_OPTIONS_PROPSINTERSECT": "Props intersection check",
+        "MENUITEM_OPTIONS_PROPSINTERSECT_ALLALLOWED": "All intersections allowed",
+        "MENUITEM_OPTIONS_PROPSINTERSECT_SAMEDENIED": "Same props intersections denied",
+        "MENUITEM_OPTIONS_PROPSINTERSECT_ALLDENIED": "All intersections denied",
+        "MENUITEM_OPTIONS_SNAP": "Snap props to grid",
+        "MENUITEM_OPTIONS_LANGUAGES": "Language",
+
+        "MENUITEM_HELP":"Help",
+        "MENUITEM_HELP_SHOW": "Show help",
+
+
+        "SNAP_BTN_UP_TOOLTIP":"Enable snapping",
+        "SNAP_BTN_DOWN_TOOLTIP":"Disable snapping"
+    }
+}
