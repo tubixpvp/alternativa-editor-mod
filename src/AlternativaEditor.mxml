@@ -761,9 +761,33 @@
 
             private function applyLocalization() : void
             {
-                snapButton.upToolTip = Locale.getText(TextId.SNAP_BTN_UP_TOOLTIP);
-                snapButton.downToolTip = Locale.getText(TextId.SNAP_BTN_DOWN_TOOLTIP);
+                snapButton.upToolTip = Locale.getText(TextId.CONTROLBAR_SNAP_ENABLE_TOOLTIP);
+                snapButton.downToolTip = Locale.getText(TextId.CONTROLBAR_SNAP_DISABLE_TOOLTIP);
                 snapButton.update();
+
+                viewButton.upToolTip = Locale.getText(TextId.CONTROLBAR_SHOWCOLLISION_ENABLE_TOOLTIP);
+                viewButton.downToolTip = Locale.getText(TextId.CONTROLBAR_SHOWCOLLISION_DISABLE_TOOLTIP);
+                viewButton.update();
+
+                btnToggleGrid.upToolTip = Locale.getText(TextId.CONTROLBAR_GRID_ENABLE_TOOLTIP);
+                btnToggleGrid.downToolTip = Locale.getText(TextId.CONTROLBAR_GRID_DISABLE_TOOLTIP);
+                btnToggleGrid.update();
+
+                showPropertyButton.upToolTip = Locale.getText(TextId.CONTROLBAR_PROPERTIES_ENABLE_TOOLTIP);
+                showPropertyButton.downToolTip = Locale.getText(TextId.CONTROLBAR_PROPERTIES_DISABLE_TOOLTIP);
+                showPropertyButton.update();
+
+                hideSelectedButton.toolTip = Locale.getText(TextId.CONTROLBAR_HIDESELECTED);
+                showAllButton.toolTip = Locale.getText(TextId.CONTROLBAR_SHOWALL);
+
+                _selectFilterLabel.text = Locale.getText(TextId.CONTROLBAR_SELECTFILTER_LABEL);
+
+                typeSelecting.dataProvider = [
+                    Locale.getText(TextId.CONTROLBAR_SELECTFILTER_OPTION_ALL),
+                    Locale.getText(TextId.CONTROLBAR_SELECTFILTER_OPTION_TILE),
+                    Locale.getText(TextId.CONTROLBAR_SELECTFILTER_OPTION_SPRITE),
+                    Locale.getText(TextId.CONTROLBAR_SELECTFILTER_OPTION_FUNCTIONAL)
+                ];
 
                 applyLocalizationToMenu(this.menu.nativeMenu);
 
@@ -863,53 +887,42 @@
         <local:ModeButton id="snapButton"
             click="onToggleSnapButtonClicked();"
             width="24" height="24"
-            upToolTip="Enable snapping"
-            downToolTip="Disable snapping"
             upModeIcon="@Embed(source='icons/editor/snap_icon.png')"
             downModeIcon="@Embed(source='icons/editor/snap_icon_on.png')"/>
 
         <local:ModeButton id="viewButton"
             click="onGeometryViewModeButtonClick();"
             width="24" height="24"
-            upToolTip="Show collision geometry"
-            downToolTip="Show visual geometry"
             upModeIcon="@Embed(source='icons/editor/boxes_icon.png')"
             downModeIcon="@Embed(source='icons/editor/boxes_icon_on.png')"/>
 
         <local:ModeButton id="btnToggleGrid"
             click="onToggleGridButtonClicked();"
             width="24" height="24"
-            upToolTip="Show grid"
-            downToolTip="Hide grid"
-            down="true"
             upModeIcon="@Embed(source='icons/editor/grid_icon.png')"
             downModeIcon="@Embed(source='icons/editor/grid_icon_on.png')"/>
 
         <local:ModeButton id="showPropertyButton"
             click="showPropertyPanel()"
             width="24" height="24"
-            upToolTip="Show property panel"
-            downToolTip="Hide property panel"
             upModeIcon="@Embed(source='icons/editor/textures_icon.png')"
             downModeIcon="@Embed(source='icons/editor/textures_icon_on.png')"/>
 
         <mx:Button id="hideSelectedButton"
             click="hideSelectedProps()"
             width="24" height="24"
-            toolTip="Hide selected props"
             icon="@Embed(source='icons/editor/hide_selected.png')"/>
 
         <mx:Button id="showAllButton"
             click="showAll();"
             width="24" height="24"
-            toolTip="Show all"
             icon="@Embed(source='icons/editor/show_all.png')"/>
 
-        <mx:Label text="Selecting prop:" width="89"/>
+        <mx:Label id="_selectFilterLabel" width="95"/>
 
         <mx:ComboBox id="typeSelecting"
             change="onSelectionTypeChange(event);"
-            width="130" dataProvider="['All', 'Tile', 'Sprite', 'Functional']"/>
+            width="130" dataProvider="['ALL', 'TILE', 'SPRITE', 'FUNCTIONAL']"/>
     </mx:ControlBar>
 
     <mx:HDividedBox percentWidth="100" percentHeight="100" y="26" backgroundAlpha="0">

@@ -50,8 +50,23 @@
         "MENUITEM_HELP_SHOW": "Показать сводку",
 
 
-        "SNAP_BTN_UP_TOOLTIP": "Включить выравнивание по сетке",
-        "SNAP_BTN_DOWN_TOOLTIP": "Выключить выравнивание по сетке"
+        "CONTROLBAR_SNAP_ENABLE_TOOLTIP":"Включить выравнивание по сетке",
+        "CONTROLBAR_SNAP_DISABLE_TOOLTIP":"Выключить выравнивание по сетке",
+        "CONTROLBAR_SHOWCOLLISION_ENABLE_TOOLTIP":"Показать геометрию коллизий",
+        "CONTROLBAR_SHOWCOLLISION_DISABLE_TOOLTIP":"Показать визуальную геометрию",
+        "CONTROLBAR_GRID_ENABLE_TOOLTIP":"Показать сетку",
+        "CONTROLBAR_GRID_DISABLE_TOOLTIP":"Скрыть сетку",
+        "CONTROLBAR_PROPERTIES_ENABLE_TOOLTIP":"Показать панель параметров",
+        "CONTROLBAR_PROPERTIES_DISABLE_TOOLTIP":"Скрыть панель параметров",
+        "CONTROLBAR_HIDESELECTED":"Скрыть выбранные пропы",
+        "CONTROLBAR_SHOWALL":"Показать все",
+
+        "CONTROLBAR_SELECTFILTER_LABEL":"Фильтр выбора:",
+        "CONTROLBAR_SELECTFILTER_OPTION_ALL":"Все",
+        "CONTROLBAR_SELECTFILTER_OPTION_TILE":"Тайлы",
+        "CONTROLBAR_SELECTFILTER_OPTION_SPRITE":"Спрайты",
+        "CONTROLBAR_SELECTFILTER_OPTION_FUNCTIONAL":"Функционал"
+
     },
     "EN" : {
         "MENUITEM_FILE":"File",
@@ -102,7 +117,21 @@
         "MENUITEM_HELP_SHOW": "Show help",
 
 
-        "SNAP_BTN_UP_TOOLTIP":"Enable snapping",
-        "SNAP_BTN_DOWN_TOOLTIP":"Disable snapping"
+        "CONTROLBAR_SNAP_ENABLE_TOOLTIP":"Enable snapping",
+        "CONTROLBAR_SNAP_DISABLE_TOOLTIP":"Disable snapping",
+        "CONTROLBAR_SHOWCOLLISION_ENABLE_TOOLTIP":"Show collision geometry",
+        "CONTROLBAR_SHOWCOLLISION_DISABLE_TOOLTIP":"Show visual geometry",
+        "CONTROLBAR_GRID_ENABLE_TOOLTIP":"Show grid",
+        "CONTROLBAR_GRID_DISABLE_TOOLTIP":"Hide grid",
+        "CONTROLBAR_PROPERTIES_ENABLE_TOOLTIP":"Show property panel",
+        "CONTROLBAR_PROPERTIES_DISABLE_TOOLTIP":"Hide property panel",
+        "CONTROLBAR_HIDESELECTED":"Hide selected props",
+        "CONTROLBAR_SHOWALL":"Show all",
+
+        "CONTROLBAR_SELECTFILTER_LABEL":"Selection filter:",
+        "CONTROLBAR_SELECTFILTER_OPTION_ALL":"All",
+        "CONTROLBAR_SELECTFILTER_OPTION_TILE":"Tile",
+        "CONTROLBAR_SELECTFILTER_OPTION_SPRITE":"Sprite",
+        "CONTROLBAR_SELECTFILTER_OPTION_FUNCTIONAL":"Functional"
     }
 }
