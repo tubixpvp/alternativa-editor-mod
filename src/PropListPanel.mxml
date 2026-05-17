@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel xmlns:mx="library://ns.adobe.com/flex/mx"
         xmlns:fx="http://ns.adobe.com/mxml/2009"
-          title="Props"
           width="100%" height="100%"
           focusEnabled="false">
 
@@ -16,11 +15,18 @@
             import mx.events.ListEvent;
             import gui.events.PropListEvent;
             import alternativa.editor.ImageItemRenderer;
+            import mod.locale.Locale;
+            import mod.locale.TextId;
             
             private var _groupName:Array = [];
             private var _group:Array = [];
             private var dataProviders:Array = [];
             public var selectedItem:* = null;
+
+            public function applyLocalization() : void
+            {
+                title = Locale.getText(TextId.PROPSLIST_PANEL_TITLE);
+            }
 
             public function addProp(groupName:String, label:String, image:DisplayObject, obj:* = null):void {
                 var canvas:Canvas;

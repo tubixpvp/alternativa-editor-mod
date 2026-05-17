@@ -21,11 +21,32 @@ package mod.locale
         public static const CONTROLBAR_SHOWALL:String = "CONTROLBAR_SHOWALL";
 
         public static const CONTROLBAR_SELECTFILTER_LABEL:String = "CONTROLBAR_SELECTFILTER_LABEL";
-
         public static const CONTROLBAR_SELECTFILTER_OPTION_ALL:String = "CONTROLBAR_SELECTFILTER_OPTION_ALL";
         public static const CONTROLBAR_SELECTFILTER_OPTION_TILE:String = "CONTROLBAR_SELECTFILTER_OPTION_TILE";
         public static const CONTROLBAR_SELECTFILTER_OPTION_SPRITE:String = "CONTROLBAR_SELECTFILTER_OPTION_SPRITE";
         public static const CONTROLBAR_SELECTFILTER_OPTION_FUNCTIONAL:String = "CONTROLBAR_SELECTFILTER_OPTION_FUNCTIONAL";
+
+
+        public static const WORKSPACE_PANEL_TITLE:String = "WORKSPACE_PANEL_TITLE";
+        public static const PREVIEW_PANEL_TITLE:String = "PREVIEW_PANEL_TITLE";
+        public static const PROPERTIES_PANEL_TITLE:String = "PROPERTIES_PANEL_TITLE";
+        public static const HELP_PANEL_TITLE:String = "HELP_PANEL_TITLE";
+        public static const PROPSLIST_PANEL_TITLE:String = "PROPSLIST_PANEL_TITLE";
+
+        public static const ALERT_TEXT_SELECT_PROP_FOR_PASTING:String = "ALERT_TEXT_SELECT_PROP_FOR_PASTING";
+        public static const ALERT_HEADER_SCENE_HAS_BEEN_CHANGED:String = "ALERT_HEADER_SCENE_HAS_BEEN_CHANGED";
+        public static const ALERT_TEXT_DISCARD_CHANGES_Q:String = "ALERT_TEXT_DISCARD_CHANGES_Q";
+        
+        public static const ALERT_BUTTON_YES:String = "ALERT_BUTTON_YES";
+        public static const ALERT_BUTTON_NO:String = "ALERT_BUTTON_NO";
+        public static const ALERT_BUTTON_OK:String = "ALERT_BUTTON_OK";
+        public static const ALERT_BUTTON_CANCEL:String = "ALERT_BUTTON_CANCEL";
+
+        public static const PROGRESSBAR_BATCH_PROCESSING:String = "PROGRESSBAR_BATCH_PROCESSING";
+        public static const PROGRESSBAR_IMPORTING_LEVEL:String = "PROGRESSBAR_IMPORTING_LEVEL";
+        public static const PROGRESSBAR_LOADING_LIBRARIES:String = "PROGRESSBAR_LOADING_LIBRARIES";
+
+        public static const BROWSE_FOR_LEVELS_DIRECTORY_HEADER:String = "BROWSE_FOR_LEVELS_DIRECTORY_HEADER";
 
     
     }

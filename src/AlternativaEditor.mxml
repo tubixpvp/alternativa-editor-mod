@@ -289,7 +289,7 @@
                                     this.sceneContainer.addProp(loc2);
                                     break;
                                 }
-                                Alert.show("Select prop for pasting!");
+                                Alert.show(Locale.getText(TextId.ALERT_TEXT_SELECT_PROP_FOR_PASTING));
                                 break;
                             }
                             if (this.propertyPanel.enabled && this.showPropertyButton.down && this.mainScene.isTexturePanel)
@@ -480,7 +480,7 @@
             
             private function onBatchFileSelect(param1:Event):void
             {
-                this.showProgressBar("Batch processing");
+                this.showProgressBar(Locale.getText(TextId.PROGRESSBAR_BATCH_PROCESSING));
                 this.progressBar.setProgress(0, 1);
                 this.batchProcessor.run(this.batchSelector.getDirectoryListing());
             }
@@ -503,13 +503,7 @@
                 var item:NativeMenuItem = param1;
                 if (this.mainScene.changed)
                 {
-                    Alert.show("Discard changes?", "Scene has been changed", Alert.YES | Alert.CANCEL, null, function(param1:CloseEvent):void
-                        {
-                            if (param1.detail == Alert.YES)
-                            {
-                                newLevel();
-                            }
-                        });
+                    this.askToDiscardSceneChanges(newLevel);
                 }
                 else
                 {
@@ -529,18 +523,24 @@
                 var item:NativeMenuItem = param1;
                 if (this.mainScene.changed)
                 {
-                    Alert.show("Discard changes?", "Scene has been changed", Alert.YES | Alert.CANCEL, null, function(param1:CloseEvent):void
-                        {
-                            if (param1.detail == Alert.YES)
-                            {
-                                importFromXML();
-                            }
-                        });
+                    this.askToDiscardSceneChanges(importFromXML);
                 }
                 else
                 {
                     this.importFromXML();
                 }
+            }
+
+            private function askToDiscardSceneChanges(callback:Function) : void
+            {
+                Alert.show(Locale.getText(TextId.ALERT_TEXT_DISCARD_CHANGES_Q), Locale.getText(TextId.ALERT_HEADER_SCENE_HAS_BEEN_CHANGED), 
+                    Alert.YES | Alert.CANCEL, null, function(param1:CloseEvent):void
+                    {
+                        if (param1.detail == Alert.YES)
+                        {
+                            callback();
+                        }
+                    });
             }
             
             private function importFromXML():void
@@ -561,7 +561,7 @@
             
             private function onImportStart(param1:Event):void
             {
-                this.showProgressBar("Importing level");
+                this.showProgressBar(Locale.getText(TextId.PROGRESSBAR_IMPORTING_LEVEL));
             }
             
             private function onImportProgress(param1:EditorProgressEvent):void
@@ -602,7 +602,7 @@
             
             private function onBatchProcessingClick(param1:NativeMenuItem):void
             {
-                this.batchSelector.browseForDirectory("Levels");
+                this.batchSelector.browseForDirectory(Locale.getText(TextId.BROWSE_FOR_LEVELS_DIRECTORY_HEADER));
             }
             
             private function onUndoClick(param1:NativeMenuItem):void
@@ -641,7 +641,7 @@
             
             private function onStartLibLoading(param1:Event):void
             {
-                this.showProgressBar("Loading libraries");
+                this.showProgressBar(Locale.getText(TextId.PROGRESSBAR_LOADING_LIBRARIES));
             }
             
             private function onLibraryLoadingProgress(param1:EditorProgressEvent):void
@@ -657,7 +657,7 @@
             
             private function onHelpClick(param1:NativeMenuItem):void
             {
-                Alert.show(helpText, "Help");
+                Alert.show(helpText, Locale.getText(TextId.HELP_PANEL_TITLE));
             }
             
             private function showProgressBar(param1:String):void
@@ -693,12 +693,13 @@
             {
                 this.proplistPanel.addEventListener(PropListEvent.SELECT, this.onPropSelect);
                 this.proplistPanel.addEventListener(MouseEvent.CLICK, this.onPropListClick);
+                Locale.addListener(this.proplistPanel.applyLocalization);
             }
             
             private function createPropertyPanel():void
             {
                 this.propertyPanel = new Panel();
-                this.propertyPanel.title = "Properties";
+                //this.propertyPanel.title = "Properties";
                 this.propertyPanel.percentWidth = 100;
                 this.propertyPanel.height = 200;
                 this.mainScene.setPropertyPanel(this.propertyPanel);
@@ -761,6 +762,27 @@
 
             private function applyLocalization() : void
             {
+                applyLocalizationToControlPanel();
+
+                applyLocalizationToMenu(this.menu.nativeMenu);
+
+                applyLocalizationToPanelsHeaders();
+            }
+
+            private function applyLocalizationToPanelsHeaders() : void
+            {
+                workspace.title = Locale.getText(TextId.WORKSPACE_PANEL_TITLE);
+                previewPanel.title = Locale.getText(TextId.PREVIEW_PANEL_TITLE);
+                propertyPanel.title = Locale.getText(TextId.PROPERTIES_PANEL_TITLE);
+
+                Alert.yesLabel = Locale.getText(TextId.ALERT_BUTTON_YES);
+                Alert.noLabel = Locale.getText(TextId.ALERT_BUTTON_NO);
+                Alert.okLabel = Locale.getText(TextId.ALERT_BUTTON_OK);
+                Alert.cancelLabel = Locale.getText(TextId.ALERT_BUTTON_CANCEL);
+            }
+
+            private function applyLocalizationToControlPanel() : void
+            {
                 snapButton.upToolTip = Locale.getText(TextId.CONTROLBAR_SNAP_ENABLE_TOOLTIP);
                 snapButton.downToolTip = Locale.getText(TextId.CONTROLBAR_SNAP_DISABLE_TOOLTIP);
                 snapButton.update();
@@ -788,9 +810,6 @@
                     Locale.getText(TextId.CONTROLBAR_SELECTFILTER_OPTION_SPRITE),
                     Locale.getText(TextId.CONTROLBAR_SELECTFILTER_OPTION_FUNCTIONAL)
                 ];
-
-                applyLocalizationToMenu(this.menu.nativeMenu);
-
             }
 
             private function applyLocalizationToMenu(submenu:NativeMenu) : void
@@ -929,7 +948,7 @@
         <!-- Left Section -->
         <mx:VBox id="vbox" percentWidth="100" percentHeight="100" backgroundAlpha="0">
             <mx:HDividedBox percentWidth="100" percentHeight="100" backgroundAlpha="0">
-                <mx:Panel id="workspace" title="Workspace" percentWidth="100" percentHeight="100" layout="absolute" horizontalScrollPolicy="off" backgroundAlpha="0">
+                <mx:Panel id="workspace" percentWidth="100" percentHeight="100" layout="absolute" horizontalScrollPolicy="off" backgroundAlpha="0">
                     <local1:SceneContainer id="sceneContainer" percentWidth="100" percentHeight="100"/>
                 </mx:Panel>
             </mx:HDividedBox>
@@ -937,7 +956,7 @@
 
         <!-- Right Section -->
         <mx:VDividedBox width="300" percentHeight="100" backgroundAlpha="0">
-            <mx:Panel id="previewPanel" title="Preview" percentWidth="100" height="300" backgroundAlpha="0"/>
+            <mx:Panel id="previewPanel" percentWidth="100" height="300" backgroundAlpha="0"/>
 
             <mx:VBox percentWidth="100" percentHeight="100">
                 <mx:ComboBox id="cbPropLibNames" change="onComboBoxChange(event);" percentWidth="100"/>

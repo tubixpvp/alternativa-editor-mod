@@ -39,7 +39,7 @@
         "MENUITEM_LIBRARY_RECENT_CLEAR": "Очистить",
 
         "MENUITEM_OPTIONS":"Параметры",
-        "MENUITEM_OPTIONS_PROPSINTERSECT": "Проверка пересечения пропов",
+        "MENUITEM_OPTIONS_PROPSINTERSECT": "Проверка пересечений пропов",
         "MENUITEM_OPTIONS_PROPSINTERSECT_ALLALLOWED": "Разрешить все пересечения",
         "MENUITEM_OPTIONS_PROPSINTERSECT_SAMEDENIED": "Запретить пересечение пропов одного типа",
         "MENUITEM_OPTIONS_PROPSINTERSECT_ALLDENIED": "Запретить любые пересечения",
@@ -65,7 +65,29 @@
         "CONTROLBAR_SELECTFILTER_OPTION_ALL":"Все",
         "CONTROLBAR_SELECTFILTER_OPTION_TILE":"Тайлы",
         "CONTROLBAR_SELECTFILTER_OPTION_SPRITE":"Спрайты",
-        "CONTROLBAR_SELECTFILTER_OPTION_FUNCTIONAL":"Функционал"
+        "CONTROLBAR_SELECTFILTER_OPTION_FUNCTIONAL":"Функционал",
+
+
+        "WORKSPACE_PANEL_TITLE":"Рабочее пространство",
+        "PREVIEW_PANEL_TITLE":"Предпросмотр",
+        "PROPERTIES_PANEL_TITLE":"Параметры",
+        "HELP_PANEL_TITLE":"Помощь",
+        "PROPSLIST_PANEL_TITLE": "Пропы",
+
+        "ALERT_TEXT_SELECT_PROP_FOR_PASTING":"Выберите проп для вставки!",
+        "ALERT_HEADER_SCENE_HAS_BEEN_CHANGED":"Сцена была изменена",
+        "ALERT_TEXT_DISCARD_CHANGES_Q":"Сбросить изменения?",
+
+        "ALERT_BUTTON_YES":"Да",
+        "ALERT_BUTTON_NO":"Нет",
+        "ALERT_BUTTON_OK":"Ок",
+        "ALERT_BUTTON_CANCEL":"Отмена",
+
+        "PROGRESSBAR_BATCH_PROCESSING":"Пакетная обработка",
+        "PROGRESSBAR_IMPORTING_LEVEL":"Загрузка уровня",
+        "PROGRESSBAR_LOADING_LIBRARIES":"Загрузка библиотек",
+
+        "BROWSE_FOR_LEVELS_DIRECTORY_HEADER":"Уровни"
 
     },
     "EN" : {
@@ -132,6 +154,29 @@
         "CONTROLBAR_SELECTFILTER_OPTION_ALL":"All",
         "CONTROLBAR_SELECTFILTER_OPTION_TILE":"Tile",
         "CONTROLBAR_SELECTFILTER_OPTION_SPRITE":"Sprite",
-        "CONTROLBAR_SELECTFILTER_OPTION_FUNCTIONAL":"Functional"
+        "CONTROLBAR_SELECTFILTER_OPTION_FUNCTIONAL":"Functional",
+
+
+        "WORKSPACE_PANEL_TITLE":"Workspace",
+        "PREVIEW_PANEL_TITLE":"Preview",
+        "PROPERTIES_PANEL_TITLE":"Properties",
+        "HELP_PANEL_TITLE":"Help",
+        "PROPSLIST_PANEL_TITLE":"Props",
+
+        "ALERT_TEXT_SELECT_PROP_FOR_PASTING":"Select prop for pasting!",
+        "ALERT_HEADER_SCENE_HAS_BEEN_CHANGED":"Scene has been changed",
+        "ALERT_TEXT_DISCARD_CHANGES_Q":"Discard changes?",
+
+        "ALERT_BUTTON_YES":"Yes",
+        "ALERT_BUTTON_NO":"No",
+        "ALERT_BUTTON_OK":"Ok",
+        "ALERT_BUTTON_CANCEL":"Cancel",
+
+        "PROGRESSBAR_BATCH_PROCESSING":"Batch processing",
+        "PROGRESSBAR_IMPORTING_LEVEL":"Importing level",
+        "PROGRESSBAR_LOADING_LIBRARIES":"Loading libraries",
+
+        "BROWSE_FOR_LEVELS_DIRECTORY_HEADER": "Levels"
+        
     }
 }

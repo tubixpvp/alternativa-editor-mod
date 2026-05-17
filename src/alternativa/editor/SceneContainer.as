@@ -209,7 +209,7 @@ package alternativa.editor
          //this.cursorScene.occupyMap = this.mainScene.occupyMap;
          addChild(this.mainScene.view);
          //addChild(this.cursorScene.view);
-         addChild(this.mainScene.camera.diagram);
+         stage.addChild(this.mainScene.camera.diagram);
          this.boundBoxesOverlay = new Shape();
          addChild(this.boundBoxesOverlay);
          this.dominationOverlay = new Shape();
