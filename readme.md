@@ -5,7 +5,7 @@ This is modded version of AlternativaEditor (Tanks map editor)
 - **Hardware acceleration support** - this editor uses Alternativa3D 7.11 which provides much better performance because of GPU rendering.
 - **Disabling collision for props** - you can easily disable collision of any prop on the scene, so tanks can go through it.
 - **Exporting to HTML5 Tanki map format (.bin)** - test feature, still in development.
-- **Localization** - editor has multi-language system. Currently, only English and Russian are implemented, but you can pull-request your own translations (see file /mod/locale/localization.json).
+- **Localization** - editor has multi-language system. Currently, only English and Russian are implemented, but you can pull-request your own translations (see file [localization.json](https://github.com/tubixpvp/alternativa-editor-mod/blob/master/src/mod/locale/localization.json)).
 - **Other quality-of-life features** - editor has many little but significant features. For example: saves recent libraries paths; shows information about selected prop.
 
 ## Notice

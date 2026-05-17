@@ -39,10 +39,6 @@ package alternativa.editor
       {
          return _instance;
       }
-
-      private static const cameraPoint:Point3D = new Point3D(0,0,1000);
-      
-      private static const cameraOffset:Point3D = new Point3D();
       
       public var cursorScene:CursorScene;
       
@@ -493,7 +489,7 @@ package alternativa.editor
       
       private function onMouseWheel(param1:MouseEvent) : void
       {
-         var loc2:Number = param1.shiftKey ? 20 : 3;
+         var loc2:Number = (param1.shiftKey ? 20 : 3);
          if(param1.delta < 0)
          {
             loc2 *= -1;
@@ -501,25 +497,36 @@ package alternativa.editor
          this.zoom(loc2);
       }
       
-      private function zoom(param1:int) : void
+      private function zoom(step:int) : void
       {
-         var loc2:Point3D = new Point3D();
-         var cameraPointV3:Vector3D = cameraPoint.toVector3D();
-         if(this.mainScene.selectedProp)
-            loc2.copyFromObject3D(this.mainScene.selectedProp)
-         else
-            loc2.copyFromVector3D(this.mainScene.camera.localToGlobal(cameraPointV3));
-         var loc3:Point3D = new Point3D().copyFromVector3D(this.cursorScene.container.localToGlobal(this.cursorScene.cameraController.coords3D));
-         var loc4:Point3D = loc3.clone();
-         var loc5:Point3D = Point3D.difference(loc2,loc3);
-         if(loc5.length < 500)
+         var cameraPos:Vector3D = this.cursorScene.cameraController.coords3D;
+
+         var offset:Vector3D;
+         if(this.mainScene.selectedProp != null)
          {
-            loc5 = Point3D.difference(new Point3D().copyFromVector3D(this.mainScene.camera.localToGlobal(cameraPointV3)),loc3);
+            var targetPoint:Vector3D = new Vector3D();
+            this.mainScene.selectedProp.copyPositionTo(targetPoint);
+            targetPoint = this.cursorScene.container.globalToLocal(targetPoint);
+            offset = targetPoint.subtract(cameraPos);
          }
-         loc5.normalize();
-         loc5.multiply(param1 * 100);
-         loc3.add(loc5);
-         this.cursorScene.cameraController.setObjectPos(this.cursorScene.container.globalToLocal(loc3.toVector3D()));
+         else //infinite forward movement
+         {
+            offset = Vector3D.Z_AXIS;
+            offset = this.mainScene.camera.localToGlobal(offset, true);
+            offset = this.cursorScene.container.globalToLocal(offset, true);
+            
+            offset.scaleBy(1000);
+         }
+
+         step *= 100;
+         step = Math.min(offset.length - 10, step);
+
+         offset.normalize();
+         offset.scaleBy(step);
+         
+         cameraPos = cameraPos.add(offset);
+
+         this.cursorScene.cameraController.setObjectPos(cameraPos);
       }
       
       private function onMouseOut(param1:MouseEvent) : void
@@ -602,9 +609,9 @@ package alternativa.editor
          this.cursorScene.containerController.processInput();
          //this.cursorScene.calculate();
          this.cameraTransformation = this.mainScene.camera.transformation;
-         cameraOffset.x = this.cameraTransformation.d;
+         /*cameraOffset.x = this.cameraTransformation.d;
          cameraOffset.y = this.cameraTransformation.h;
-         cameraOffset.z = this.cameraTransformation.l;
+         cameraOffset.z = this.cameraTransformation.l;*/
          this.cursorScene.drawAxis(this.cameraTransformation);
          //var loc2:Point3D = this.cameraTransformation.getRotations();
          //this.mainScene.setCameraPosition(cameraOffset,loc2.x,loc2.y,loc2.z);
