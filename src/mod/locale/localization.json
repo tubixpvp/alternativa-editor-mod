@@ -73,6 +73,8 @@
         "PROPERTIES_PANEL_TITLE":"Параметры",
         "HELP_PANEL_TITLE":"Помощь",
         "PROPSLIST_PANEL_TITLE": "Пропы",
+        "TEXTURES_PANEL_TITLE":"Текстуры",
+        "PROPPARAMS_PANEL_TITLE":"Параметры пропа",
 
         "ALERT_TEXT_SELECT_PROP_FOR_PASTING":"Выберите проп для вставки!",
         "ALERT_HEADER_SCENE_HAS_BEEN_CHANGED":"Сцена была изменена",
@@ -87,7 +89,14 @@
         "PROGRESSBAR_IMPORTING_LEVEL":"Загрузка уровня",
         "PROGRESSBAR_LOADING_LIBRARIES":"Загрузка библиотек",
 
-        "BROWSE_FOR_LEVELS_DIRECTORY_HEADER":"Уровни"
+        "BROWSE_FOR_LEVELS_DIRECTORY_HEADER":"Уровни",
+        "INVISIBLE_TEXTURE_NAME":"Невидимый",
+
+        "PROPPARAMS_LABEL_NAME":"Название:",
+        "PROPPARAMS_LABEL_GROUP":"Группа:",
+        "PROPPARAMS_LABEL_LIBRARY":"Библиотека:",
+        "PROPPARAMS_PARAM_COLLISIONS":"Коллизия пропа",
+        "PROPPARAMS_PARAM_ROTATION":"Поворот:"
 
     },
     "EN" : {
@@ -162,6 +171,8 @@
         "PROPERTIES_PANEL_TITLE":"Properties",
         "HELP_PANEL_TITLE":"Help",
         "PROPSLIST_PANEL_TITLE":"Props",
+        "TEXTURES_PANEL_TITLE":"Textures",
+        "PROPPARAMS_PANEL_TITLE":"Prop Parameters",
 
         "ALERT_TEXT_SELECT_PROP_FOR_PASTING":"Select prop for pasting!",
         "ALERT_HEADER_SCENE_HAS_BEEN_CHANGED":"Scene has been changed",
@@ -176,7 +187,14 @@
         "PROGRESSBAR_IMPORTING_LEVEL":"Importing level",
         "PROGRESSBAR_LOADING_LIBRARIES":"Loading libraries",
 
-        "BROWSE_FOR_LEVELS_DIRECTORY_HEADER": "Levels"
+        "BROWSE_FOR_LEVELS_DIRECTORY_HEADER":"Levels",
+        "INVISIBLE_TEXTURE_NAME":"Invisible",
+
+        "PROPPARAMS_LABEL_NAME":"Name:",
+        "PROPPARAMS_LABEL_GROUP":"Group:",
+        "PROPPARAMS_LABEL_LIBRARY":"Library:",
+        "PROPPARAMS_PARAM_COLLISIONS":"Collision enabled",
+        "PROPPARAMS_PARAM_ROTATION":"Rotation:"
         
     }
 }

@@ -34,6 +34,9 @@ package mod.locale
         private static var _storage:SharedObject = null;
 
 
+        private static var _initialLoadComplete:Boolean = false;
+
+
         public static function getText(id:String) : String
         {
             var texts:Object = _langToTexts[_currentLocaleId];
@@ -84,6 +87,8 @@ package mod.locale
 
                 _languageMenuItems.push(menuItem);
             }
+
+            _initialLoadComplete = true;
 
             setLocale(previousLang);
         }
@@ -139,6 +144,11 @@ package mod.locale
         public static function addListener(func:Function) : void
         {
             _changeListeners.push(func);
+
+            if (_initialLoadComplete)
+            {
+                func();
+            }
         }
 
     }

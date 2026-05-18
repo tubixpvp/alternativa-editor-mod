@@ -44,7 +44,7 @@ package alternativa.editor.scene
    import flash.geom.Vector3D;
    import alternativa.engine3d.core.Object3DContainer;
    import alternativa.editor.prop.CTFFlagBase;
-   import alternativa.editor.PropGeneralPropertiesPanel;
+   import mod.PropGeneralPropertiesPanel;
    import mx.controls.Alert;
    import mx.containers.HBox;
    import alternativa.editor.SceneContainer;

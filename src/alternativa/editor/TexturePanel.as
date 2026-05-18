@@ -11,6 +11,8 @@ package alternativa.editor
    import mx.controls.TileList;
    import mx.core.ClassFactory;
    import mx.events.ListEvent;
+   import mod.locale.Locale;
+   import mod.locale.TextId;
    
    public class TexturePanel extends Panel
    {
@@ -29,7 +31,7 @@ package alternativa.editor
          super();
          percentWidth = 100;
          percentHeight = 100;
-         this.title = "Textures";
+         //this.title = "Textures";
          var loc1:HBox = new HBox();
          addChild(loc1);
          loc1.addChild(this.list);
@@ -46,6 +48,24 @@ package alternativa.editor
          this.list.columnWidth = 52;
          this.list.itemRenderer = new ClassFactory(ImageItemRenderer);
          this.list.addEventListener(ListEvent.ITEM_CLICK,this.onSelect);
+
+         Locale.addListener(applyLocalization);
+      }
+
+      private function applyLocalization() : void
+      {
+         title = Locale.getText(TextId.TEXTURES_PANEL_TITLE);
+
+         for (var i:int = 0, l:int = this.dataProvider.length; i < l; ++i)
+         {
+            if (this.dataProvider[i].id == InvisibleTexture.TEXTURE_NAME)
+            {
+               this.dataProvider.removeAt(i);
+               this.addTransparentTexture();
+               this.list.dataProvider = this.dataProvider;
+               break;
+            }
+         }
       }
       
       private function onSelect(param1:ListEvent) : void
@@ -96,7 +116,9 @@ package alternativa.editor
       
       private function addTransparentTexture() : void
       {
-         this.addItem(InvisibleTexture.TEXTURE_NAME,InvisibleTexture.invisibleTexture,InvisibleTexture.TEXTURE_NAME);
+         this.addItem(InvisibleTexture.TEXTURE_NAME,
+            InvisibleTexture.invisibleTexture,
+            Locale.getText(TextId.INVISIBLE_TEXTURE_NAME));
       }
    }
 }

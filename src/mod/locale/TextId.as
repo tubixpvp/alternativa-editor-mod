@@ -32,6 +32,8 @@ package mod.locale
         public static const PROPERTIES_PANEL_TITLE:String = "PROPERTIES_PANEL_TITLE";
         public static const HELP_PANEL_TITLE:String = "HELP_PANEL_TITLE";
         public static const PROPSLIST_PANEL_TITLE:String = "PROPSLIST_PANEL_TITLE";
+        public static const TEXTURES_PANEL_TITLE:String = "TEXTURES_PANEL_TITLE";
+        public static const PROPPARAMS_PANEL_TITLE:String = "PROPPARAMS_PANEL_TITLE";
 
         public static const ALERT_TEXT_SELECT_PROP_FOR_PASTING:String = "ALERT_TEXT_SELECT_PROP_FOR_PASTING";
         public static const ALERT_HEADER_SCENE_HAS_BEEN_CHANGED:String = "ALERT_HEADER_SCENE_HAS_BEEN_CHANGED";
@@ -47,6 +49,13 @@ package mod.locale
         public static const PROGRESSBAR_LOADING_LIBRARIES:String = "PROGRESSBAR_LOADING_LIBRARIES";
 
         public static const BROWSE_FOR_LEVELS_DIRECTORY_HEADER:String = "BROWSE_FOR_LEVELS_DIRECTORY_HEADER";
+        public static const INVISIBLE_TEXTURE_NAME:String = "INVISIBLE_TEXTURE_NAME";
+
+        public static const PROPPARAMS_LABEL_NAME:String = "PROPPARAMS_LABEL_NAME";
+        public static const PROPPARAMS_LABEL_GROUP:String = "PROPPARAMS_LABEL_GROUP";
+        public static const PROPPARAMS_LABEL_LIBRARY:String = "PROPPARAMS_LABEL_LIBRARY";
+        public static const PROPPARAMS_PARAM_COLLISIONS:String = "PROPPARAMS_PARAM_COLLISIONS";
+        public static const PROPPARAMS_PARAM_ROTATION:String = "PROPPARAMS_PARAM_ROTATION";
 
     
     }

@@ -2,8 +2,7 @@
 <mx:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
     xmlns:s="library://ns.adobe.com/flex/spark"
     xmlns:mx="library://ns.adobe.com/flex/mx"
-    creationComplete="onCreationComplete()" percentWidth="15" percentHeight="100"
-    title="Prop Parameters">
+    creationComplete="onCreationComplete()" percentWidth="15" percentHeight="100">
 
     <fx:Script>
         <![CDATA[
@@ -11,11 +10,29 @@
             import alternativa.editor.prop.MeshProp;
             import alternativa.editor.prop.Sprite3DProp;
             import alternativa.editor.prop.Prop;
+            import mod.locale.Locale;
+            import mod.locale.TextId;
 
             private const _selectedPropsWithCollisionParam:Vector.<MeshProp> = new Vector.<MeshProp>();
             
+
+            private var _mainSelectedProp:Prop = null;
+
             private function onCreationComplete():void
             {
+                Locale.addListener(applyLocalization);
+            }
+
+            private function applyLocalization() : void
+            {
+                title = Locale.getText(TextId.PROPPARAMS_PANEL_TITLE);
+                
+                collision.label = Locale.getText(TextId.PROPPARAMS_PARAM_COLLISIONS);
+
+                if (_mainSelectedProp != null)
+                {
+                    updateLabelsForSelection();
+                }
             }
             
             private function onCollisionChanged(param1:Event):void
@@ -32,24 +49,33 @@
 
                 if(selectedProps.length == 1)
                 {
-                    this.propName.text = "Name: " + mainSelectedProp.name;
-                    this.propName.visible = true;
-                    this.groupName.text = "Group: " + mainSelectedProp.groupName;
-                    this.groupName.visible = true;
-                    this.libName.text = "Library: " + mainSelectedProp.libraryName;
-                    this.libName.visible = true;
+                    _mainSelectedProp = mainSelectedProp;
+
+                    propName.visible = true;
+                    groupName.visible = true;
+                    libName.visible = true;
+
+                    updateLabelsForSelection();
                 }
                 else
                 {
-                    this.propName.visible = false;
-                    this.groupName.visible = false;
-                    this.libName.visible = false;
+                    _mainSelectedProp = null;
+
+                    propName.visible = false;
+                    groupName.visible = false;
+                    libName.visible = false;
                 }
+            }
+            private function updateLabelsForSelection() : void
+            {
+                propName.text = Locale.getText(TextId.PROPPARAMS_LABEL_NAME) + " " + _mainSelectedProp.name;
+                groupName.text = Locale.getText(TextId.PROPPARAMS_LABEL_GROUP) + " " +  _mainSelectedProp.groupName;
+                libName.text = Locale.getText(TextId.PROPPARAMS_LABEL_LIBRARY) + " " + _mainSelectedProp.libraryName;
             }
 
             private function initCollisionParameter(selectedProp:Prop, selectedProps:Set) : void
             {
-                this.collision.visible = false;
+                collision.visible = false;
 
                 if(selectedProp is Sprite3DProp)
                     return;
@@ -75,8 +101,8 @@
                     }
                 }
 
-                this.collision.selected = collisionEnabled;
-                this.collision.visible = true;
+                collision.selected = collisionEnabled;
+                collision.visible = true;
             }
 
         ]]>
@@ -88,7 +114,7 @@
         <mx:Label id="groupName" text=""/>
         <mx:Label id="libName" text=""/>
 
-        <mx:CheckBox id="collision" label="Collision enabled" change="onCollisionChanged(event)"/>
+        <mx:CheckBox id="collision" change="onCollisionChanged(event)"/>
     </mx:VBox>
 
 </mx:Panel>
