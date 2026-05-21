@@ -2,77 +2,58 @@
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
          xmlns:spark="http://www.adobe.com/2006/spark" 
          xmlns:flash="http://www.adobe.com/flash" creationComplete="onCreationComplete()">
-   <mx:Panel id="bonusTypesPanel" percentHeight="100" percentWidth="50" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
-      <mx:NumericStepper id="kbscaleX" maximum="50" keyDown="action_keyDownHandler(event)" change="scaleChanged(event)" />
-      <mx:NumericStepper id="kbscaleY" maximum="50" keyDown="action_keyDownHandler(event)" change="scaleChanged(event)" />
-      <mx:NumericStepper id="kbscaleZ" maximum="50" keyDown="action_keyDownHandler(event)" change="scaleChanged(event)" />
-      <mx:ComboBox id="action" editable="true" 
-         dataProvider="{KillBox.typesProvider}" 
-         keyDown="action_keyDownHandler(event)" 
-         change="actionChanged()" />
-   </mx:Panel>
-   
-   <!-- <mx:CheckBox id="typeCheckBoxes" />
-   <mx:CheckBox id="gameModeCheckBoxes" /> -->
+   <mx:HBox id="bonusTypesPanel" percentHeight="100" percentWidth="50" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
+
+      <mx:VBox id="scaleInputBox" percentHeight="100" paddingLeft="15">
+         <mx:Label id="scaleLabel"/>
+         <mx:NumericStepper id="kbscaleX" stepSize="0.1" minimum="0.1" maximum="100" keyDown="action_keyDownHandler(event)" change="scaleChanged(event)" />
+         <mx:NumericStepper id="kbscaleY" stepSize="0.1" minimum="0.1" maximum="100" keyDown="action_keyDownHandler(event)" change="scaleChanged(event)" />
+         <mx:NumericStepper id="kbscaleZ" stepSize="0.1" minimum="0.1" maximum="100" keyDown="action_keyDownHandler(event)" change="scaleChanged(event)" />
+      </mx:VBox>
+
+      <mx:VBox id="actionInputBox" percentHeight="100" paddingLeft="15">
+         <mx:Label id="actionLabel"/>
+         <mx:ComboBox id="action"
+            dataProvider="KillBox.POSSIBLE_VALUES"
+            keyDown="action_keyDownHandler(event)" 
+            change="actionChanged()" />
+      </mx:VBox>
+     
+   </mx:HBox>
 
    <mx:Script>
       <![CDATA[
          import alternativa.editor.prop.KillBox;
          import alternativa.types.Set;
-         import mx.collections.ArrayCollection;
          import mx.events.NumericStepperEvent;
          import mx.events.ListEvent;
          import flash.events.KeyboardEvent;
          import flash.ui.Keyboard;
+         import alternativa.editor.prop.KillBox;
+         import mod.locale.Locale;
+         import mod.locale.TextId;
 
-         private var killBox:KillBox;
+
+         private var _mainSelectedBox:KillBox = null;
+
+         private var _selectedBoxes:Set = null;
          
          private function onCreationComplete():void
          {
-            setFields();
+            Locale.addListener(applyLocalization);
          }
-         
-         private function setFields():void
+
+         private function applyLocalization() : void
          {
-            if(this.killBox != null)
+            scaleLabel.text = Locale.getText(TextId.KILLBOX_LABEL_SCALE);
+            actionLabel.text = Locale.getText(TextId.KILLBOX_LABEL_ACTION);
+
+            var values:Array = [];
+            for each(var valueId:String in KillBox.POSSIBLE_VALUES)
             {
-               setCBValue(this.action, this.killBox.action);
-               this.kbscaleX.value = this.killBox.scaleX;
-               this.kbscaleY.value = this.killBox.scaleY;
-               this.kbscaleZ.value = this.killBox.scaleZ;
+               values.push(Locale.getText("KILLBOX_ACTION_" + valueId.toUpperCase()));
             }
-         }
-         
-         private function scaleChanged(event:NumericStepperEvent):void
-         {
-            this.killBox.scaleX = this.kbscaleX.value;
-            this.killBox.scaleY = this.kbscaleY.value;
-            this.killBox.scaleZ = this.kbscaleZ.value;
-         }
-         
-         private function setCBValue(cb:ComboBox, value:Object):void
-         {
-            var i:int = 0;
-            while (i < cb.dataProvider.length)
-            {
-               if (cb.dataProvider[i] == value)
-               {
-                  cb.selectedIndex = i;
-                  return;
-               }
-               i++;
-            }
-            var collection:ArrayCollection = cb.dataProvider as ArrayCollection;
-            if (collection)
-            {
-               collection.addItemAt(value, i);
-               cb.selectedIndex = i + 1;
-            }
-         }
-         
-         private function actionChanged():void
-         {
-            this.killBox.action = this.action.value.toString();
+            action.dataProvider = values;
          }
          
          private function action_keyDownHandler(event:KeyboardEvent):void
@@ -89,22 +70,79 @@
             }
          }
 
-         public function setBonusRegion(killBox:KillBox):void
+         public function setKillBoxes(lastSelectedBox:KillBox, selectedBoxes:Set):void
          {
-            this.killBox = killBox;
-            setFields();
+            _mainSelectedBox = lastSelectedBox;
+            _selectedBoxes = selectedBoxes;
+
+            setupScaleInput();
+
+            setupActionInput();
+         }
+
+         private function setupActionInput() : void
+         {
+            // multi-change of action is only available when all selections have same action
+            for(var boxObj:* in _selectedBoxes)
+            {
+               if ((boxObj as KillBox).action != _mainSelectedBox.action)
+               {
+                  actionInputBox.visible = false;
+                  return;
+               }
+            }
+            actionInputBox.visible = true;
+
+            action.selectedIndex = KillBox.POSSIBLE_VALUES.indexOf(_mainSelectedBox.action);
+         }
+
+         private function setupScaleInput() : void
+         {
+            // size change is only available when 1 prop is selected
+            if (_selectedBoxes.length == 1)
+            {
+               scaleInputBox.visible = true;
+
+               kbscaleX.value = _mainSelectedBox.scaleX;
+               kbscaleY.value = _mainSelectedBox.scaleY;
+               kbscaleZ.value = _mainSelectedBox.scaleZ;
+            }
+            else
+            {
+               scaleInputBox.visible = false;
+            }
+         }
+
+         private function actionChanged():void
+         {
+            if (_selectedBoxes == null)
+               return;
+
+            var actionName:String = KillBox.POSSIBLE_VALUES[action.selectedIndex];
+            for(var boxObj:* in _selectedBoxes)
+            {
+               (boxObj as KillBox).action = actionName;
+            }
          }
          
-         /*private static function setupCheckBoxes(param1:Object, param2:Set):void
+         private function scaleChanged(event:NumericStepperEvent):void
          {
-            var loc3:String = null;
-            var loc4:CheckBox = null;
-            for (loc3 in param1)
+            if (_selectedBoxes == null)
+               return;
+
+            var scaleX:Number = kbscaleX.value;
+            var scaleY:Number = kbscaleY.value;
+            var scaleZ:Number = kbscaleZ.value;
+
+            for(var boxObj:* in _selectedBoxes)
             {
-               loc4 = param1[loc3];
-               loc4.selected = param2[loc3];
+               var box:KillBox = boxObj as KillBox;
+
+               box.scaleX = scaleX;
+               box.scaleY = scaleY;
+               box.scaleZ = scaleZ;
             }
-         }*/
+         }
          
       ]]>
    </mx:Script>

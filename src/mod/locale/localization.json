@@ -96,7 +96,13 @@
         "PROPPARAMS_LABEL_GROUP":"Группа:",
         "PROPPARAMS_LABEL_LIBRARY":"Библиотека:",
         "PROPPARAMS_PARAM_COLLISIONS":"Коллизия пропа",
-        "PROPPARAMS_PARAM_ROTATION":"Поворот:"
+        "PROPPARAMS_PARAM_ROTATION":"Поворот:",
+
+        "KILLBOX_LABEL_SCALE":"Размер:",
+        "KILLBOX_LABEL_ACTION":"Событие:",
+        "KILLBOX_ACTION_KILL":"Убить",
+        "KILLBOX_ACTION_KICK":"Кикнуть",
+        "KILLBOX_ACTION_BLOCK":"Забанить"
 
     },
     "EN" : {
@@ -194,7 +200,13 @@
         "PROPPARAMS_LABEL_GROUP":"Group:",
         "PROPPARAMS_LABEL_LIBRARY":"Library:",
         "PROPPARAMS_PARAM_COLLISIONS":"Collision enabled",
-        "PROPPARAMS_PARAM_ROTATION":"Rotation:"
+        "PROPPARAMS_PARAM_ROTATION":"Rotation:",
+
+        "KILLBOX_LABEL_SCALE":"Scale:",
+        "KILLBOX_LABEL_ACTION":"Action:",
+        "KILLBOX_ACTION_KILL":"Kill",
+        "KILLBOX_ACTION_KICK":"Kick",
+        "KILLBOX_ACTION_BLOCK":"Ban"
         
     }
 }

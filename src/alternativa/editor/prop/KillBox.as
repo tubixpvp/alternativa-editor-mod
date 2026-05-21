@@ -5,15 +5,12 @@ package alternativa.editor.prop
    import alternativa.engine3d.materials.TextureMaterial;
    import alternativa.engine3d.primitives.Box;
    import flash.display.BitmapData;
-   import mx.collections.ArrayCollection;
    
    public class KillBox extends Prop
    {
-      public static const KILL:String = "kill";
+
+      public static const POSSIBLE_VALUES:Array = ["kill", "kick", "block"];
       
-      public static const KICK:String = "kick";
-      
-      public static const BLOCK:String = "block";
       
       private static const BASE_WIDTH:Number = 500;
       
@@ -23,9 +20,7 @@ package alternativa.editor.prop
       
       private static const texture:BitmapData = new BitmapData(1,1,false,15732981);
       
-      public static const typesProvider:ArrayCollection = new ArrayCollection([KICK,KILL,BLOCK]);
-      
-      public var action:String = "kill";
+      public var action:String = POSSIBLE_VALUES[0];
       
       public function KillBox(param1:String, param2:String, param3:String, param4:Boolean = true)
       {

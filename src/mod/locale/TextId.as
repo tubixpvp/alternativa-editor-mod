@@ -57,6 +57,9 @@ package mod.locale
         public static const PROPPARAMS_PARAM_COLLISIONS:String = "PROPPARAMS_PARAM_COLLISIONS";
         public static const PROPPARAMS_PARAM_ROTATION:String = "PROPPARAMS_PARAM_ROTATION";
 
+        public static const KILLBOX_LABEL_SCALE:String = "KILLBOX_LABEL_SCALE";
+        public static const KILLBOX_LABEL_ACTION:String = "KILLBOX_LABEL_ACTION";
+
     
     }
 }

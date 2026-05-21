@@ -882,30 +882,53 @@ package alternativa.editor.scene
                this.controlPointNameField.setControlPoint(this.selectedProp as ControlPoint);
                return;
             }
-            if(this.selectedProp is KillBox)
+            /*if(this.selectedProp is KillBox)
             {
-               this.showPropertyPanelItem(this.killZonePanel);
                this.killZonePanel.setBonusRegion(this.selectedProp as KillBox);
+               this.showPropertyPanelItem(this.killZonePanel);
                return;
-            }
+            }*/
          }
-         this.bonusTypesPanel.setBonusRegion(null);
+         //this.bonusTypesPanel.setBonusRegion(null);
 
+         if (this.tryShowMeshPropsProperties())
+            return;
 
+         if (this.tryShowKillZonesProperties())
+            return;
+         
+      }
+
+      private function tryShowKillZonesProperties() : Boolean
+      {
+         var item:*;
+         for(item in this.selectedProps)
+         {
+            if(!(item is KillBox))
+               return false;
+         }
+
+         this.showPropertyPanelItem(this.killZonePanel);
+         this.killZonePanel.setKillBoxes(this.selectedProp as KillBox, this.selectedProps);
+
+         return true;
+      }
+      
+      private function tryShowMeshPropsProperties() : Boolean
+      {
          var item:*;
          for(item in this.selectedProps)
          {
             if(!(item is MeshProp))
-               return;
+               return false;
          }
 
          this.showTexturePanel();
-
-         this.texturePanel.percentWidth = 100 - this.propGeneralProperties.percentWidth;
             
-         this.showPropertyPanelItem(this.propGeneralProperties);
-
          this.propGeneralProperties.init(this.selectedProp,this.selectedProps);
+         this.showPropertyPanelItem(this.propGeneralProperties);
+         
+         return true;
       }
       
       private function showTexturePanel() : void
@@ -914,14 +937,16 @@ package alternativa.editor.scene
          if(!loc1)
             return;
 
-         this.texturePanel.percentWidth = 100;
+         //this.texturePanel.percentWidth = 100;
+         this.texturePanel.percentWidth = 100 - this.propGeneralProperties.percentWidth;
 
-         this.showPropertyPanelItem(this.texturePanel);
          if(loc1 != this.currentBitmaps)
          {
             this.texturePanel.fill(loc1);
             this.currentBitmaps = loc1;
          }
+
+         this.showPropertyPanelItem(this.texturePanel);
       }
       
       public function mirrorTextures() : void
