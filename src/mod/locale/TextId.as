@@ -34,6 +34,7 @@ package mod.locale
         public static const PROPSLIST_PANEL_TITLE:String = "PROPSLIST_PANEL_TITLE";
         public static const TEXTURES_PANEL_TITLE:String = "TEXTURES_PANEL_TITLE";
         public static const PROPPARAMS_PANEL_TITLE:String = "PROPPARAMS_PANEL_TITLE";
+        public static const LAYERS_PANEL_TITLE:String = "LAYERS_PANEL_TITLE";
 
         public static const ALERT_TEXT_SELECT_PROP_FOR_PASTING:String = "ALERT_TEXT_SELECT_PROP_FOR_PASTING";
         public static const ALERT_HEADER_SCENE_HAS_BEEN_CHANGED:String = "ALERT_HEADER_SCENE_HAS_BEEN_CHANGED";

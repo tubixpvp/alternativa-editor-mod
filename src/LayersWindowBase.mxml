@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
-                title="Layers"
-                width="150" height="200"
+                width="250" height="200"
                 showCloseButton="true"
                 xmlns:local="*">
 

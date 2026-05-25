@@ -75,6 +75,7 @@
         "PROPSLIST_PANEL_TITLE": "Пропы",
         "TEXTURES_PANEL_TITLE":"Текстуры",
         "PROPPARAMS_PANEL_TITLE":"Параметры пропа",
+        "LAYERS_PANEL_TITLE":"Слои",
 
         "ALERT_TEXT_SELECT_PROP_FOR_PASTING":"Выберите проп для вставки!",
         "ALERT_HEADER_SCENE_HAS_BEEN_CHANGED":"Сцена была изменена",
@@ -122,7 +123,13 @@
         "BONUSREGIONS_GAMEMODE_ASL":"Штурм",
         "BONUSREGIONS_GAMEMODE_SGE":"Осада",
         "BONUSREGIONS_GAMEMODE_JGR":"Джаггернаут",
-        "BONUSREGIONS_GAMEMODE_RGB":"Гэгби"
+        "BONUSREGIONS_GAMEMODE_RGB":"Гэгби",
+
+        "LAYER_DM":"Элементы соло битвы",
+        "LAYER_TDM":"Элементы командной битвы",
+        "LAYER_DOM":"Элементы битвы на захват точек",
+        "LAYER_BONUSES":"Бонусы",
+        "LAYER_SPECIAL":"Специальная геометрия"
 
     },
     "EN" : {
@@ -199,6 +206,7 @@
         "PROPSLIST_PANEL_TITLE":"Props",
         "TEXTURES_PANEL_TITLE":"Textures",
         "PROPPARAMS_PANEL_TITLE":"Prop Parameters",
+        "LAYERS_PANEL_TITLE":"Layers",
 
         "ALERT_TEXT_SELECT_PROP_FOR_PASTING":"Select prop for pasting!",
         "ALERT_HEADER_SCENE_HAS_BEEN_CHANGED":"Scene has been changed",
@@ -246,7 +254,13 @@
         "BONUSREGIONS_GAMEMODE_ASL":"Assault",
         "BONUSREGIONS_GAMEMODE_SGE":"Siege",
         "BONUSREGIONS_GAMEMODE_JGR":"Juggernaut",
-        "BONUSREGIONS_GAMEMODE_RGB":"Rugby"
+        "BONUSREGIONS_GAMEMODE_RGB":"Rugby",
+
+        "LAYER_DM":"Elements of Solo match",
+        "LAYER_TDM":"Elements of Team match",
+        "LAYER_DOM":"Elements of Point-capture match",
+        "LAYER_BONUSES":"Bonuses",
+        "LAYER_SPECIAL":"Special geometry"
         
     }
 }
