@@ -870,26 +870,22 @@ package alternativa.editor.scene
          this.hideAllPropertyPanelItems();
          if(this.selectedProps.length == 1)
          {
-            if(this.selectedProp is FreeBonusRegion)
+            /*if(this.selectedProp is FreeBonusRegion)
             {
                this.showPropertyPanelItem(this.bonusTypesPanel);
                this.bonusTypesPanel.setBonusRegion(this.selectedProp as FreeBonusRegion);
                return;
-            }
+            }*/
             if(this.selectedProp is ControlPoint)
             {
                this.showPropertyPanelItem(this.controlPointNameField);
                this.controlPointNameField.setControlPoint(this.selectedProp as ControlPoint);
                return;
             }
-            /*if(this.selectedProp is KillBox)
-            {
-               this.killZonePanel.setBonusRegion(this.selectedProp as KillBox);
-               this.showPropertyPanelItem(this.killZonePanel);
-               return;
-            }*/
          }
-         //this.bonusTypesPanel.setBonusRegion(null);
+
+         if (this.tryShowBonusRegionProperties())
+            return;
 
          if (this.tryShowMeshPropsProperties())
             return;
@@ -897,6 +893,20 @@ package alternativa.editor.scene
          if (this.tryShowKillZonesProperties())
             return;
          
+      }
+
+      private function tryShowBonusRegionProperties() : Boolean
+      {
+         for(var item:* in this.selectedProps)
+         {
+            if (!(item is FreeBonusRegion))
+               return false;
+         }
+
+         this.showPropertyPanelItem(this.bonusTypesPanel);
+         this.bonusTypesPanel.setSelectedRegions(this.selectedProp as FreeBonusRegion, this.selectedProps);
+
+         return true;
       }
 
       private function tryShowKillZonesProperties() : Boolean
@@ -925,8 +935,8 @@ package alternativa.editor.scene
 
          this.showTexturePanel();
             
-         this.propGeneralProperties.init(this.selectedProp,this.selectedProps);
          this.showPropertyPanelItem(this.propGeneralProperties);
+         this.propGeneralProperties.setSelection(this.selectedProp,this.selectedProps);
          
          return true;
       }

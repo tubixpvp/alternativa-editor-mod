@@ -1,156 +1,243 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
-        xmlns:s="library://ns.adobe.com/flex/spark"
-        xmlns:mx="library://ns.adobe.com/flex/mx"
-    creationComplete="onCreationComplete()" width="100%" height="100%">
-  
+    xmlns:s="library://ns.adobe.com/flex/spark"
+    xmlns:mx="library://ns.adobe.com/flex/mx"
+    width="100%" height="100%">
+
     <fx:Script>
         <![CDATA[
-        import alternativa.editor.events.LayerContentChangeEvent;
-        import alternativa.editor.prop.FreeBonusRegion;
-        import alternativa.types.Set;
-        import flash.events.*;
-        import flash.ui.*;
-        import mx.containers.HBox;
-        import mx.containers.Tile;
-        import mx.containers.VBox;
-        import mx.controls.Label;
-        import mx.controls.NumericStepper;
-        import mx.core.UIComponentDescriptor;
-        import mx.events.FlexEvent;
-        import mx.events.NumericStepperEvent;
-        import mx.events.PropertyChangeEvent;
+            import alternativa.editor.prop.FreeBonusRegion;
+            import alternativa.types.Set;
+            import mx.containers.HBox;
+            import mx.containers.Tile;
+            import mx.events.NumericStepperEvent;
+            import mx.events.PropertyChangeEvent;
+            import mx.core.Container;
+            import mod.locale.Locale;
+            import mod.locale.TextId;
+            import mx.controls.CheckBox;
+            import alternativa.editor.events.LayerContentChangeEvent;
 
-        private var typeCheckBoxes:Object = {};
-        private var gameModeCheckBoxes:Object = {};
-        private var bonusRegion:FreeBonusRegion;
+            private var inited:Boolean = false;
+            
+            private const typeCheckBoxes:Object = {};
+            private const gameModeCheckBoxes:Object = {};
 
-        private function onCreationComplete():void {
-            createCheckBoxes(BonusTypes.types, typeCheckBoxes, bonusTypesTile, onBonusTypeChange);
-            createCheckBoxes(GameModes.modes, gameModeCheckBoxes, gameModesTile, onGameModeChange);
-            setupAllCheckBoxes();
-            setFields();
-        }
-
-        private function setupCheckBoxes(param1:Object, param2:Set):void {
-            var loc3:String;
-            var loc4:CheckBox;
-            for (loc3 in param1) {
-                loc4 = param1[loc3];
-                loc4.selected = param2[loc3];
-            }
-        }
-
-        private function createCheckBoxes(param1:Array, param2:Object, param3:mx.containers.Tile, param4:Function):void {
-            var loc5:String;
-            for each (loc5 in param1) {
-                createCheckBox(loc5, param2, param3, param4);
-            }
-        }
-
-        private function createCheckBox(param1:String, param2:Object, param3:mx.containers.Tile, param4:Function):void {
-            var checkBox:CheckBox = new CheckBox();
-            checkBox.label = param1;
-            checkBox.addEventListener(Event.CHANGE, param4);
-            param3.addChild(checkBox);
-            param2[param1] = checkBox;
-        }
-
-        private function scaleChanged(event:NumericStepperEvent):void {
-            if (bonusRegion != null) {
-                bonusRegion.scaleX = kbscaleX.value;
-                bonusRegion.scaleY = kbscaleY.value;
-                bonusRegion.scaleZ = kbscaleZ.value;
-            }
-        }
-
-        private function action_keyDownHandler(event:KeyboardEvent):void {
-            switch (event.keyCode) {
-                case Keyboard.ENTER:
-                case Keyboard.ESCAPE:
-                case Keyboard.TAB:
+            private var _mainSelectedRegion:FreeBonusRegion = null;
+            private var _selectedRegions:Set = null;
+            
+            private function init():void
+            {
+                if (inited)
                     return;
-                default:
-                    event.stopPropagation();
-                    return;
+                inited = true;
+
+                createCheckBoxes(BonusTypes.types, typeCheckBoxes, bonusTypesTile, onBonusTypeChange);
+                createCheckBoxes(GameModes.modes, gameModeCheckBoxes, gameModesTile, onGameModeChange);
+                
+                Locale.addListener(applyLocalization);
             }
-        }
 
-        private function parachuteChanged(param1:Event) : void
-      {
-         this.bonusRegion.parachute = this.parachute.selected;
-      }
+            private function applyLocalization() : void
+            {
+                bonusTypesLabel.text = Locale.getText(TextId.BONUSREGIONS_LABEL_BONUSTYPES);
+                gameModesLabel.text = Locale.getText(TextId.BONUSREGIONS_LABEL_GAMEMODES);
+                sizeLabel.text = Locale.getText(TextId.BONUSREGIONS_LABEL_SIZE);
+                parachute.label = Locale.getText(TextId.BONUSREGIONS_OPTION_PARACHUTE);
 
-        private function setFields():void {
-            if (bonusRegion != null) {
-                kbscaleX.value = bonusRegion.scaleX;
-                kbscaleY.value = bonusRegion.scaleY;
-                kbscaleZ.value = bonusRegion.scaleZ;
-                parachute.selected = bonusRegion.parachute;
-            }
-        }
-
-        private function onBonusTypeChange(event:Event):void {
-            var checkBox:CheckBox = CheckBox(event.target);
-            if (bonusRegion != null) {
-                if (checkBox.selected) {
-                    bonusRegion.typeNames.add(checkBox.label);
-                } else {
-                    bonusRegion.typeNames.remove(checkBox.label);
+                var id:String;
+                for (id in typeCheckBoxes)
+                {
+                    (typeCheckBoxes[id] as CheckBox).label = Locale.getText("BONUSREGIONS_BONUSTYPE_" + id.toUpperCase());
+                }
+                for (id in gameModeCheckBoxes)
+                {
+                    (gameModeCheckBoxes[id] as CheckBox).label = Locale.getText("BONUSREGIONS_GAMEMODE_" + id.toUpperCase());
                 }
             }
-        }
 
-        private function onGameModeChange(event:Event):void {
-            var checkBox:CheckBox = CheckBox(event.target);
-            if (bonusRegion != null) {
-                if (checkBox.selected) {
-                    bonusRegion.gameModes.add(checkBox.label);
-                    GlobalEventDispatcher.dispatch(new LayerContentChangeEvent(bonusRegion, checkBox.label, true));
-                } else {
-                    bonusRegion.gameModes.remove(checkBox.label);
-                    GlobalEventDispatcher.dispatch(new LayerContentChangeEvent(bonusRegion, checkBox.label, false));
+            private static function action_keyDownHandler(event:KeyboardEvent):void
+            {
+                switch (event.keyCode)
+                {
+                    case Keyboard.ENTER:
+                    case Keyboard.ESCAPE:
+                    case Keyboard.TAB:
+                        return;
+                    default:
+                        event.stopPropagation();
+                        return;
                 }
             }
-        }
+            
+            private static function createCheckBoxes(types:Array, registry:Object, parent:Container, listener:Function):void
+            {
+                for each (var id:String in types)
+                {
+                    createCheckBox(id, registry, parent, listener);
+                }
+            }
+            
+            private static function createCheckBox(id:String, registry:Object, parent:Container, listener:Function):void
+            {
+                var checkBox:CheckBox = new CheckBox();
+                checkBox.label = "MODE_" + id.toUpperCase();
+                checkBox.name = id;
+                checkBox.addEventListener(Event.CHANGE, listener);
+                parent.addChild(checkBox);
+                registry[id] = checkBox;
+            }
+            
+            private function scaleChanged(event:NumericStepperEvent):void
+            {
+                if (_mainSelectedRegion == null)
+                    return;
+                _mainSelectedRegion.scaleX = kbscaleX.value;
+                _mainSelectedRegion.scaleY = kbscaleY.value;
+                _mainSelectedRegion.scaleZ = kbscaleZ.value;
+            }
+            private function parachuteChanged(event:Event):void
+            {
+                if (_selectedRegions == null)
+                    return;
+                var enabled:Boolean = parachute.selected;
+                for(var propObj:* in _selectedRegions)
+                {
+                    (propObj as FreeBonusRegion).parachute = enabled;
+                }
+            }
+            private function onBonusTypeChange(event:Event):void
+            {
+                if (_selectedRegions == null)
+                    return;
 
-        public function setBonusRegion(region:FreeBonusRegion):void {
-            this.bonusRegion = region;
-            setupAllCheckBoxes();
-        }
+                var checkbox:CheckBox = event.target as CheckBox;
+                var typeId:String = checkbox.name;
+                var selected:Boolean = checkbox.selected;
 
-        private function setupAllCheckBoxes() : void
-      {
-         if(this.bonusRegion != null)
-         {
-            setupCheckBoxes(this.typeCheckBoxes,this.bonusRegion.typeNames);
-            setupCheckBoxes(this.gameModeCheckBoxes,this.bonusRegion.gameModes);
-         }
-      }
-    ]]>
+                for(var propObj:* in _selectedRegions)
+                {
+                    var region:FreeBonusRegion = propObj as FreeBonusRegion;
+
+                    if (selected)
+                        region.typeNames.add(typeId);
+                    else
+                        region.typeNames.remove(typeId);
+                }
+            }
+            private function onGameModeChange(event:Event):void
+            {
+                if (_selectedRegions == null)
+                    return;
+
+                var checkbox:CheckBox = event.target as CheckBox;
+                var modeId:String = checkbox.name;
+                var selected:Boolean = checkbox.selected;
+
+                for(var propObj:* in _selectedRegions)
+                {
+                    var region:FreeBonusRegion = propObj as FreeBonusRegion;
+
+                    if (selected)
+                        region.gameModes.add(modeId);
+                    else
+                        region.gameModes.remove(modeId);
+
+                    GlobalEventDispatcher.dispatch(new LayerContentChangeEvent(region, modeId, selected));
+                }
+            }
+            
+            public function setSelectedRegions(lastSelectedProp:FreeBonusRegion, selectedProps:Set):void
+            {
+                init();
+
+                _mainSelectedRegion = lastSelectedProp as FreeBonusRegion;
+                _selectedRegions = selectedProps;
+
+                var showParachute:Boolean = true;
+
+                var id:String;
+                for each (id in BonusTypes.types)
+                    (typeCheckBoxes[id] as CheckBox).enabled = true;
+                for each (id in GameModes.modes)
+                    (gameModeCheckBoxes[id] as CheckBox).enabled = true;
+                
+                // make all checks in 1 pass; for optimization
+                for(var propObj:* in _selectedRegions)
+                {
+                    var region:FreeBonusRegion = propObj as FreeBonusRegion;
+
+                    showParachute = showParachute && (region.parachute == _mainSelectedRegion.parachute);
+
+                    // lock checkboxes if any props have different values for them
+                    for each(id in BonusTypes.types)
+                    {
+                        if (Boolean(region.typeNames[id]) != Boolean(_mainSelectedRegion.typeNames[id]))
+                        {
+                            (typeCheckBoxes[id] as CheckBox).enabled = false;
+                            break;
+                        }
+                    }
+                    for each(id in GameModes.modes)
+                    {
+                        if (Boolean(region.gameModes[id]) != Boolean(_mainSelectedRegion.gameModes[id]))
+                        {
+                            (gameModeCheckBoxes[id] as CheckBox).enabled = false;
+                            break;
+                        }
+                    }
+                }
+
+                var checkbox:CheckBox;
+                for each (id in BonusTypes.types)
+                {
+                    checkbox = typeCheckBoxes[id];
+                    checkbox.selected = (checkbox.enabled && _mainSelectedRegion.typeNames[id]);
+                }
+                for each (id in GameModes.modes)
+                {
+                    checkbox = gameModeCheckBoxes[id];
+                    checkbox.selected = (checkbox.enabled && _mainSelectedRegion.gameModes[id]);
+                }
+
+                if ((scalePanel.enabled = (_selectedRegions.length == 1)) == true)
+                {
+                    kbscaleX.value = _mainSelectedRegion.scaleX;
+                    kbscaleY.value = _mainSelectedRegion.scaleY;
+                    kbscaleZ.value = _mainSelectedRegion.scaleZ;
+                }
+                else
+                {
+                    kbscaleX.value = kbscaleY.value = kbscaleZ.value = 1;
+                }
+
+                parachute.enabled = showParachute;
+                parachute.selected = (parachute.enabled && _mainSelectedRegion.parachute);
+            }
+            
+        ]]>
     </fx:Script>
 
-    <!-- Bonus Types Panel -->
-    <mx:VBox id="bonusTypesPanel" width="150" percentHeight="100" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
-        <mx:Label text="Bonus types"/>
+    <mx:VBox percentHeight="100" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
+        <mx:Label id="bonusTypesLabel"/>
         <mx:Tile id="bonusTypesTile" direction="vertical" height="200"/>
     </mx:VBox>
 
-    <!-- Game Modes Panel -->
-    <mx:VBox id="gameModesPanel" width="150" percentHeight="100" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
-        <mx:Label text="Game modes"/>
-        <mx:Tile id="gameModesTile" direction="horizontal" percentWidth="100"/>
+    <mx:VBox percentHeight="100" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
+        <mx:Label id="gameModesLabel"/>
+        <mx:Tile id="gameModesTile" direction="vertical" height="200"/>
     </mx:VBox>
 
-    <!-- Scale Panel -->
-    <mx:VBox id="scalePanel" width="150" percentHeight="100" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
-        <mx:Label text="Size"/>
-        <mx:NumericStepper id="kbscaleX" stepSize="0.1" minimum="1" maximum="50" change="scaleChanged(event)" keyDown="action_keyDownHandler(event)"/>
-        <mx:NumericStepper id="kbscaleY" stepSize="0.1" minimum="1" maximum="50" change="scaleChanged(event)" keyDown="action_keyDownHandler(event)"/>
-        <mx:NumericStepper id="kbscaleZ" stepSize="0.1" minimum="1" maximum="50" change="scaleChanged(event)" keyDown="action_keyDownHandler(event)"/>
+    <mx:VBox width="180" percentHeight="100" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
+        <mx:VBox id="scalePanel">
+            <mx:Label id="sizeLabel"/>
+            <mx:NumericStepper id="kbscaleX" stepSize="0.1" minimum="0.1" maximum="50" change="scaleChanged(event)" keyDown="action_keyDownHandler(event)"/>
+            <mx:NumericStepper id="kbscaleY" stepSize="0.1" minimum="0.1" maximum="50" change="scaleChanged(event)" keyDown="action_keyDownHandler(event)"/>
+            <mx:NumericStepper id="kbscaleZ" stepSize="0.1" minimum="0.1" maximum="50" change="scaleChanged(event)" keyDown="action_keyDownHandler(event)"/>
+        </mx:VBox>
 
         <mx:HBox>
-            <mx:CheckBox id="parachute" label="Parachute" change="parachuteChanged(event)"/>
+            <mx:CheckBox id="parachute" change="parachuteChanged(event)"/>
         </mx:HBox>
     </mx:VBox>
 

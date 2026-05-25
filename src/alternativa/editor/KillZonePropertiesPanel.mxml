@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
          xmlns:spark="http://www.adobe.com/2006/spark" 
-         xmlns:flash="http://www.adobe.com/flash" creationComplete="onCreationComplete()">
+         xmlns:flash="http://www.adobe.com/flash">
    <mx:HBox id="bonusTypesPanel" percentHeight="100" percentWidth="50" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
 
       <mx:VBox id="scaleInputBox" percentHeight="100" paddingLeft="15">
@@ -33,13 +33,19 @@
          import mod.locale.Locale;
          import mod.locale.TextId;
 
+         private var _inited:Boolean = false;
+
 
          private var _mainSelectedBox:KillBox = null;
 
          private var _selectedBoxes:Set = null;
          
-         private function onCreationComplete():void
+         private function init():void
          {
+            if (_inited)
+               return;
+            _inited = true;
+
             Locale.addListener(applyLocalization);
          }
 
@@ -72,6 +78,8 @@
 
          public function setKillBoxes(lastSelectedBox:KillBox, selectedBoxes:Set):void
          {
+            init();
+
             _mainSelectedBox = lastSelectedBox;
             _selectedBoxes = selectedBoxes;
 
@@ -127,21 +135,11 @@
          
          private function scaleChanged(event:NumericStepperEvent):void
          {
-            if (_selectedBoxes == null)
+            if (_mainSelectedBox == null)
                return;
-
-            var scaleX:Number = kbscaleX.value;
-            var scaleY:Number = kbscaleY.value;
-            var scaleZ:Number = kbscaleZ.value;
-
-            for(var boxObj:* in _selectedBoxes)
-            {
-               var box:KillBox = boxObj as KillBox;
-
-               box.scaleX = scaleX;
-               box.scaleY = scaleY;
-               box.scaleZ = scaleZ;
-            }
+            _mainSelectedBox.scaleX = kbscaleX.value;
+            _mainSelectedBox.scaleY = kbscaleY.value;
+            _mainSelectedBox.scaleZ = kbscaleZ.value;
          }
          
       ]]>

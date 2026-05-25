@@ -60,6 +60,11 @@ package mod.locale
         public static const KILLBOX_LABEL_SCALE:String = "KILLBOX_LABEL_SCALE";
         public static const KILLBOX_LABEL_ACTION:String = "KILLBOX_LABEL_ACTION";
 
+        public static const BONUSREGIONS_LABEL_BONUSTYPES:String = "BONUSREGIONS_LABEL_BONUSTYPES";
+        public static const BONUSREGIONS_LABEL_GAMEMODES:String = "BONUSREGIONS_LABEL_GAMEMODES";
+        public static const BONUSREGIONS_LABEL_SIZE:String = "BONUSREGIONS_LABEL_SIZE";
+        public static const BONUSREGIONS_OPTION_PARACHUTE:String = "BONUSREGIONS_OPTION_PARACHUTE";
+
     
     }
 }

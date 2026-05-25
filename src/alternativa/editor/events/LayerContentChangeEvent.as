@@ -13,11 +13,11 @@ package alternativa.editor.events
       
       public var layerContainsProp:Boolean;
       
-      public function LayerContentChangeEvent(param1:Prop, param2:String, param3:Boolean)
+      public function LayerContentChangeEvent(prop:Prop, layerName:String, layerContainsProp:Boolean)
       {
-         this.prop = param1;
-         this.layerName = param2;
-         this.layerContainsProp = param3;
+         this.prop = prop;
+         this.layerName = layerName;
+         this.layerContainsProp = layerContainsProp;
          super(LAYER_CONTENT_CHANGED,false,true);
       }
    }

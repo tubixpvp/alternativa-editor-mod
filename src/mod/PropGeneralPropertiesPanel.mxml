@@ -2,7 +2,7 @@
 <mx:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
     xmlns:s="library://ns.adobe.com/flex/spark"
     xmlns:mx="library://ns.adobe.com/flex/mx"
-    creationComplete="onCreationComplete()" percentWidth="15" percentHeight="100">
+    percentWidth="15" percentHeight="100">
 
     <fx:Script>
         <![CDATA[
@@ -13,13 +13,18 @@
             import mod.locale.Locale;
             import mod.locale.TextId;
 
+            private var _inited:Boolean = false;
+
             private const _selectedPropsWithCollisionParam:Vector.<MeshProp> = new Vector.<MeshProp>();
-            
 
             private var _mainSelectedProp:Prop = null;
 
-            private function onCreationComplete():void
+            private function init():void
             {
+                if (_inited)
+                    return;
+                _inited = true;
+                
                 Locale.addListener(applyLocalization);
             }
 
@@ -43,8 +48,10 @@
                 }
             }
 
-            public function init(mainSelectedProp:Prop, selectedProps:Set) : void
+            public function setSelection(mainSelectedProp:Prop, selectedProps:Set) : void
             {
+                init();
+                
                 initCollisionParameter(mainSelectedProp, selectedProps);
 
                 if(selectedProps.length == 1)

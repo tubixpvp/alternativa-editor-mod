@@ -102,7 +102,27 @@
         "KILLBOX_LABEL_ACTION":"Событие:",
         "KILLBOX_ACTION_KILL":"Убить",
         "KILLBOX_ACTION_KICK":"Кикнуть",
-        "KILLBOX_ACTION_BLOCK":"Забанить"
+        "KILLBOX_ACTION_BLOCK":"Забанить",
+
+        "BONUSREGIONS_LABEL_BONUSTYPES":"Типы бонусов:",
+        "BONUSREGIONS_LABEL_GAMEMODES":"Использовать в режимах:",
+        "BONUSREGIONS_LABEL_SIZE":"Размер:",
+        "BONUSREGIONS_OPTION_PARACHUTE":"Спускать с парашютом",
+        "BONUSREGIONS_BONUSTYPE_DAMAGEUP":"Урон",
+        "BONUSREGIONS_BONUSTYPE_ARMORUP":"Защита",
+        "BONUSREGIONS_BONUSTYPE_NITRO":"Ускорение",
+        "BONUSREGIONS_BONUSTYPE_MEDKIT":"Аптечка",
+        "BONUSREGIONS_BONUSTYPE_CRYSTAL":"Кристалл",
+        "BONUSREGIONS_BONUSTYPE_CRYSTAL_100":"Золотой ящик",
+        "BONUSREGIONS_BONUSTYPE_OVERDRIVE":"Ядерная энергия",
+        "BONUSREGIONS_GAMEMODE_DM":"Каждый за себя",
+        "BONUSREGIONS_GAMEMODE_TDM":"Командный бой",
+        "BONUSREGIONS_GAMEMODE_CTF":"Захват флага",
+        "BONUSREGIONS_GAMEMODE_DOM":"Контроль точек",
+        "BONUSREGIONS_GAMEMODE_ASL":"Штурм",
+        "BONUSREGIONS_GAMEMODE_SGE":"Осада",
+        "BONUSREGIONS_GAMEMODE_JGR":"Джаггернаут",
+        "BONUSREGIONS_GAMEMODE_RGB":"Гэгби"
 
     },
     "EN" : {
@@ -206,7 +226,27 @@
         "KILLBOX_LABEL_ACTION":"Action:",
         "KILLBOX_ACTION_KILL":"Kill",
         "KILLBOX_ACTION_KICK":"Kick",
-        "KILLBOX_ACTION_BLOCK":"Ban"
+        "KILLBOX_ACTION_BLOCK":"Ban",
+
+        "BONUSREGIONS_LABEL_BONUSTYPES":"Bonus types:",
+        "BONUSREGIONS_LABEL_GAMEMODES":"Use in modes:",
+        "BONUSREGIONS_LABEL_SIZE":"Size:",
+        "BONUSREGIONS_OPTION_PARACHUTE":"Drop with parachute",
+        "BONUSREGIONS_BONUSTYPE_DAMAGEUP":"Damage",
+        "BONUSREGIONS_BONUSTYPE_ARMORUP":"Armor",
+        "BONUSREGIONS_BONUSTYPE_NITRO":"Nitro",
+        "BONUSREGIONS_BONUSTYPE_MEDKIT":"Medkit",
+        "BONUSREGIONS_BONUSTYPE_CRYSTAL":"Crystal",
+        "BONUSREGIONS_BONUSTYPE_CRYSTAL_100":"Gold",
+        "BONUSREGIONS_BONUSTYPE_OVERDRIVE":"Nuclear",
+        "BONUSREGIONS_GAMEMODE_DM":"Deathmatch",
+        "BONUSREGIONS_GAMEMODE_TDM":"Team Deathmatch",
+        "BONUSREGIONS_GAMEMODE_CTF":"Capture the Flag",
+        "BONUSREGIONS_GAMEMODE_DOM":"Control Points",
+        "BONUSREGIONS_GAMEMODE_ASL":"Assault",
+        "BONUSREGIONS_GAMEMODE_SGE":"Siege",
+        "BONUSREGIONS_GAMEMODE_JGR":"Juggernaut",
+        "BONUSREGIONS_GAMEMODE_RGB":"Rugby"
         
     }
 }
