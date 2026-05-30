@@ -292,16 +292,9 @@ package alternativa.editor.mapexport.binary
                 bindedSpawns.push(cache.dominationLinkedSpawnsCounter++);
             }
 
-            var pointsInGameMode:Vector.<DominationPointData> = extraOutput.dominationControlPoints[prop.gameMode];
-
-            if(pointsInGameMode == null)
-            {
-                pointsInGameMode = extraOutput.dominationControlPoints[prop.gameMode] = new Vector.<DominationPointData>();
-            }
-
             var position:Vector3D = new Vector3D(prop.x, prop.y, prop.z);
 
-            pointsInGameMode.push(new DominationPointData(prop.controlPointName, bindedSpawns, position));
+            extraOutput.dominationControlPoints.push(new DominationPointData(prop.controlPointName, Vector.<String>(prop.gameModes), bindedSpawns, position));
         }
 
         private function addSpecialGeometry(prop:KillBox, extraOutput:MapExtraData) : void
@@ -333,6 +326,11 @@ class DominationPointData
     public var name:String;
 
     /**
+     * Game modes in which this point can be used (CP/SGE)
+     */
+    public var gameModes:Vector.<String>;
+
+    /**
      * Indices of DOM-related spawns that are linked to this point.
      * To get actual spawn points, you have to collect all DOM spawns (SpawnPointType.DOM/SpawnPointType.DOM_TEAM_A/SpawnPointType.DOM_TEAM_B) from common spawns list into array and use this indices on it.
      */
@@ -340,9 +338,10 @@ class DominationPointData
 
     public var position:Vector3D;
 
-    public function DominationPointData(name:String, bindedSpawns:Vector.<int>, position:Vector3D)
+    public function DominationPointData(name:String, gameModes:Vector.<String>, bindedSpawns:Vector.<int>, position:Vector3D)
     {
         this.name = name;
+        this.gameModes = gameModes;
         this.bindedSpawns = bindedSpawns;
         this.position = position;
     }
@@ -376,7 +375,7 @@ class MapExtraData
     /**
      * Version of 'extra.json' file format
      */
-    public const version:int = 1;
+    public const version:int = 2;
 
     public const bonusRegions:Vector.<BonusRegionData> = new Vector.<BonusRegionData>();
 
@@ -385,10 +384,7 @@ class MapExtraData
      */
     public const flags:Object = {};
 
-    /**
-     * Control Points { mode -> DominationPointData[] }
-     */
-    public const dominationControlPoints:Object = {};
+    public const dominationControlPoints:Vector.<DominationPointData> = new Vector.<DominationPointData>();
 
     public const specialGeometry:Vector.<SpecialGeometryData> = new Vector.<SpecialGeometryData>();
 }

@@ -46,7 +46,7 @@ package alternativa.editor.mapexport.xml
          {
             loc4 = loc3[0];
          }
-         var loc5:XML = <dom-keypoint free={param2.free} name={param2.controlPointName}/>;
+         var loc5:XML = <dom-keypoint free={param2.free} name={param2.controlPointName} modes={param2.gameModes.join(',')}/>;
          loc5.appendChild(getPositionXML(param2));
          for each(loc6 in param2.getSpawnPoints())
          {

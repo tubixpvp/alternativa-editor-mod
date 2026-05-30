@@ -70,9 +70,9 @@
                 }
             }
             
-            private static function createCheckBoxes(types:Array, registry:Object, parent:Container, listener:Function):void
+            public static function createCheckBoxes(ids:Array, registry:Object, parent:Container, listener:Function):void
             {
-                for each (var id:String in types)
+                for each (var id:String in ids)
                 {
                     createCheckBox(id, registry, parent, listener);
                 }

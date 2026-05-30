@@ -8,14 +8,15 @@ package alternativa.editor.prop
    import alternativa.engine3d.materials.TextureMaterial;
    import flash.geom.Point;
    import flash.utils.Dictionary;
+   import mod.ControlPointPropertiesPanel;
    
    public class ControlPoint extends Prop
    {
-      public var controlPointName:String;
+      public var controlPointName:String = ControlPointPropertiesPanel.LETTERS[0];
 
       public var spawnPoints:Dictionary;
 
-      public var gameMode:String = "CP";
+      public var gameModes:Array = [GameModes.controlPointModes[0]];
       
       public function ControlPoint(param1:Object3D, param2:String, param3:String, param4:String, param5:Boolean = true)
       {

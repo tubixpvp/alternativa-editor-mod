@@ -14,6 +14,7 @@ package alternativa.editor.mapimport.xml
    import flash.events.Event;
    import flash.utils.setTimeout;
    import mx.controls.Alert;
+   import mod.ControlPointPropertiesPanel;
    
    public class XMLImporterV1 extends XMLImporterBase implements IXMLImporter
    {
@@ -323,12 +324,39 @@ package alternativa.editor.mapimport.xml
                loc5 = loc4.child("position")[0];
                loc6 = this.scene.addProp(loc3,new Point3D(Number(loc5.child("x")[0]),Number(loc5.child("y")[0]),Number(loc5.child("z")[0])),0,true,false);
                loc7 = loc4.attribute("free").toString() == "true";
-               ControlPoint(loc6).controlPointName = loc4.@name;
+
+               var point:ControlPoint = loc6 as ControlPoint;
+
+               var pointName:String = (loc4.@name).toString();
+               if (pointName != null && pointName != "")
+               {
+                  pointName = pointName.toUpperCase();
+                  if (ControlPointPropertiesPanel.LETTERS.indexOf(pointName) != -1)
+                  {
+                     point.controlPointName = pointName;
+                  }
+               }
+               
+
+               var pointModesStr:String = (loc4.@modes).toString();
+               if (pointModesStr != null && pointModesStr != "")
+               {
+                  var pointModes:Array = pointModesStr.toLowerCase().split(',');
+
+                  point.gameModes.length = 0;
+                  for each(var pointMode:String in pointModes)
+                  {
+                     if (GameModes.controlPointModes.indexOf(pointMode) == -1)
+                        continue;
+                     point.gameModes.push(pointMode);
+                  }
+               }
+
                if(!loc7)
                {
                   this.scene.occupyMap.occupy(loc6);
                }
-               this.loadDominationPointSpawns(loc4,ControlPoint(loc6));
+               this.loadDominationPointSpawns(loc4,point);
                //this.scene.calculate();
             }
          }

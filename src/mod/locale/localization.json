@@ -129,7 +129,10 @@
         "LAYER_TDM":"Элементы командной битвы",
         "LAYER_DOM":"Элементы битвы на захват точек",
         "LAYER_BONUSES":"Бонусы",
-        "LAYER_SPECIAL":"Специальная геометрия"
+        "LAYER_SPECIAL":"Специальная геометрия",
+
+        "CONTROLPOINT_CHOOSELETTER_LABEL":"Буква точки:",
+        "CONTROLPOINT_CHOOSEMODE_LABEL":"Использовать в режимах:"
 
     },
     "EN" : {
@@ -260,7 +263,10 @@
         "LAYER_TDM":"Elements of Team match",
         "LAYER_DOM":"Elements of Point-capture match",
         "LAYER_BONUSES":"Bonuses",
-        "LAYER_SPECIAL":"Special geometry"
+        "LAYER_SPECIAL":"Special geometry",
+
+        "CONTROLPOINT_CHOOSELETTER_LABEL":"Point letter:",
+        "CONTROLPOINT_CHOOSEMODE_LABEL":"Use in modes:"
         
     }
 }

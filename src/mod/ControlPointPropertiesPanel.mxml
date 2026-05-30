@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns:s="library://ns.adobe.com/flex/spark"
+    xmlns:mx="library://ns.adobe.com/flex/mx"
+    percentHeight="100">
+
+    <mx:VBox paddingLeft="20" paddingRight="10" paddingTop="5" paddingBottom="5">
+        <mx:Label id="letterComboLabel"/>
+        <mx:ComboBox id="letterCombo" change="onLetterSelected()"/>
+    </mx:VBox>
+
+    <mx:VBox id="modesContainer" paddingLeft="10" paddingRight="20" paddingTop="5" paddingBottom="5">
+        <mx:Label id="modeComboLabel"/>
+    </mx:VBox>
+
+
+    <fx:Script>
+        <![CDATA[
+            import alternativa.editor.prop.ControlPoint;
+            import mod.locale.Locale;
+            import mod.locale.TextId;
+            import alternativa.editor.BonusRegionPropertiesPanel;
+            import flash.events.Event;
+            import mx.controls.CheckBox;
+
+            public static const LETTERS:Array = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+
+            private var _inited:Boolean = false;
+
+
+            private var _selectedPoint:ControlPoint = null;
+
+            private const _modesCheckboxes:Object = new Object();
+
+
+            private function init() : void
+            {
+                if (_inited)
+                    return;
+                _inited = true;
+
+                BonusRegionPropertiesPanel.createCheckBoxes(
+                    GameModes.controlPointModes,
+                    _modesCheckboxes,
+                    modesContainer,
+                    onModeSelected);
+
+                letterCombo.dataProvider = LETTERS;
+
+                Locale.addListener(applyLocalization);
+            }
+
+            private function applyLocalization() : void
+            {
+                letterComboLabel.text = Locale.getText(TextId.CONTROLPOINT_CHOOSELETTER_LABEL);
+                modeComboLabel.text = Locale.getText(TextId.CONTROLPOINT_CHOOSEMODE_LABEL);
+
+                for (var id:String in _modesCheckboxes)
+                {
+                    (_modesCheckboxes[id] as CheckBox).label = Locale.getText("BONUSREGIONS_GAMEMODE_" + id.toUpperCase());
+                }
+            }
+
+            
+            public function setSelection(point:ControlPoint) : void
+            {
+                init();
+
+                _selectedPoint = point;
+
+                letterCombo.selectedIndex = LETTERS.indexOf(point.controlPointName);
+
+                for(var modeId:String in _modesCheckboxes)
+                {
+                    var checkbox:CheckBox = _modesCheckboxes[modeId];
+                    checkbox.selected = (point.gameModes.indexOf(modeId) != -1);
+                }
+            }
+
+            private function onLetterSelected() : void
+            {
+                if (_selectedPoint == null)
+                    return;
+                
+                _selectedPoint.controlPointName = LETTERS[letterCombo.selectedIndex];
+            }
+            private function onModeSelected(e:Event) : void
+            {
+                if (_selectedPoint == null)
+                    return;
+
+                _selectedPoint.gameModes.length = 0;
+                for(var modeId:String in _modesCheckboxes)
+                {
+                    var checkbox:CheckBox = _modesCheckboxes[modeId];
+                    if (!checkbox.selected)
+                        continue;
+                    _selectedPoint.gameModes.push(modeId);
+                }
+            }
+            
+        ]]>
+    </fx:Script>
+
+</mx:HBox>

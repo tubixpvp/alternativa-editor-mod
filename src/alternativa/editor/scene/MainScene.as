@@ -52,6 +52,7 @@ package alternativa.editor.scene
    import alternativa.editor.mapexport.xml.TanksXmlExporterV1Full;
    import alternativa.editor.mapexport.xml.TanksXmlExporterV3;
    import alternativa.editor.mapexport.binary.MapBinaryExporter;
+   import mod.ControlPointPropertiesPanel;
    
    public class MainScene extends EditorScene
    {
@@ -92,7 +93,7 @@ package alternativa.editor.scene
       
       private var domSpawnPoint:SpawnPoint;
       
-      private var controlPointNameField:ControlPointNameField;
+      private var controlPointProperties:ControlPointPropertiesPanel;
 
       private var propGeneralProperties:PropGeneralPropertiesPanel;
       
@@ -102,6 +103,7 @@ package alternativa.editor.scene
          this.bonusTypesPanel = new BonusRegionPropertiesPanel();
          this.killZonePanel = new KillZonePropertiesPanel();
          this.propGeneralProperties = new PropGeneralPropertiesPanel();
+         this.controlPointProperties = new ControlPointPropertiesPanel();
          this._selectablePropTypes = new Set();
          this.exporters = {};
          this.layers = new Layers();
@@ -121,7 +123,6 @@ package alternativa.editor.scene
          this.exporters[FileType.MAP_XML_VERSION_1_FULL] = new TanksXmlExporterV1Full(root);
          this.exporters[FileType.MAP_XML_VERSION_3] = new TanksXmlExporterV3(root);
          this.exporters[FileType.BINARY] = new MapBinaryExporter(root);
-         this.createControlPointNameTextField();
          collider = new EllipsoidCollider(30,30,30);
          __root = root;
          this.propertyPanel.percentHeight = this.propertyPanel.percentWidth = 100;
@@ -143,11 +144,6 @@ package alternativa.editor.scene
          {
             Prop(loc2).snapToGrid();
          }
-      }
-      
-      private function createControlPointNameTextField() : void
-      {
-         this.controlPointNameField = new ControlPointNameField();
       }
       
       private function onDominationLinkStart(param1:DominationSpawnLinkStartEvent) : void
@@ -868,20 +864,12 @@ package alternativa.editor.scene
       {
          var loc1:Map = null;
          this.hideAllPropertyPanelItems();
-         if(this.selectedProps.length == 1)
+
+         if(this.selectedProps.length == 1 && this.selectedProp is ControlPoint)
          {
-            /*if(this.selectedProp is FreeBonusRegion)
-            {
-               this.showPropertyPanelItem(this.bonusTypesPanel);
-               this.bonusTypesPanel.setBonusRegion(this.selectedProp as FreeBonusRegion);
-               return;
-            }*/
-            if(this.selectedProp is ControlPoint)
-            {
-               this.showPropertyPanelItem(this.controlPointNameField);
-               this.controlPointNameField.setControlPoint(this.selectedProp as ControlPoint);
-               return;
-            }
+            this.showPropertyPanelItem(this.controlPointProperties);
+            this.controlPointProperties.setSelection(this.selectedProp as ControlPoint);
+            return;
          }
 
          if (this.tryShowBonusRegionProperties())

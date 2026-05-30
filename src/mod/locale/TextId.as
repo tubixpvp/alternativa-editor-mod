@@ -65,6 +65,9 @@ package mod.locale
         public static const BONUSREGIONS_LABEL_GAMEMODES:String = "BONUSREGIONS_LABEL_GAMEMODES";
         public static const BONUSREGIONS_LABEL_SIZE:String = "BONUSREGIONS_LABEL_SIZE";
         public static const BONUSREGIONS_OPTION_PARACHUTE:String = "BONUSREGIONS_OPTION_PARACHUTE";
+        
+        public static const CONTROLPOINT_CHOOSELETTER_LABEL:String = "CONTROLPOINT_CHOOSELETTER_LABEL";
+        public static const CONTROLPOINT_CHOOSEMODE_LABEL:String = "CONTROLPOINT_CHOOSEMODE_LABEL";
 
     
     }
