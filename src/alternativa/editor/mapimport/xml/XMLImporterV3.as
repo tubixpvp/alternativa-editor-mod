@@ -64,11 +64,16 @@ package alternativa.editor.mapimport.xml
             loc4 = loc1[loc3];
             loc5 = [loc4.attribute("library-name").toString(),loc4.attribute("group-name").toString(),loc4.attribute("name").toString()];
             loc6 = this.libraryManager.propByKey[loc5.join("")];
-            if(loc6 == null)
+            if(loc6 != null)
             {
-               throw new Error("Prop " + loc5.join("/") + " not found");
+               this.propDatas[loc3] = new PropData(loc6,loc4.elements("texture-name"));
             }
-            this.propDatas[loc3] = new PropData(loc6,loc4.elements("texture-name"));
+            else
+            {
+               ErrorHandler.setMessage("Parsing error");
+               ErrorHandler.addText("Prop " + loc5.join("/") + " not found");
+               ErrorHandler.showWindow();
+            }
             loc3++;
          }
       }
