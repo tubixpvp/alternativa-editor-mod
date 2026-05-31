@@ -120,7 +120,7 @@ package alternativa.editor.mapimport.xml
                   Alert.show("Tile " + tile.name + ": texture " + textureName + " not found");
                }
             }
-            this.scene.calculate();
+            //this.scene.calculate();
          }
          catch(e:Error)
          {
@@ -194,7 +194,7 @@ package alternativa.editor.mapimport.xml
                   BonusRegion(loc6).typeNames.add(loc10[loc11].toString());
                   loc11++;
                }
-               this.scene.calculate();
+               //this.scene.calculate();
             }
             loc3++;
          }
@@ -225,7 +225,7 @@ package alternativa.editor.mapimport.xml
                {
                   this.scene.occupyMap.occupy(loc6);
                }
-               this.scene.calculate();
+               //this.scene.calculate();
             }
             loc3++;
          }
@@ -248,7 +248,7 @@ package alternativa.editor.mapimport.xml
          if(loc3 != null)
          {
             loc3 = this.scene.addProp(loc3,this.getPoint3DFromXML(param1),0,true,false);
-            this.scene.calculate();
+            //this.scene.calculate();
          }
       }
       
