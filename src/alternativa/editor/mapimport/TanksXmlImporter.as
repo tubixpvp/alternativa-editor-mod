@@ -11,6 +11,8 @@ package alternativa.editor.mapimport
    import flash.filesystem.FileStream;
    import mx.controls.Alert;
    import alternativa.editor.mapimport.xml.IXMLImporter;
+   import mod.locale.Locale;
+   import mod.locale.TextId;
    
    public class TanksXmlImporter extends FileImporter
    {
@@ -37,7 +39,7 @@ package alternativa.editor.mapimport
          if(loc4 == null)
          {
             loc4 = this.importers[DEFAULT_IMPORTER];
-            Alert.show("Unsupported importer version " + loc3 + "! 1.0 is used as a default");
+            this.showUnsupportedImporterAlert(loc3);
          }
          loc4.importMap(loc2,scene,libraryManager);
       }
@@ -51,9 +53,14 @@ package alternativa.editor.mapimport
          if(loc4 == null)
          {
             loc4 = this.importers[DEFAULT_IMPORTER];
-            Alert.show("Unsupported importer version " + loc3 + "! 1.0 is used as a default");
+            this.showUnsupportedImporterAlert(loc3);
          }
          loc4.addInternalObjectsToExistingScene(loc2,scene,libraryManager);
+      }
+
+      private function showUnsupportedImporterAlert(version:String) : void
+      {
+         Alert.show(Locale.getText(TextId.ERROR_UNSUPPORTED_IMPORTER.replace("$1", version).replace("$2", DEFAULT_IMPORTER)));
       }
       
       private function addImporter(param1:String, param2:IXMLImporter) : void

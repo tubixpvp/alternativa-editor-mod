@@ -29,6 +29,8 @@ package alternativa.editor
    import mx.events.CloseEvent;
    import alternativa.engine3d.core.Object3D;
    import flash.geom.Vector3D;
+   import mod.locale.Locale;
+   import mod.locale.TextId;
    
    use namespace alternativa3d;
    
@@ -362,7 +364,7 @@ package alternativa.editor
                loc4 = loc3;
                if(this.multiplePropMode == MultiPropMode.NONE && loc2.isConflict(loc4) || this.multiplePropMode == MultiPropMode.GROUP && loc2.isConflictGroup(loc4))
                {
-                  Alert.show("This location is occupied. Continue?","",Alert.YES | Alert.NO,this,this.alertConflict,null,Alert.YES);
+                  Alert.show(Locale.getText(TextId.ERROR_LOCATION_OCCUPIED),"",Alert.YES | Alert.NO,this,this.alertConflict,null,Alert.YES);
                   break;
                }
             }
@@ -910,7 +912,7 @@ package alternativa.editor
          loc2.addEventListener(MouseEvent3D.MOUSE_DOWN,this.onPropMouseDown);
          if(this._snapMode && !this.cursorScene.freeState && (this.multiplePropMode == MultiPropMode.NONE && this.mainScene.occupyMap.isConflict(loc2) || this.multiplePropMode == MultiPropMode.GROUP && this.mainScene.occupyMap.isConflictGroup(loc2)))
          {
-            Alert.show("This location is occupied. Continue?","",Alert.YES | Alert.NO,this,this.alertConflict,null,Alert.YES);
+            Alert.show(Locale.getText(TextId.ERROR_LOCATION_OCCUPIED),"",Alert.YES | Alert.NO,this,this.alertConflict,null,Alert.YES);
          }
       }
       

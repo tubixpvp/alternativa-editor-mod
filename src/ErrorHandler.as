@@ -3,6 +3,8 @@ package
    import flash.display.DisplayObject;
    import mx.core.FlexGlobals;
    import mx.managers.PopUpManager;
+   import mod.locale.Locale;
+   import mod.locale.TextId;
    
    public class ErrorHandler
    {
@@ -11,6 +13,8 @@ package
       private static var content:String = "";
       
       private static var window:ErrorWindow = new ErrorWindow();
+
+      private static var _initialized:Boolean = false;
       
       public function ErrorHandler()
       {
@@ -48,6 +52,17 @@ package
          PopUpManager.addPopUp(window,DisplayObject(FlexGlobals.topLevelApplication));
          PopUpManager.centerPopUp(window);
          updateContent();
+         if (!_initialized)
+         {
+            _initialized = true;
+            Locale.addListener(applyLocalization);
+         }
+      }
+
+      private static function applyLocalization() : void
+      {
+         window.title = Locale.getText(TextId.ERROR_PANEL_TITLE);
+         window.okButton.label = Locale.getText(TextId.ALERT_BUTTON_OK);
       }
    }
 }

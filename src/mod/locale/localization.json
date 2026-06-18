@@ -76,6 +76,7 @@
         "TEXTURES_PANEL_TITLE":"Текстуры",
         "PROPPARAMS_PANEL_TITLE":"Параметры пропа",
         "LAYERS_PANEL_TITLE":"Слои",
+        "ERROR_PANEL_TITLE":"Ошибка",
 
         "ALERT_TEXT_SELECT_PROP_FOR_PASTING":"Выберите проп для вставки!",
         "ALERT_HEADER_SCENE_HAS_BEEN_CHANGED":"Сцена была изменена",
@@ -132,7 +133,18 @@
         "LAYER_SPECIAL":"Специальная геометрия",
 
         "CONTROLPOINT_CHOOSELETTER_LABEL":"Буква точки:",
-        "CONTROLPOINT_CHOOSEMODE_LABEL":"Использовать в режимах:"
+        "CONTROLPOINT_CHOOSEMODE_LABEL":"Использовать в режимах:",
+
+        "ERROR_LIBRARY_LOADING":"Ошибка загрузки библиотеки",
+        "ERROR_LIBRARIES_NOT_LOADED":"Библиотеки отсутствуют или были загружены неправильно",
+        "ERROR_CANT_BE_LOADED":"не может быть загружен",
+        "ERROR_TILE_TEXTURE_NOT_FOUND":"Тайл $1: текстура $2 не найдена",
+        "ERROR_PARSING":"Ошибка парсинга",
+        "ERROR_PROP_NOT_FOUND":"Проп $1 не найден",
+        "ERROR_FOLDER_NO_LONGER_EXISTS":"Папка больше не существует:",
+        "ERROR_LOCATION_OCCUPIED":"Это место занято. Продолжить?",
+        "ERROR_UNSUPPORTED_IMPORTER":"Неподдерживаемая версия загрузчика карт $1! $2 использована по умолчанию",
+        "ERROR_PROP_NO_TEXTURES":"У пропа нет текстур(ы):"
 
     },
     "EN" : {
@@ -210,6 +222,7 @@
         "TEXTURES_PANEL_TITLE":"Textures",
         "PROPPARAMS_PANEL_TITLE":"Prop Parameters",
         "LAYERS_PANEL_TITLE":"Layers",
+        "ERROR_PANEL_TITLE":"Error",
 
         "ALERT_TEXT_SELECT_PROP_FOR_PASTING":"Select prop for pasting!",
         "ALERT_HEADER_SCENE_HAS_BEEN_CHANGED":"Scene has been changed",
@@ -266,7 +279,18 @@
         "LAYER_SPECIAL":"Special geometry",
 
         "CONTROLPOINT_CHOOSELETTER_LABEL":"Point letter:",
-        "CONTROLPOINT_CHOOSEMODE_LABEL":"Use in modes:"
+        "CONTROLPOINT_CHOOSEMODE_LABEL":"Use in modes:",
+
+        "ERROR_LIBRARY_LOADING":"Library loading error",
+        "ERROR_LIBRARIES_NOT_LOADED":"Libraries are not loaded properly",
+        "ERROR_CANT_BE_LOADED":"can't be loaded",
+        "ERROR_TILE_TEXTURE_NOT_FOUND":"Tile $1: texture $2 not found",
+        "ERROR_PARSING":"Parsing error",
+        "ERROR_PROP_NOT_FOUND":"Prop $1 not found",
+        "ERROR_FOLDER_NO_LONGER_EXISTS":"Folder no longer exists:",
+        "ERROR_LOCATION_OCCUPIED":"This location is occupied. Continue?",
+        "ERROR_UNSUPPORTED_IMPORTER":"Unsupported importer version $1! $2 is used as default",
+        "ERROR_PROP_NO_TEXTURES":"Prop has no textures:"
         
     }
 }

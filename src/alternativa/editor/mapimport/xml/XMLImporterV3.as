@@ -10,6 +10,8 @@ package alternativa.editor.mapimport.xml
    import flash.events.Event;
    import flash.utils.setTimeout;
    import mx.controls.Alert;
+   import mod.locale.Locale;
+   import mod.locale.TextId;
    
    public class XMLImporterV3 extends XMLImporterBase implements IXMLImporter
    {
@@ -70,8 +72,8 @@ package alternativa.editor.mapimport.xml
             }
             else
             {
-               ErrorHandler.setMessage("Parsing error");
-               ErrorHandler.addText("Prop " + loc5.join("/") + " not found");
+               ErrorHandler.setMessage(Locale.getText(TextId.ERROR_PARSING));
+               ErrorHandler.addText(Locale.getText(TextId.ERROR_PROP_NOT_FOUND).replace("$1", loc5.join("/")));
                ErrorHandler.showWindow();
             }
             loc3++;
@@ -188,7 +190,7 @@ package alternativa.editor.mapimport.xml
                {
                   tile.textureName = tName;
                }
-               Alert.show("Tile " + tile.name + ": texture " + textureName + " not found");
+               ErrorHandler.addText(Locale.getText(TextId.ERROR_TILE_TEXTURE_NOT_FOUND).replace("$1", tile.name).replace("$2", textureName));
             }
          }
       }

@@ -21,6 +21,8 @@ package alternativa.editor.propslib.loaders
    import alternativa.editor.propslib.TextureDiffuseMapsRegistry;
    import flash.utils.Dictionary;
    import alternativa.editor.propslib.ImageData;
+   import mod.locale.Locale;
+   import mod.locale.TextId;
    
    public class MeshLoader extends ObjectLoader
    {
@@ -171,7 +173,9 @@ package alternativa.editor.propslib.loaders
          }
          else if(this.bitmaps.length == 0)
          {
-            Alert.show("no textures: " + toString());
+            ErrorHandler.setMessage(Locale.getText(TextId.ERROR_LIBRARY_LOADING));
+            ErrorHandler.addText(Locale.getText(TextId.ERROR_PROP_NO_TEXTURES) + " " + toString());
+            ErrorHandler.showWindow();
          }
 
          complete();

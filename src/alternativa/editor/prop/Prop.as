@@ -301,7 +301,7 @@ package alternativa.editor.prop
          }
       }
       
-      private function checkRemainder(param1:Number, param2:String, param3:Number) : void
+      /*private function checkRemainder(param1:Number, param2:String, param3:Number) : void
       {
          var loc4:Number = Math.abs(param1 % 500);
          if(loc4 > 0.01 && loc4 < 5)
@@ -309,7 +309,7 @@ package alternativa.editor.prop
             ErrorHandler.addText(loc4 + "Prop" + this + "is out of size along " + param2 + " " + param1);
             ErrorHandler.showWindow();
          }
-      }
+      }*/
       
       public function select() : void
       {

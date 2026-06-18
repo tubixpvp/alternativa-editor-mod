@@ -21,6 +21,8 @@ package alternativa.editor.scene
    import flash.display.Sprite;
    import mx.controls.Alert;
    import flash.geom.Point;
+   import mod.locale.Locale;
+   import mod.locale.TextId;
    
    public class CursorScene
    {
@@ -150,7 +152,7 @@ package alternativa.editor.scene
       {
          if(_object.bitmapData == null)
          {
-            Alert.show("No texture on " + _object.name + ", " + _object.groupName + ", " + _object.libraryName + ", " + (_object as MeshProp).textureName);
+            Alert.show(Locale.getText(TextId.ERROR_PROP_NO_TEXTURES) + " " + _object.name + ", " + _object.groupName + ", " + _object.libraryName + ", " + (_object as MeshProp).textureName);
             return;
          }
          var loc1:BitmapData = this._object.bitmapData.clone();

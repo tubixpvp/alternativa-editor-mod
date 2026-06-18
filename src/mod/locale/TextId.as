@@ -35,6 +35,7 @@ package mod.locale
         public static const TEXTURES_PANEL_TITLE:String = "TEXTURES_PANEL_TITLE";
         public static const PROPPARAMS_PANEL_TITLE:String = "PROPPARAMS_PANEL_TITLE";
         public static const LAYERS_PANEL_TITLE:String = "LAYERS_PANEL_TITLE";
+        public static const ERROR_PANEL_TITLE:String = "ERROR_PANEL_TITLE";
 
         public static const ALERT_TEXT_SELECT_PROP_FOR_PASTING:String = "ALERT_TEXT_SELECT_PROP_FOR_PASTING";
         public static const ALERT_HEADER_SCENE_HAS_BEEN_CHANGED:String = "ALERT_HEADER_SCENE_HAS_BEEN_CHANGED";
@@ -68,6 +69,17 @@ package mod.locale
         
         public static const CONTROLPOINT_CHOOSELETTER_LABEL:String = "CONTROLPOINT_CHOOSELETTER_LABEL";
         public static const CONTROLPOINT_CHOOSEMODE_LABEL:String = "CONTROLPOINT_CHOOSEMODE_LABEL";
+
+        public static const ERROR_LIBRARY_LOADING:String = "ERROR_LIBRARY_LOADING";
+        public static const ERROR_LIBRARIES_NOT_LOADED:String = "ERROR_LIBRARIES_NOT_LOADED";
+        public static const ERROR_CANT_BE_LOADED:String = "ERROR_CANT_BE_LOADED";
+        public static const ERROR_TILE_TEXTURE_NOT_FOUND:String = "ERROR_TILE_TEXTURE_NOT_FOUND";
+        public static const ERROR_PARSING:String = "ERROR_PARSING";
+        public static const ERROR_PROP_NOT_FOUND:String = "ERROR_PROP_NOT_FOUND";
+        public static const ERROR_FOLDER_NO_LONGER_EXISTS:String = "ERROR_FOLDER_NO_LONGER_EXISTS";
+        public static const ERROR_LOCATION_OCCUPIED:String = "ERROR_LOCATION_OCCUPIED";
+        public static const ERROR_UNSUPPORTED_IMPORTER:String = "ERROR_UNSUPPORTED_IMPORTER";
+        public static const ERROR_PROP_NO_TEXTURES:String = "ERROR_PROP_NO_TEXTURES";
 
     
     }

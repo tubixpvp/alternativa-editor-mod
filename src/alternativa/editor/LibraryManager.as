@@ -25,6 +25,8 @@ package alternativa.editor
    import flash.events.IOErrorEvent;
    import flash.filesystem.File;
    import mx.controls.Alert;
+   import mod.locale.Locale;
+   import mod.locale.TextId;
    
    public class LibraryManager extends EventDispatcher
    {
@@ -200,7 +202,7 @@ package alternativa.editor
          this.file = new File(rootDir);
          if(!this.file.exists)
          {
-            Alert.show("Folder no longer exists: " + rootDir);
+            Alert.show(Locale.getText(TextId.ERROR_FOLDER_NO_LONGER_EXISTS) + " " + rootDir);
             return;
          }
          this.startLoading();
@@ -351,7 +353,7 @@ package alternativa.editor
       
       private function onLoadingError(param1:ErrorEvent) : void
       {
-         ErrorHandler.setMessage("Loadind error");
+         ErrorHandler.setMessage(Locale.getText(TextId.ERROR_LIBRARY_LOADING));
          ErrorHandler.addText(param1.text);
          ErrorHandler.showWindow();
       }

@@ -15,6 +15,8 @@ package alternativa.editor.mapimport.xml
    import flash.utils.setTimeout;
    import mx.controls.Alert;
    import mod.ControlPointPropertiesPanel;
+   import mod.locale.Locale;
+   import mod.locale.TextId;
    
    public class XMLImporterV1 extends XMLImporterBase implements IXMLImporter
    {
@@ -162,14 +164,15 @@ package alternativa.editor.mapimport.xml
                         tile.textureName = tName;
                         break;//
                      }
-                     Alert.show("Tile " + tile.name + ": texture " + textureName + " not found");
+                     ErrorHandler.addText(Locale.getText(TextId.ERROR_TILE_TEXTURE_NOT_FOUND).replace("$1", tile.name).replace("$2", textureName));
+                     ErrorHandler.showWindow();
                   }
                }
             }
             else
             {
-               ErrorHandler.setMessage("Libraries are not loaded properly");
-               ErrorHandler.addText(propKey + " can\'t be loaded");
+               ErrorHandler.setMessage(Locale.getText(TextId.ERROR_LIBRARIES_NOT_LOADED));
+               ErrorHandler.addText(propKey + " " + Locale.getText(TextId.ERROR_CANT_BE_LOADED));
                ErrorHandler.showWindow();
             }
          }

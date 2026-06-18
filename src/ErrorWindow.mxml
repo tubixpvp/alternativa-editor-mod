@@ -3,7 +3,7 @@
                          xmlns:s="library://ns.adobe.com/flex/spark"
                          xmlns:mx="library://ns.adobe.com/flex/mx"
                          xmlns:local="*"
-                         width="400" title="Error Window"
+                         width="400"
                          close="close();">
 
     <fx:Script>
@@ -14,32 +14,25 @@
         ]]>
     </fx:Script>
 
-    <!-- Define the layout using MXML -->
     <s:VGroup percentWidth="100" percentHeight="100" paddingTop="5" paddingLeft="5" paddingBottom="5" paddingRight="5">
-        <!-- Message Label -->
         <s:Label id="message" />
 
-        <!-- Scroller for text area -->
         <s:Scroller percentWidth="100" percentHeight="100">
             <s:Group percentWidth="100">
                 <s:TextArea id="text" percentWidth="100" percentHeight="100" />
             </s:Group>
         </s:Scroller>
 
-        <!-- OK Button -->
-        <s:Button id="ok" label="Okay" click="ok_click();" />
+        <s:Button id="okButton" click="okClicked();" />
     </s:VGroup>
 
-    <!-- Script for event handling -->
     <fx:Script>
         <![CDATA[
-            // Close event handler
             public function close():void {
                 PopUpManager.removePopUp(this);
             }
 
-            // OK button click handler
-            public function ok_click():void {
+            public function okClicked():void {
                 this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
             }
         ]]>

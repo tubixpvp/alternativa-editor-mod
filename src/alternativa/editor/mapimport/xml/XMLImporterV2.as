@@ -11,6 +11,8 @@ package alternativa.editor.mapimport.xml
    import flash.events.Event;
    import flash.utils.setTimeout;
    import mx.controls.Alert;
+   import mod.locale.Locale;
+   import mod.locale.TextId;
    
    public class XMLImporterV2 extends XMLImporterBase implements IXMLImporter
    {
@@ -117,7 +119,7 @@ package alternativa.editor.mapimport.xml
                   {
                      tile.textureName = tName;
                   }
-                  Alert.show("Tile " + tile.name + ": texture " + textureName + " not found");
+                  ErrorHandler.addText(Locale.getText(TextId.ERROR_TILE_TEXTURE_NOT_FOUND).replace("$1", tile.name).replace("$2", textureName));
                }
             }
             //this.scene.calculate();
