@@ -60,7 +60,7 @@ package alternativa.editor.mapimport
 
       private function showUnsupportedImporterAlert(version:String) : void
       {
-         Alert.show(Locale.getText(TextId.ERROR_UNSUPPORTED_IMPORTER.replace("$1", version).replace("$2", DEFAULT_IMPORTER)));
+         Alert.show(Locale.getText(TextId.ERROR_UNSUPPORTED_IMPORTER).replace("$1", version).replace("$2", DEFAULT_IMPORTER));
       }
       
       private function addImporter(param1:String, param2:IXMLImporter) : void

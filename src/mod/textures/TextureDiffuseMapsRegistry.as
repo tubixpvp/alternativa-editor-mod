@@ -1,4 +1,4 @@
-package alternativa.editor.propslib
+package mod.textures
 {
     public class TextureDiffuseMapsRegistry
     {

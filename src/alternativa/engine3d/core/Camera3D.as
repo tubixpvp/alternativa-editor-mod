@@ -993,12 +993,16 @@ package alternativa.engine3d.core
             rotationZ = -(Math.atan2(_local_4, _local_5));
         }
 
-        public function projectGlobal(_arg_1:Vector3D):Vector3D
+        public function projectGlobal(_arg_1:Vector3D,output:Vector3D=null):Vector3D
         {
             if (this.view == null)
             {
                 throw (new Error("It is necessary to have view set."));
             };
+            if (output == null)
+            {
+                output = new Vector3D();
+            }
             this.viewSizeX = (this.view._width * 0.5);
             this.viewSizeY = (this.view._height * 0.5);
             this.focalLength = (Math.sqrt(((this.viewSizeX * this.viewSizeX) + (this.viewSizeY * this.viewSizeY))) / Math.tan((this.fov * 0.5)));
@@ -1011,7 +1015,7 @@ package alternativa.engine3d.core
                 appendMatrix(tA);
             };
             invertMatrix();
-            var _local_3:Vector3D = new Vector3D();
+            var _local_3:Vector3D = output;
             _local_3.x = ((((ma * _arg_1.x) + (mb * _arg_1.y)) + (mc * _arg_1.z)) + md);
             _local_3.y = ((((me * _arg_1.x) + (mf * _arg_1.y)) + (mg * _arg_1.z)) + mh);
             _local_3.z = ((((mi * _arg_1.x) + (mj * _arg_1.y)) + (mk * _arg_1.z)) + ml);

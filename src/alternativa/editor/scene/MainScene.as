@@ -56,10 +56,15 @@ package alternativa.editor.scene
    
    public class MainScene extends EditorScene
    {
+
+      private static const _projectIn:Vector3D = new Vector3D();
+      private static const _projectOut:Vector3D = new Vector3D();
+
+
       public static var collider:EllipsoidCollider;
       private static var __root:Object3DContainer;
       
-      public var selectedProp:Prop;
+      private var _selectedProp:Prop;
       
       public var selectedProps:Set;
       
@@ -130,6 +135,11 @@ package alternativa.editor.scene
          GlobalEventDispatcher.addListener(LayerContentChangeEvent.LAYER_CONTENT_CHANGED,this.onLayerContentChange);
          GlobalEventDispatcher.addListener(DominationSpawnLinkStartEvent.DOMINATION_SPAWN_LINK_START,this.onDominationLinkStart);
          GlobalEventDispatcher.addListener(DominationSpawnLinkEndEvent.DOMINATION_SPAWN_LINK_END,this.onDominationLinkEnd);
+      }
+
+      public function get selectedProp() : Prop
+      {
+         return _selectedProp;
       }
       
       public static function getProjectedPoint(param1:Vector3D) : Vector3D
@@ -426,7 +436,7 @@ package alternativa.editor.scene
          var loc7:Number = NaN;
          var loc8:CameraFacing = null;
          var loc9:Prop = null;
-         if(this.selectedProp)
+         if(this._selectedProp)
          {
             loc2 = new Point(view.mouseX,view.mouseY);
             for(loc4 in this.selectedProps)
@@ -441,31 +451,31 @@ package alternativa.editor.scene
                loc8 = getCameraFacing();
                if(loc8 == CameraFacing.Y || loc8 == CameraFacing.NEGATIVE_Y)
                {
-                  loc3 = camera.projectViewPointToPlane(loc2,ynormal,this.selectedProp.y);
-                  loc5 = loc3.x - this.selectedProp.x;
-                  this.selectedProp.x = loc3.x;
+                  loc3 = camera.projectViewPointToPlane(loc2,ynormal,this._selectedProp.y);
+                  loc5 = loc3.x - this._selectedProp.x;
+                  this._selectedProp.x = loc3.x;
                }
                else
                {
-                  loc3 = camera.projectViewPointToPlane(loc2,xnormal,this.selectedProp.x);
-                  loc6 = loc3.y - this.selectedProp.y;
-                  this.selectedProp.y = loc3.y;
+                  loc3 = camera.projectViewPointToPlane(loc2,xnormal,this._selectedProp.x);
+                  loc6 = loc3.y - this._selectedProp.y;
+                  this._selectedProp.y = loc3.y;
                }
-               loc7 = loc3.z - this.selectedProp.z;
-               this.selectedProp.z = loc3.z;
+               loc7 = loc3.z - this._selectedProp.z;
+               this._selectedProp.z = loc3.z;
             }
             else
             {
-               loc3 = camera.projectViewPointToPlane(loc2,znormal,this.selectedProp.z);
-               loc5 = loc3.x - this.selectedProp.x;
-               loc6 = loc3.y - this.selectedProp.y;
-               this.selectedProp.x = loc3.x;
-               this.selectedProp.y = loc3.y;
+               loc3 = camera.projectViewPointToPlane(loc2,znormal,this._selectedProp.z);
+               loc5 = loc3.x - this._selectedProp.x;
+               loc6 = loc3.y - this._selectedProp.y;
+               this._selectedProp.x = loc3.x;
+               this._selectedProp.y = loc3.y;
             }
             for(loc4 in this.selectedProps)
             {
                loc9 = loc4;
-               if(loc9 != this.selectedProp)
+               if(loc9 != this._selectedProp)
                {
                   loc9.x += loc5;
                   loc9.y += loc6;
@@ -533,22 +543,22 @@ package alternativa.editor.scene
                   {
                      if(loc3)
                      {
-                        this.deselectProp(loc2);
+                        this.deselectProp(loc2, true);
                      }
                   }
                   else if(!loc3)
                   {
-                     this.selectProp(loc2);
+                     this.selectProp(loc2, true);
                   }
                }
                else if(!loc3)
                {
                   this.deselectProps();
-                  this.selectProp(loc2);
+                  this.selectProp(loc2, true);
                }
                else
                {
-                  this.selectedProp = loc2;
+                  this._selectedProp = loc2;
                }
                this.propMouseDown = true;
             }
@@ -559,27 +569,28 @@ package alternativa.editor.scene
       {
          while(!this.selectedProps.isEmpty())
          {
-            this.deselectProp(this.selectedProps.peek());
+            this.deselectProp(this.selectedProps.peek(), false);
          }
          this.selectedProps.clear();
-         this.selectedProp = null;
+         this._selectedProp = null;
          this.hideAllPropertyPanelItems();
       }
       
-      public function deselectProp(param1:Prop) : void
+      public function deselectProp(param1:Prop, updatePanels:Boolean) : void
       {
          param1.deselect();
          this.selectedProps.remove(param1);
-         if(param1 == this.selectedProp)
+         if(param1 == this._selectedProp)
          {
-            this.selectedProp = null;
+            this._selectedProp = null;
          }
          this.hideAllPropertyPanelItems();
 
          if(this.selectedProps.length > 0)
          {
-            this.selectedProp = this.selectedProps.peek();
-            this.showPropertyPanel();
+            this._selectedProp = this.selectedProps.peek();
+            if (updatePanels)
+               this.showPropertyPanel();
          }
 
          if(param1 is BonusRegion && (param1 as BonusRegion).gameModes.length < 1)
@@ -588,9 +599,40 @@ package alternativa.editor.scene
          }
       }
       
-      public function selectProps(param1:Set) : void
+      public function selectProps(newSelection:Set, updatePanels:Boolean) : void
       {
-         var loc2:* = undefined;
+         var propObj:*;
+         var prop:Prop;
+
+         for (propObj in this.selectedProps)
+         {
+            if (!newSelection.has(propObj))
+            {
+               this.selectedProps.remove(prop);
+
+               prop = propObj;
+               prop.deselect();
+               if (prop == this._selectedProp)
+                  this._selectedProp = null;
+            }
+         }
+         for (propObj in newSelection)
+         {
+            prop = propObj;
+            if (!this.selectedProps.has(prop) && this.isSelectableProp(prop))
+            {
+               this.selectedProps.add(prop);
+               prop.select();
+               this._selectedProp = prop;
+            }
+         }
+
+         if (updatePanels && this._selectedProp != null)
+         {
+            this.showPropertyPanel();
+         }
+
+         /*var loc2:* = undefined;
          var loc3:Prop = null;
          this.deselectProps();
          for(loc2 in param1)
@@ -600,32 +642,38 @@ package alternativa.editor.scene
             {
                loc3.select();
                this.selectedProps.add(loc3);
-               this.selectedProp = loc3;
+               this._selectedProp = loc3;
             }
          }
-         if(this.selectedProp != null)
+         if(this._selectedProp != null)
          {
             this.showPropertyPanel();
-         }
+         }*/
       }
       
       public function selectConflictingProps() : void
       {
-         this.selectProps(occupyMap.getConflictProps());
+         this.selectProps(occupyMap.getConflictProps(), true);
       }
       
-      public function selectProp(param1:Prop) : void
+      public function selectProp(param1:Prop, updatePanels:Boolean) : void
       {
          if(this.isSelectableProp(param1))
          {
             param1.select();
             this.selectedProps.add(param1);
-            this.selectedProp = param1;
-            this.showPropertyPanel();
+            this._selectedProp = param1;
+            if (updatePanels)
+               this.showPropertyPanel();
          }
       }
+
+      public function setSelectedProp(selectedProp:Prop) : void
+      {
+         this._selectedProp = selectedProp;
+      }
       
-      public function getPropsUnderRect(param1:Point, param2:Number, param3:Number, param4:Boolean) : Set
+      public function getPropsUnderRect(param1:Point, param2:Number, param3:Number, param4:Boolean, changeSelectionState:Boolean) : Set
       {
          var loc6:Object3D;
          var loc7:Prop = null;
@@ -636,19 +684,23 @@ package alternativa.editor.scene
             loc7 = loc6 as Prop;
             if((Boolean(loc7)) && this.isSelectableProp(loc7))
             {
-               loc8 = camera.projectGlobal(new Vector3D(loc7.x,loc7.y,loc7.z));
+               _projectIn.setTo(loc7.x,loc7.y,loc7.z);
+               loc8 = camera.projectGlobal(_projectIn,_projectOut);
                if(loc8.x >= param1.x && loc8.x <= param1.x + param2 && loc8.y >= param1.y && loc8.y <= param1.y + param3)
                {
-                  if(param4)
+                  if (changeSelectionState)
                   {
-                     if(!loc7.selected)
+                     if(param4)
                      {
-                        loc7.select();
+                        if(!loc7.selected)
+                        {
+                           loc7.select();
+                        }
                      }
-                  }
-                  else if(loc7.selected)
-                  {
-                     loc7.deselect();
+                     else if(loc7.selected)
+                     {
+                        loc7.deselect();
+                     }
                   }
                   loc5.add(loc7);
                }
@@ -684,6 +736,7 @@ package alternativa.editor.scene
          loc6.x = param2.x;
          loc6.y = param2.y;
          loc6.z = param2.z;
+         // FIXME - listener adds up every time prop is added to scene
          loc6.addEventListener(MouseEvent3D.MOUSE_DOWN,this.onPropMouseDown);
          loc6.addEventListener(MouseEvent3D.MOUSE_OUT,this.onPropMouseOut);
          loc6.addEventListener(MouseEvent3D.MOUSE_OVER,this.onPropMouseOver);
@@ -785,7 +838,7 @@ package alternativa.editor.scene
          if(!param1)
          {
             param1 = this.selectedProps;
-            this.selectedProp = null;
+            this._selectedProp = null;
          }
          if(param1)
          {
@@ -798,7 +851,7 @@ package alternativa.editor.scene
                occupyMap.free(loc5);
                if(this.selectedProps.has(loc5))
                {
-                  this.deselectProp(loc5);
+                  this.deselectProp(loc5, false);
                }
                this.layers.removeProp(loc5);
                if(loc5 is ControlPoint)
@@ -817,8 +870,7 @@ package alternativa.editor.scene
                   }
                }
             }
-            this.hidePropertyPanelItem(this.bonusTypesPanel);
-            this.hidePropertyPanelItem(this.texturePanel);
+            this.hideAllPropertyPanelItems();
             this.propMouseDown = false;
             this._changed = true;
          }
@@ -838,7 +890,7 @@ package alternativa.editor.scene
                loc2.dispose();
             }
          }
-         this.selectedProp = null;
+         this._selectedProp = null;
          this.selectedProps.clear();
          occupyMap.clear();
          this.layers.clear();
@@ -859,16 +911,24 @@ package alternativa.editor.scene
             }
          }
       }
+
+      public function showPropertyPanelIsNeccessary() : void
+      {
+         if (this._selectedProp != null)
+         {
+            this.showPropertyPanel();
+         }
+      }
       
       private function showPropertyPanel() : void
       {
          var loc1:Map = null;
          this.hideAllPropertyPanelItems();
 
-         if(this.selectedProps.length == 1 && this.selectedProp is ControlPoint)
+         if(this.selectedProps.length == 1 && this._selectedProp is ControlPoint)
          {
             this.showPropertyPanelItem(this.controlPointProperties);
-            this.controlPointProperties.setSelection(this.selectedProp as ControlPoint);
+            this.controlPointProperties.setSelection(this._selectedProp as ControlPoint);
             return;
          }
 
@@ -892,7 +952,7 @@ package alternativa.editor.scene
          }
 
          this.showPropertyPanelItem(this.bonusTypesPanel);
-         this.bonusTypesPanel.setSelectedRegions(this.selectedProp as FreeBonusRegion, this.selectedProps);
+         this.bonusTypesPanel.setSelectedRegions(this._selectedProp as FreeBonusRegion, this.selectedProps);
 
          return true;
       }
@@ -907,7 +967,7 @@ package alternativa.editor.scene
          }
 
          this.showPropertyPanelItem(this.killZonePanel);
-         this.killZonePanel.setKillBoxes(this.selectedProp as KillBox, this.selectedProps);
+         this.killZonePanel.setKillBoxes(this._selectedProp as KillBox, this.selectedProps);
 
          return true;
       }
@@ -924,7 +984,7 @@ package alternativa.editor.scene
          this.showTexturePanel();
             
          this.showPropertyPanelItem(this.propGeneralProperties);
-         this.propGeneralProperties.setSelection(this.selectedProp,this.selectedProps);
+         this.propGeneralProperties.setSelection(this._selectedProp,this.selectedProps);
          
          return true;
       }
@@ -947,7 +1007,7 @@ package alternativa.editor.scene
          this.showPropertyPanelItem(this.texturePanel);
       }
       
-      public function mirrorTextures() : void
+      /*public function mirrorTextures() : void
       {
          var loc1:* = undefined;
          var loc2:MeshProp = null;
@@ -959,7 +1019,7 @@ package alternativa.editor.scene
                loc2.mirrorTexture();
             }
          }
-      }
+      }*/
       
       private function hideProps(param1:Set) : void
       {
@@ -1064,7 +1124,7 @@ package alternativa.editor.scene
       
       private function isSelectableProp(param1:Prop) : Boolean
       {
-         return !param1.hidden && this._selectablePropTypes.has(getQualifiedClassName(param1));
+         return param1.visible && this._selectablePropTypes.has(getQualifiedClassName(param1));
       }
       
       private function showPropertyPanelItem(param1:DisplayObject) : void

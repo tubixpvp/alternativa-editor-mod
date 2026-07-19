@@ -6,7 +6,6 @@ package alternativa.editor.prop
    import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.core.Object3D;
    import alternativa.engine3d.core.MouseEvent3D;
-   import alternativa.engine3d.materials.TextureMaterial;
    import alternativa.utils.MathUtils;
    import flash.geom.Point;
    
@@ -40,7 +39,6 @@ package alternativa.editor.prop
       {
          var loc2:SpawnPoint = null;
          var loc1:Mesh = _object.clone() as Mesh;
-         loc1.setMaterialToAllFaces(_material as TextureMaterial);
          loc2 = new SpawnPoint(loc1,name,_libraryName,_groupName,false);
          loc2.distancesX = distancesX.clone();
          loc2.distancesY = distancesY.clone();

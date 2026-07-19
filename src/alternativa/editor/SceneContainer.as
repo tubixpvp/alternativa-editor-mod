@@ -326,15 +326,16 @@ package alternativa.editor
                   {
                      if(loc3.has(loc9))
                      {
-                        this.mainScene.deselectProp(loc9);
+                        this.mainScene.deselectProp(loc9,false);
                      }
                   }
                   else if(!loc3.has(loc9))
                   {
-                     this.mainScene.selectProp(loc9);
+                     this.mainScene.selectProp(loc9,false);
                   }
                }
             }
+            this.mainScene.showPropertyPanelIsNeccessary();
          }
          this.mouseDown = false;
          this.selectionRectOverlay.graphics.clear();
@@ -398,10 +399,12 @@ package alternativa.editor
                {
                   if(!this.startSelectionCoords.equalsXYZ(loc4.x,loc4.y,loc4.z))
                   {
+                     // !
                      loc7 = new Point3D().copyFromObject3D(loc4);
                      loc7.difference(loc7,this.startSelectionCoords);
                      this.eventJournal.addEvent(EventJournal.MOVE,loc5.clone(),loc7);
                   }
+                  // !
                   loc6 = new Set();
                   for(loc2 in loc5)
                   {
@@ -413,8 +416,8 @@ package alternativa.editor
                      }
                      loc6.add(loc8);
                   }
-                  this.mainScene.selectProps(loc6);
-                  this.mainScene.selectedProp = loc4;
+                  this.mainScene.selectProps(loc6,false);
+                  this.mainScene.setSelectedProp(loc4);
                   this.startSelectionCoords = new Point3D().copyFromObject3D(loc4);
                   this.copy = true;
                }
@@ -440,6 +443,7 @@ package alternativa.editor
                loc14 = loc14 > 0 ? loc14 : -loc14;
                if(loc13 > 3 && loc14 > 3)
                {
+                  // !
                   loc15 = new Point(Math.min(this.mainScene.view.mouseX,this.mouseDownPoint.x),Math.min(this.mainScene.view.mouseY,this.mouseDownPoint.y));
                   loc16 = this.selectionRectOverlay.graphics;
                   loc16.clear();
@@ -451,10 +455,11 @@ package alternativa.editor
                   loc16.lineTo(loc15.x,loc15.y);
                   if(param1.shiftKey)
                   {
+                     // !
                      loc17 = this.rectProps.clone();
                      if(param1.altKey)
                      {
-                        this.rectProps = this.mainScene.getPropsUnderRect(loc15,loc13,loc14,false);
+                        this.rectProps = this.mainScene.getPropsUnderRect(loc15,loc13,loc14,false,true);
                         for(loc2 in loc17)
                         {
                            loc3 = loc2;
@@ -466,7 +471,7 @@ package alternativa.editor
                      }
                      else
                      {
-                        this.rectProps = this.mainScene.getPropsUnderRect(loc15,loc13,loc14,true);
+                        this.rectProps = this.mainScene.getPropsUnderRect(loc15,loc13,loc14,true,true);
                         for(loc2 in loc17)
                         {
                            loc3 = loc2;
@@ -479,7 +484,7 @@ package alternativa.editor
                   }
                   else
                   {
-                     this.mainScene.selectProps(this.mainScene.getPropsUnderRect(loc15,loc13,loc14,true));
+                     this.mainScene.selectProps(this.mainScene.getPropsUnderRect(loc15,loc13,loc14,true,false),false);
                   }
                   this.cursorScene.visible = false;
                }
@@ -633,7 +638,7 @@ package alternativa.editor
          while(loc1 != null)
          {
             loc2 = loc1 as MeshProp;
-            if(loc2 != null && !loc2.hidden)
+            if(loc2 != null && loc2.visible)
             {
                this.drawPropBoundBox(loc2);
             }
@@ -753,7 +758,7 @@ package alternativa.editor
                if(this.cursorScene.visible)
                {
                   this.cursorScene.object.z += EditorScene.snapByHalf ? EditorScene.VERTICAL_GRID_RESOLUTION_2 : EditorScene.VERTICAL_GRID_RESOLUTION_1;
-                  this.cursorScene.updateMaterial();
+                  this.cursorScene.checkForConflicts();
                   break;
                }
                loc2 = this.mainScene.selectedProp;
@@ -772,7 +777,7 @@ package alternativa.editor
                   if(this.cursorScene.visible)
                   {
                      this.cursorScene.object.z -= EditorScene.snapByHalf ? EditorScene.VERTICAL_GRID_RESOLUTION_2 : EditorScene.VERTICAL_GRID_RESOLUTION_1;
-                     this.cursorScene.updateMaterial();
+                     this.cursorScene.checkForConflicts();
                      break;
                   }
                   loc2 = this.mainScene.selectedProp;
@@ -809,7 +814,7 @@ package alternativa.editor
                if(this.cursorScene.visible)
                {
                   this.cursorScene.rotateCursorCounterClockwise();
-                  this.cursorScene.updateMaterial();
+                  this.cursorScene.checkForConflicts();
                   break;
                }
                this.eventJournal.addEvent(EventJournal.ROTATE,this.mainScene.selectedProps.clone(),false);
@@ -819,7 +824,7 @@ package alternativa.editor
                if(this.cursorScene.visible)
                {
                   this.cursorScene.rotateCursorClockwise();
-                  this.cursorScene.updateMaterial();
+                  this.cursorScene.checkForConflicts();
                   break;
                }
                this.eventJournal.addEvent(EventJournal.ROTATE,this.mainScene.selectedProps.clone(),true);
@@ -856,9 +861,9 @@ package alternativa.editor
                   this.zoom(-3);
                }
                break;
-            case Keyboard.F:
+            /*case Keyboard.F:
                this.mainScene.mirrorTextures();
-               break;
+               break;*/
             case Keyboard.Q:
                this.mainScene.selectConflictingProps();
                break;
@@ -908,7 +913,7 @@ package alternativa.editor
          var loc3:Set = new Set();
          loc3.add(loc2);
          this.eventJournal.addEvent(EventJournal.ADD,loc3);
-         setTimeout(this.cursorScene.updateMaterial,200);
+         setTimeout(this.cursorScene.checkForConflicts,200);
          loc2.addEventListener(MouseEvent3D.MOUSE_DOWN,this.onPropMouseDown);
          if(this._snapMode && !this.cursorScene.freeState && (this.multiplePropMode == MultiPropMode.NONE && this.mainScene.occupyMap.isConflict(loc2) || this.multiplePropMode == MultiPropMode.GROUP && this.mainScene.occupyMap.isConflictGroup(loc2)))
          {
@@ -930,7 +935,7 @@ package alternativa.editor
             this.mainScene.undo(loc1);
             if(this.cursorScene.visible)
             {
-               this.cursorScene.updateMaterial();
+               this.cursorScene.checkForConflicts();
             }
          }
       }
@@ -943,7 +948,7 @@ package alternativa.editor
             this.mainScene.redo(loc1);
             if(this.cursorScene.visible)
             {
-               this.cursorScene.updateMaterial();
+               this.cursorScene.checkForConflicts();
             }
          }
       }

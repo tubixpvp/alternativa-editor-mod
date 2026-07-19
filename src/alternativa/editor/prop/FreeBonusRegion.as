@@ -1,20 +1,22 @@
 package alternativa.editor.prop
 {
    import alternativa.editor.scene.MainScene;
-   import alternativa.engine3d.objects.Mesh;
    import alternativa.engine3d.core.Object3D;
    import alternativa.engine3d.materials.Material;
-   import alternativa.engine3d.materials.TextureMaterial;
    import alternativa.engine3d.primitives.Box;
    import alternativa.engine3d.primitives.Plane;
-   import alternativa.types.Point3D;
    import alternativa.types.Set;
    import flash.display.BitmapData;
-   import flash.display.BlendMode;
    import flash.geom.Vector3D;
    
    public class FreeBonusRegion extends Prop
    {
+      private static const BOX_TEMPLATE:Box = new Box(BASE_WIDTH,BASE_LENGTH,BASE_HEIGHT);
+      {
+         BOX_TEMPLATE.setPositionXYZ(BASE_WIDTH / 2, BASE_LENGTH / 2, BASE_HEIGHT / 2);
+         BOX_TEMPLATE.alpha = 0.5;
+      }
+
       private static const tmpVec:Vector3D = new Vector3D();
 
       private static const BASE_WIDTH:Number = 500;
@@ -31,8 +33,6 @@ package alternativa.editor.prop
       
       public var parachute:Boolean = true;
       
-      private var BOX_SIZE:int = 0;
-      
       private var shadow:Plane;
       
       public function FreeBonusRegion(param1:String, param2:String, param3:String, param4:Boolean = true)
@@ -44,17 +44,21 @@ package alternativa.editor.prop
          this._gameModes.add(GameModes.modes[1]);
          this._gameModes.add(GameModes.modes[2]);
          this._gameModes.add(GameModes.modes[3]);
-         var loc5:Box = new Box(BASE_WIDTH,BASE_LENGTH,BASE_HEIGHT);
-         loc5.x = BASE_WIDTH / 2;
-         loc5.y = BASE_LENGTH / 2;
-         loc5.z = BASE_HEIGHT / 2;
          //_material = new TextureMaterial(texture,0.5,true,false,BlendMode.MULTIPLY);
-         _material = new TextureMaterial(texture);
-         loc5.setMaterialToAllFaces(_material);
-         _object = loc5;
-         super(object,param1,param2,param3,param4);
+         super(BOX_TEMPLATE.clone(),param1,param2,param3,param4);
          type = Prop.BONUS;
-         this.showDestinationArea();
+
+         this.shadow = new Plane(BASE_WIDTH,BASE_LENGTH);
+         this.shadow.mouseEnabled = false;
+         this.shadow.alpha = 0.5;
+         this.shadow.x = BASE_WIDTH / 2;
+         this.shadow.y = BASE_LENGTH / 2;
+         addChild(this.shadow);
+
+         this.updateDestinationArea();
+         this.changeTexture(texture);
+
+         this.shadow.setMaterialToAllFaces(this.getMaterial());
       }
       
       public function get typeNames() : Set
@@ -69,8 +73,6 @@ package alternativa.editor.prop
       
       override public function clone() : Object3D
       {
-         var loc1:Mesh = _object.clone() as Mesh;
-         loc1.setMaterialToAllFaces(_material as TextureMaterial);
          var loc2:FreeBonusRegion = new FreeBonusRegion(name,_libraryName,_groupName,false);
          loc2.scaleX = scaleX;
          loc2.scaleY = scaleY;
@@ -86,36 +88,22 @@ package alternativa.editor.prop
          return loc2;
       }
       
-      public function showDestinationArea() : void
+      private function updateDestinationArea() : void
       {
-         if(Boolean(this.shadow) && contains(this.shadow))
-         {
-            removeChild(this.shadow);
-         }
+         removeChild(this.shadow);
          var loc1:Vector3D = MainScene.getProjectedPoint(new Vector3D(x + scaleX * BASE_WIDTH / 2,y + scaleY * BASE_LENGTH / 2,z - 50));
-         loc1 = globalToLocal(loc1);
-         var loc2:Number = BASE_WIDTH * scaleX + this.BOX_SIZE;
-         var loc3:Number = BASE_LENGTH * scaleY + this.BOX_SIZE;
-         this.shadow = new Plane(loc2,loc3);
-         this.shadow.mouseEnabled = false;
-         var loc4:TextureMaterial = new TextureMaterial(texture);
-         //loc4.alpha = 0.5;
-         this.shadow.alpha = 0.5;
-         this.shadow.setMaterialToAllFaces(loc4);
-         this.shadow.scaleX /= scaleX;
-         this.shadow.scaleY /= scaleY;
-         this.shadow.x = BASE_WIDTH / 2;
-         this.shadow.y = BASE_LENGTH / 2;
-         this.shadow.z = loc1.z + 3;
          addChild(this.shadow);
+         loc1 = globalToLocal(loc1);
+         this.shadow.z = loc1.z + 3;
       }
       
-      override public function setMaterial(param1:Material) : void
+      override protected function setMaterial(material:Material) : void
       {
-         //var loc2:SurfaceMaterial = param1 as SurfaceMaterial;
-         var loc2:Material = param1; //TODO check maybe FillMaterial is not Surface
-         (_object as Mesh).setMaterialToAllFaces(loc2);
-         (this.shadow as Mesh).setMaterialToAllFaces(loc2);
+         super.setMaterial(material);
+         if (this.shadow != null)
+         {
+            this.shadow.setMaterialToAllFaces(material);
+         }
       }
       
       override public function get rotationX() : Number
@@ -189,19 +177,19 @@ package alternativa.editor.prop
       override public function set x(param1:Number) : void
       {
          super.x = param1;
-         this.showDestinationArea();
+         this.updateDestinationArea();
       }
       
       override public function set y(param1:Number) : void
       {
          super.y = param1;
-         this.showDestinationArea();
+         this.updateDestinationArea();
       }
       
       override public function set z(param1:Number) : void
       {
          super.z = param1;
-         this.showDestinationArea();
+         this.updateDestinationArea();
       }
       
       public function get maxx() : Number
@@ -237,19 +225,19 @@ package alternativa.editor.prop
       override public function set scaleX(param1:Number) : void
       {
          super.scaleX = param1;
-         this.showDestinationArea();
+         this.updateDestinationArea();
       }
       
       override public function set scaleY(param1:Number) : void
       {
          super.scaleY = param1;
-         this.showDestinationArea();
+         this.updateDestinationArea();
       }
       
       override public function set scaleZ(param1:Number) : void
       {
          super.scaleZ = param1;
-         this.showDestinationArea();
+         this.updateDestinationArea();
       }
    }
 }

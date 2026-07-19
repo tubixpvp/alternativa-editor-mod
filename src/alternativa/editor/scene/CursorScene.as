@@ -5,45 +5,42 @@ package alternativa.editor.scene
    import alternativa.editor.prop.Prop;
    import alternativa.editor.prop.Sprite3DProp;
    import alternativa.editor.engine3d.controllers.WalkController;
-   import alternativa.engine3d.materials.Material;
    import alternativa.types.Matrix4;
    import alternativa.types.Point3D;
    import alternativa.types.Set;
-   import flash.display.BitmapData;
-   import flash.display.BlendMode;
    import flash.display.DisplayObject;
    import flash.display.Graphics;
    import flash.display.Shape;
-   import flash.geom.Matrix;
    import alternativa.engine3d.core.Object3DContainer;
    import flash.geom.Vector3D;
-   import alternativa.engine3d.materials.TextureMaterial;
    import flash.display.Sprite;
-   import mx.controls.Alert;
    import flash.geom.Point;
-   import mod.locale.Locale;
-   import mod.locale.TextId;
+   import alternativa.engine3d.materials.FillMaterial;
+   import flash.display.BitmapData;
+   import mod.textures.ConvertedBitmapsRegistry;
+   import alternativa.engine3d.materials.Material;
+   import mod.textures.MaterialsRegistry;
+   import alternativa.engine3d.materials.TextureMaterial;
    
    public class CursorScene
    {
-      private static var redClass:Class = CursorScene_redClass;
-      
-      private static const redBmp:BitmapData = new redClass().bitmapData;
-      
-      private static var greenClass:Class = CursorScene_greenClass;
-      
-      private static const greenBmp:BitmapData = new greenClass().bitmapData;
 
       private static const znormal:Vector3D = new Vector3D(0,0,1);
 
+      private static const intersectionPoint:Vector3D = new Vector3D();
       
-      protected var _object:Prop;
+      private static const pointOnScreen:Point = new Point();
+
+      private static const selectedObjectSet:Set = new Set();
+
       
-      private var redMaterial:Material;
-      
-      private var greenMaterial:Material;
-      
-      private var material:Material;
+      private var _selectedPropPrefab:Prop;
+      private var _selectedProp:Prop;
+
+      private var _conflictMaterial:FillMaterial;
+
+      private var _acceptMaterial:FillMaterial;
+
       
       private var _freeState:Boolean = true;
       
@@ -55,7 +52,7 @@ package alternativa.editor.scene
       
       private var eventSourceObject:DisplayObject;
       
-      protected var _snapMode:Boolean = true;
+      private var _snapMode:Boolean = true;
       
       private var axisIndicatorOverlay:Shape;
       
@@ -72,6 +69,9 @@ package alternativa.editor.scene
          this.mainScene = mainScene;
          this.initControllers();
          container.addChild(this.axisIndicatorOverlay = new Shape());
+
+         _acceptMaterial = new CustomFillMaterial(new Point3D(-10000000000,-7000000000,4000000000),65280);
+         _conflictMaterial = new CustomFillMaterial(new Point3D(-10000000000,-7000000000,4000000000),16711680);
       }
       
       private function initControllers() : void
@@ -91,107 +91,76 @@ package alternativa.editor.scene
          this.container.mouseChildren = false;
       }
       
-      public function set object(param1:Prop) : void
+      public function set object(propPrefab:Prop) : void
       {
-         var loc2:Vector3D = null;
-         if(this._object)
+         if (_selectedPropPrefab == propPrefab)
+            return;
+
+         var previousPosition:Vector3D = null;
+         if (_selectedProp != null)
          {
-            loc2 = new Vector3D(this._object.x,this._object.y,this._object.z);
-            if(this._visible)
-            {
-               this.mainScene.root.removeChild(this._object);
-            }
+            previousPosition = new Vector3D(_selectedProp.x, _selectedProp.y, _selectedProp.z);
+            clearSelection();
          }
-         this._object = param1;
-         this.material = this._object.material.clone();
-         //this.material.alpha = 0.5;
-         this._object.alpha = 0.5;
-         if(loc2)
+
+         _selectedPropPrefab = propPrefab;
+
+         _selectedProp = propPrefab.clone() as Prop;
+         _selectedProp.alpha = 0.5;
+         
+         if (previousPosition != null)
          {
-            this._object.setPositionFromVector3(loc2);
+            _selectedProp.setPositionFromVector3(previousPosition);
          }
-         if(this._visible)
-         {
-            this.mainScene.root.addChild(this._object);
-         }
-         if(this._snapMode || this._object is MeshProp && !(this._object is Sprite3DProp))
-         {
-            this.snapObject();
-         }
-         this.updateMaterial();
+
+         _selectedProp.visible = _visible;
+
+         this.mainScene.root.addChild(_selectedProp);
+
+         snapToGridIfNeccessary();
+
+         checkForConflicts();
       }
       
       public function get object() : Prop
       {
-         return this._object;
+         return this._selectedProp;
+      }
+      public function get prefab() : Prop
+      {
+         return this._selectedPropPrefab;
       }
       
-      public function set snapMode(param1:Boolean) : void
+      public function set snapMode(snapMode:Boolean) : void
       {
-         if(this._snapMode != param1 && Boolean(this._object))
-         {
-            this._snapMode = param1;
-            if(param1)
-            {
-               this.snapObject();
-            }
-            else
-            {
-               this._object.setMaterial(this.material);
-            }
-         }
-      }
-      
-      private function snapObject() : void
-      {
-         this.createMaterials();
-         this._object.snapToGrid();
-      }
-      
-      private function createMaterials() : void
-      {
-         if(_object.bitmapData == null)
-         {
-            Alert.show(Locale.getText(TextId.ERROR_PROP_NO_TEXTURES) + " " + _object.name + ", " + _object.groupName + ", " + _object.libraryName + ", " + (_object as MeshProp).textureName);
+         if (_snapMode == snapMode)
             return;
-         }
-         var loc1:BitmapData = this._object.bitmapData.clone();
-         var loc2:BitmapData = loc1.clone();
-         var loc3:Matrix = new Matrix();
-         loc3.a = loc1.width / redBmp.width;
-         loc3.d = loc3.a;
-         loc1.draw(redBmp,loc3,null,BlendMode.HARDLIGHT);
-         loc2.draw(greenBmp,loc3,null,BlendMode.HARDLIGHT);
-         if(this._object is Sprite3DProp)
+         _snapMode = snapMode;
+         if (_selectedProp == null)
+            return;
+         snapToGridIfNeccessary();
+      }
+
+      private function snapToGridIfNeccessary() : void
+      {
+         if (_snapMode && !(_selectedProp is Sprite3DProp))
          {
-            this.greenMaterial = new TextureMaterial(loc2);
-            this.redMaterial = new TextureMaterial(loc1);
+            _selectedProp.snapToGrid();
          }
-         else
-         {
-            this.greenMaterial = new CustomFillMaterial(new Point3D(-10000000000,-7000000000,4000000000),65280);
-            this.redMaterial = new CustomFillMaterial(new Point3D(-10000000000,-7000000000,4000000000),16711680);
-         }
-         //this.greenMaterial.alpha = 0.8;
-         //this.redMaterial.alpha = 0.8;
-         this._object.alpha = 0.8;
       }
       
       public function moveCursorByMouse() : void
       {
-         var loc1:Vector3D = null;
-         if(this._object)
-         {
-            loc1 = this.mainScene.camera.projectViewPointToPlane(new Point(this.mainScene.view.mouseX,this.mainScene.view.mouseY),znormal,this._object.z);
-            this._object.x = loc1.x;
-            this._object.y = loc1.y;
-
-            if(this._snapMode || this._object is MeshProp && !(this._object is Sprite3DProp))
-            {
-               this._object.snapToGrid();
-            }
-            this.updateMaterial();
-         }
+         if (_selectedProp == null)
+            return;
+         pointOnScreen.setTo(this.mainScene.view.mouseX,this.mainScene.view.mouseY);
+         this.mainScene.camera.projectViewPointToPlane(pointOnScreen,znormal,this._selectedProp.z,intersectionPoint);
+         if (isNaN(intersectionPoint.x))
+            return;
+         _selectedProp.x = intersectionPoint.x;
+         _selectedProp.y = intersectionPoint.y;
+         snapToGridIfNeccessary();
+         checkForConflicts();
       }
       
       public function get freeState() : Boolean
@@ -199,41 +168,47 @@ package alternativa.editor.scene
          return this._freeState;
       }
       
-      public function updateMaterial() : void
+      public function checkForConflicts() : void
       {
-         if(this._object)
+         if (_selectedProp == null)
+            return;
+         if (!_snapMode)
          {
-            if(this._snapMode)
-            {
-               if(this.mainScene.occupyMap.isConflict(this._object))
-               {
-                  this._freeState = false;
-                  this._object.setMaterial(this.redMaterial);
-               }
-               else
-               {
-                  this._freeState = true;
-                  this._object.setMaterial(this.greenMaterial);
-               }
-            }
-            else
-            {
-               this._object.setMaterial(this.material);
-            }
+            _selectedProp.resetMaterial();
+            return;
+         }
+         _freeState = !this.mainScene.occupyMap.isConflict(_selectedProp);
+         if (_selectedProp is Sprite3DProp)
+         {
+            var texture:BitmapData = ConvertedBitmapsRegistry.getCursorConflictBitmap(_selectedProp.bitmapData, _freeState);
+            var material:Material = MaterialsRegistry.getTextureMaterial(texture);
+            _selectedProp.overrideMaterial(material);
+         }
+         else
+         {
+            _selectedProp.overrideMaterial(_freeState ? _acceptMaterial : _conflictMaterial);
          }
       }
       
       public function clear() : void
       {
-         if(this._object)
+         _visible = false;
+         clearSelection();
+      }
+
+      private function clearSelection() : void
+      {
+         selectedObjectSet.clear();
+         if (_selectedProp == null)
+            return;
+         _selectedPropPrefab = null;
+         this.mainScene.root.removeChild(_selectedProp);
+         if (_selectedProp.hasOverridenMaterial())
          {
-            if(this.mainScene.root.contains(this._object))
-            {
-               this.mainScene.root.removeChild(this._object);
-            }
-            this._object = null;
-            this._visible = false;
+            MaterialsRegistry.releaseTextureMaterial(_selectedProp.getMaterial() as TextureMaterial);
          }
+         _selectedProp.dispose();
+         _selectedProp = null;
       }
       
       public function drawAxis(param1:Matrix4) : void
@@ -252,22 +227,17 @@ package alternativa.editor.scene
          loc2.lineTo(param1.i * this.axisIndicatorSize + loc3,param1.j * this.axisIndicatorSize + 0);
       }
       
-      public function set visible(param1:Boolean) : void
+      public function set visible(visible:Boolean) : void
       {
-         if(param1 != this._visible)
+         if (_visible == visible)
+            return;
+         _visible = visible;
+         if (_selectedProp != null)
          {
-            this._visible = param1;
-            if(this._object)
+            _selectedProp.visible = visible;
+            if (visible)
             {
-               if(this._visible)
-               {
-                  this.mainScene.root.addChild(this._object);
-                  this.updateMaterial();
-               }
-               else
-               {
-                  this.mainScene.root.removeChild(this._object);
-               }
+               checkForConflicts();
             }
          }
       }
@@ -279,8 +249,8 @@ package alternativa.editor.scene
       
       public function moveByArrows(param1:uint) : void
       {
-         this.mainScene.move(this._object,param1);
-         this.updateMaterial();
+         this.mainScene.move(this._selectedProp,param1);
+         this.checkForConflicts();
       }
       
       public function viewResize(param1:Number, param2:Number) : void
@@ -303,16 +273,16 @@ package alternativa.editor.scene
       
       private function getCursorObjectSet() : Set
       {
-         var loc1:Set = new Set();
-         loc1.add(this._object);
-         return loc1;
+         selectedObjectSet.clear();
+         selectedObjectSet.add(this._selectedProp);
+         return selectedObjectSet;
       }
       
       private function snapCursorToGrid() : void
       {
-         if(this._snapMode || this._object is MeshProp && !(this._object is Sprite3DProp))
+         if(this._snapMode || this._selectedProp is MeshProp && !(this._selectedProp is Sprite3DProp))
          {
-            this._object.snapToGrid();
+            this._selectedProp.snapToGrid();
          }
       }
    }

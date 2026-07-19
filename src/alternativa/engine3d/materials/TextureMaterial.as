@@ -47,6 +47,8 @@ package alternativa.engine3d.materials
         alternativa3d var textureATFAlphaResource:CompressedTextureResource;
         protected var bitmap:BitmapData;
 
+        public var usagesNum:int = 0;
+
         public function TextureMaterial(_arg_1:BitmapData=null, _arg_2:Boolean=false, _arg_3:Boolean=true, _arg_4:int=0, _arg_5:Number=1)
         {
             this.repeat = _arg_2;
@@ -165,7 +167,7 @@ package alternativa.engine3d.materials
             if (_arg_1 != this._hardwareMipMaps)
             {
                 this._hardwareMipMaps = _arg_1;
-                if (this.texture != null)
+                if (this.textureResource != null)
                 {
                     this.textureResource.calculateMipMapsUsingGPU = this._hardwareMipMaps;
                 };

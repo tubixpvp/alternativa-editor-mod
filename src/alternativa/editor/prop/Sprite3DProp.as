@@ -2,11 +2,11 @@ package alternativa.editor.prop
 {
    import alternativa.engine3d.core.Object3D;
    import alternativa.engine3d.objects.Sprite3D;
-   import alternativa.engine3d.core.Vertex;
    import alternativa.engine3d.materials.Material;
    import flash.geom.Point;
    import alternativa.engine3d.materials.TextureMaterial;
    import alternativa.types.Map;
+   import flash.display.BitmapData;
    
    public class Sprite3DProp extends MeshProp
    {
@@ -15,7 +15,6 @@ package alternativa.editor.prop
       public function Sprite3DProp(param1:Sprite3D, name:String, libraryName:String, groupName:String, param5:Boolean = true)
       {
          super(param1,EMPTY_OBJECTS,name,libraryName,groupName,param5);
-         this.collisionEnabled = false;
       }
 
       public override function dispose() : void
@@ -40,31 +39,26 @@ package alternativa.editor.prop
 
       override protected function initBitmapData() : void
       {
-         _material = (_object as Sprite3D).material; //no need to clone(), already cloned earlier
-         bitmapData = (_material as TextureMaterial).texture;
-
          this.bitmaps = new Map();
-         this.bitmaps.add("DEFAULT", bitmapData);
-      }
-      
-      override public function setMaterial(param1:Material) : void
-      {
-         (_object as Sprite3D).material = param1;
-      }
-      
-      override public function get vertices() : Vector.<Vertex>
-      {
-         return Vector.<Vertex>([new Vertex()]);
-      }
 
-      protected override function setToCollisionDisabledTextureIfNeeded() : void
+         var material:Material = (_object as Sprite3D).material;
+         var textureMaterial:TextureMaterial = material as TextureMaterial;
+         if (textureMaterial == null || textureMaterial.texture == null)
+            return;
+         var bitmap:BitmapData = textureMaterial.texture;
+         
+         this.bitmaps.add("DEFAULT", bitmap);
+         this.changeTexture(bitmap);
+      }
+      
+      override protected function setMaterial(material:Material) : void
       {
+         (_object as Sprite3D).material = material;
       }
       
       override public function clone() : Object3D
       {
          var loc1:Sprite3D = _object.clone() as Sprite3D;
-         loc1.material = _material.clone() as TextureMaterial;
          var loc2:Sprite3DProp = new Sprite3DProp(loc1,name,_libraryName,_groupName,false);
          loc2.distancesX = distancesX.clone();
          loc2.distancesY = distancesY.clone();

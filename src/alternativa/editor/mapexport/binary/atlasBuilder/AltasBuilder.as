@@ -13,9 +13,9 @@ package alternativa.editor.mapexport.binary.atlasBuilder
     import alternativa.editor.prop.Prop;
     import flash.geom.Matrix;
     import alternativa.editor.mapexport.binary.types.BattleMap;
-    import alternativa.editor.propslib.TextureDiffuseMapsRegistry;
     import alternativa.editor.prop.Sprite3DProp;
     import alternativa.editor.mapexport.binary.BinaryExporterSettings;
+    import mod.textures.TextureDiffuseMapsRegistry;
 
     public class AltasBuilder
     {

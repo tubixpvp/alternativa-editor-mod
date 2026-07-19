@@ -11,6 +11,12 @@ package alternativa.editor.prop
 
       public static const POSSIBLE_VALUES:Array = ["kill", "kick", "block"];
       
+
+      private static const BOX_TEMPLATE:Box = new Box(BASE_WIDTH,BASE_LENGTH,BASE_HEIGHT);
+      {
+         BOX_TEMPLATE.setPositionXYZ(BASE_WIDTH / 2, BASE_LENGTH / 2, BASE_HEIGHT / 2);
+         BOX_TEMPLATE.alpha = 0.5;
+      }
       
       private static const BASE_WIDTH:Number = 500;
       
@@ -24,23 +30,13 @@ package alternativa.editor.prop
       
       public function KillBox(param1:String, param2:String, param3:String, param4:Boolean = true)
       {
-         var loc5:Box = new Box(BASE_WIDTH,BASE_LENGTH,BASE_HEIGHT);
-         loc5.x = BASE_WIDTH / 2;
-         loc5.y = BASE_LENGTH / 2;
-         loc5.z = BASE_HEIGHT / 2;
-         _object = loc5;
-         var loc6:TextureMaterial = new TextureMaterial(texture);
-         //loc6.alpha = 0.5;
-         loc5.alpha = 0.5;
-         loc5.setMaterialToAllFaces(loc6);
-         super(object,param1,param2,param3,param4);
+         super(BOX_TEMPLATE.clone(),param1,param2,param3,param4);
          type = Prop.KILL_GEOMETRY;
+         this.changeTexture(texture);
       }
       
       override public function clone() : Object3D
       {
-         var loc1:Mesh = _object.clone() as Mesh;
-         loc1.setMaterialToAllFaces(_material as TextureMaterial);
          var loc2:KillBox = new KillBox(name,_libraryName,_groupName,false);
          loc2.action = this.action;
          loc2.scaleX = scaleX;

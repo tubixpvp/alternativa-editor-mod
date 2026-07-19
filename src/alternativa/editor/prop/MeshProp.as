@@ -10,28 +10,24 @@ package alternativa.editor.prop
    import alternativa.types.Point3D;
    import alternativa.types.Set;
    import flash.display.BitmapData;
-   import flash.geom.Matrix;
    import mx.controls.Alert;
    import alternativa.engine3d.core.Face;
    import alternativa.editor.engine3d.materials.WireMaterial;
    import alternativa.engine3d.core.Vertex;
+   import mod.textures.ConvertedBitmapsRegistry;
+   import mod.textures.MaterialsRegistry;
+   import alternativa.engine3d.materials.Material;
    
    use namespace alternativa3d;
    
    public class MeshProp extends Prop
    {
-      [Embed(source="no_collision_texture.png")]
-      private static const NO_COLLISION_TEXTURE_MASK_Class:Class;
-
-      private static const NO_COLLISION_TEXTURE_Bitmap:BitmapData = new NO_COLLISION_TEXTURE_MASK_Class().bitmapData;
 
       public var bitmaps:Map;
       
       protected var _textureName:String = "";
       
       private var collisionMaterial:CustomFillMaterial;
-      
-      private var _isMirror:Boolean = false;
       
       private var collisionBoxes:Set;
       
@@ -41,7 +37,6 @@ package alternativa.editor.prop
 
       private var _collisionEnabled:Boolean = true;
 
-      private var _noCollisionTexture:BitmapData = null;
       private var _noCollisionMaterial:TextureMaterial = null;
       
       
@@ -92,18 +87,6 @@ package alternativa.editor.prop
 
          super.dispose();
       }
-
-      public function get isTextureMirrored() : Boolean
-      {
-         return _isMirror;
-      }
-      
-      private static function getMirrorBitmapData(param1:BitmapData) : BitmapData
-      {
-         var loc2:BitmapData = new BitmapData(param1.width,param1.height);
-         loc2.draw(param1,new Matrix(-1,0,0,1,param1.width,0));
-         return loc2;
-      }
       
       private function parseCollisionData(mainObject:Object3D, objects:Vector.<Object3D>) : void
       {
@@ -152,7 +135,7 @@ package alternativa.editor.prop
             loc2.setMaterialToAllFaces(null);
             removeChild(loc2);
          }
-         setMaterial(_material);
+         this.updateMaterialState();
       }
       
       public function get collisionGeometry() : Set
@@ -165,69 +148,40 @@ package alternativa.editor.prop
          return this._textureName;
       }
       
-      public function set textureName(param1:String) : void
+      public function set textureName(textureName:String) : void
       {
-         this._textureName = param1;
-         if(this._textureName == InvisibleTexture.TEXTURE_NAME)
+         _textureName = textureName;
+
+         var bitmap:BitmapData;
+         if(_textureName == InvisibleTexture.TEXTURE_NAME)
          {
-            bitmapData = InvisibleTexture.invisibleTexture.bitmapData;
+            bitmap = InvisibleTexture.invisibleTexture.bitmapData;
          }
-         else
+         else if (this.bitmaps != null)
          {
-            bitmapData = this._isMirror ? getMirrorBitmapData(this.bitmaps[param1]) : this.bitmaps[param1];
-         }
-         if(_material != null)
-         {
-            _material.dispose();
+            bitmap = this.bitmaps[textureName];
          }
 
-         _material = new TextureMaterial(bitmapData);
+         if(_textureName == "DEFAULT")
+            _textureName = "";
 
-         this.disposeSelectTexture();
-
-         if(_selected)
-         {  
-            select();
-         }
-         else
-         {
-            setMaterial(_material);
-         }
-         if(_noCollisionTexture != null)
-         {
-            _noCollisionMaterial.dispose();
-            _noCollisionMaterial = null;
-            _noCollisionTexture.dispose();
-            _noCollisionTexture = null;
-         }
-         this.setToCollisionDisabledTextureIfNeeded();
-         if(this._textureName == "DEFAULT")
-         {
-            this._textureName = "";
-         }
+         changeTexture(bitmap);
       }
       
-      public function mirrorTexture() : void
+      /*public function mirrorTexture() : void
       {
          this._isMirror = !this._isMirror;
          bitmapData = getMirrorBitmapData(bitmapData);
          (_material as TextureMaterial).texture = bitmapData;
          if(selected)
          {
-            this.disposeSelectTexture();
-
             select();
          }
-         else
-         {
-            setMaterial(_material);
-         }
-      }
+      }*/
       
       override public function clone() : Object3D
       {
          var loc1:Mesh = _object.clone() as Mesh;
-         loc1.setMaterialToAllFaces(_material as TextureMaterial);
 
          var objectsCopy:Vector.<Object3D> = new Vector.<Object3D>();
          for each(var obj:Object3D in _objects)
@@ -244,7 +198,8 @@ package alternativa.editor.prop
          loc2.bitmaps = this.bitmaps;
          loc2._textureName = this._textureName;
          loc2.height = height;
-         loc2.collisionEnabled = this._collisionEnabled;
+         loc2._collisionEnabled = this._collisionEnabled;
+         loc2.updateMaterialState();
          return loc2;
       }
       
@@ -285,6 +240,7 @@ package alternativa.editor.prop
          if(this.bound)
          {
             removeChild(this.bound);
+            // FIXME - caching
             this.bound = null;
          }
       }
@@ -297,44 +253,29 @@ package alternativa.editor.prop
       {
          if(this._collisionEnabled == enabled)
             return;
-
          this._collisionEnabled = enabled;
-         
-         this.setToCollisionDisabledTextureIfNeeded();         
-      }
-      protected function setToCollisionDisabledTextureIfNeeded() : void
-      {
-         if(_collisionEnabled)
-            return;
-         if(_selected) //shouldn't change texture of 'selected'
-            return;
-         if(hidden)
-            return;
-         if(this._textureName == InvisibleTexture.TEXTURE_NAME)
-            return;
-
-         if(_noCollisionTexture == null)
-         {
-            _noCollisionTexture = this.bitmapData.clone();
-
-            _matrix.a = this.bitmapData.width / NO_COLLISION_TEXTURE_Bitmap.width;
-            _matrix.d = this.bitmapData.height / NO_COLLISION_TEXTURE_Bitmap.height;
-            
-            _noCollisionTexture.draw(NO_COLLISION_TEXTURE_Bitmap, _matrix);
-
-            //_noCollisionTexture = NO_COLLISION_TEXTURE_Bitmap.clone();
-            _noCollisionMaterial = new TextureMaterial(_noCollisionTexture);
-         }
-
-         setMaterial(_noCollisionMaterial);
+         this.updateMaterialState();    
       }
       
-      public override function deselect() : void
+      protected override function getCurrentMaterial():Material
       {
-         super.deselect();
-
-         this.setToCollisionDisabledTextureIfNeeded();
+         if (!_collisionEnabled && _textureName != InvisibleTexture.TEXTURE_NAME)
+         {
+            var noCollisionTexture:BitmapData = ConvertedBitmapsRegistry.getNoCollisionBitmap(this.bitmapData);
+            if (_noCollisionMaterial != null && _noCollisionMaterial.texture != noCollisionTexture)
+            {
+               MaterialsRegistry.releaseTextureMaterial(_noCollisionMaterial);
+               _noCollisionMaterial = null;
+            }
+            if (_noCollisionMaterial == null)
+            {
+               _noCollisionMaterial = MaterialsRegistry.getTextureMaterial(noCollisionTexture);
+            }
+            return _noCollisionMaterial;
+         }
+         return super.getCurrentMaterial();
       }
+      
    }
 }
 

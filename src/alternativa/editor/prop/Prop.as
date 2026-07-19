@@ -9,13 +9,12 @@ package alternativa.editor.prop
    import alternativa.utils.MathUtils;
    import flash.display.Bitmap;
    import flash.display.BitmapData;
-   import flash.display.BlendMode;
-   import flash.geom.Matrix;
    import flash.geom.Point;
    import alternativa.engine3d.core.Object3DContainer;
    import alternativa.engine3d.core.Vertex;
    import flash.geom.Vector3D;
-   import alternativa.engine3d.materials.FillMaterial;
+   import mod.textures.ConvertedBitmapsRegistry;
+   import mod.textures.MaterialsRegistry;
    
    public class Prop extends Object3DContainer
    {
@@ -30,12 +29,6 @@ package alternativa.editor.prop
       public static const DOMINATION_CONTROL_POINT:int = 5;
       
       public static const KILL_GEOMETRY:int = 6;
-      
-      protected static const _matrix:Matrix = new Matrix();
-      
-      private static var redClass:Class = Prop_redClass;
-      
-      private static const redBmp:BitmapData = new redClass().bitmapData;
 
       private static const v1:Vector3D = new Vector3D();
       private static const v2:Vector3D = new Vector3D();
@@ -58,22 +51,22 @@ package alternativa.editor.prop
       
       public var free:Boolean = true;
       
-      protected var _material:Material;
-      
       public var bitmapData:BitmapData;
-      
-      protected var _selectBitmapData:BitmapData;
-      private var _selectMaterial:Material;
       
       public var icon:Bitmap;
       
       protected var _selected:Boolean = false;
       
-      private var _hidden:Boolean;
-      
       public var height:int;
       
       public var data:*;
+
+
+      private var _defaultMaterial:TextureMaterial = null;
+      private var _selectMaterial:TextureMaterial = null;
+
+      private var _materialIsOverriden:Boolean = false;
+      
       
       public function Prop(param1:Object3D, name:String, libraryName:String, groupName:String, param5:Boolean = true)
       {
@@ -93,24 +86,18 @@ package alternativa.editor.prop
 
       public function dispose() : void
       {
-         if(_material is TextureMaterial)
-         {
-            (_material as TextureMaterial).dispose();
-         }
-         _material = null;
-
          bitmapData = null;
          icon = null;
 
-         if(_selectMaterial)
+         if (_defaultMaterial != null)
          {
-            _selectMaterial.dispose();
-            _selectMaterial = null;
+            MaterialsRegistry.releaseTextureMaterial(_defaultMaterial);
+            _defaultMaterial = null;
          }
-         if(_selectBitmapData)
+         if(_selectMaterial != null)
          {
-            _selectBitmapData.dispose();
-            _selectBitmapData = null;
+            MaterialsRegistry.releaseTextureMaterial(_selectMaterial);
+            _selectMaterial = null;
          }
 
          _object.destroy();
@@ -182,14 +169,30 @@ package alternativa.editor.prop
       
       protected function initBitmapData() : void
       {
-         this._material = Mesh(this._object).faceList.material;
-         if(this._material == null)
+         var mesh:Mesh = _object as Mesh;
+         if (mesh == null || mesh.faceList == null || mesh.faceList.material == null)
             return;
-         this._material = this._material.clone(); //to easier dispose it
-         if(_material is TextureMaterial && !(_material is FillMaterial))
+         var textureMaterial:TextureMaterial = mesh.faceList.material as TextureMaterial;
+         if (textureMaterial == null || textureMaterial.texture == null)
+            return;
+         this.changeTexture(textureMaterial.texture);
+      }
+
+      protected function changeTexture(bitmap:BitmapData) : void
+      {
+         if (this.bitmapData == bitmap)
+            return;
+         this.bitmapData = bitmap;
+         if (_defaultMaterial != null)
          {
-            this.bitmapData = TextureMaterial(this._material).texture;
+            MaterialsRegistry.releaseTextureMaterial(_defaultMaterial);
+            _defaultMaterial = null;
          }
+         if (bitmap != null)
+         {
+            _defaultMaterial = MaterialsRegistry.getTextureMaterial(this.bitmapData);
+         }
+         this.updateMaterialState();
       }
       
       public function calculate() : void
@@ -313,63 +316,89 @@ package alternativa.editor.prop
       
       public function select() : void
       {
-         if(this._selectBitmapData == null)
-         {
-            this._selectBitmapData = this.bitmapData.clone();
-            _matrix.a = this.bitmapData.width / redBmp.width;
-            _matrix.d = _matrix.a;
-            this._selectBitmapData.draw(redBmp,_matrix,null,BlendMode.MULTIPLY);
-
-            _selectMaterial = new TextureMaterial(_selectBitmapData);
-         }
-         this.setMaterial(this._selectMaterial);
-         this._selected = true;
-      }
-      protected function disposeSelectTexture() : void
-      {
-         if(_selectBitmapData == null)
+         if (this._selected)
             return;
-         _selectMaterial.dispose();
-         _selectMaterial = null;
-         _selectBitmapData.dispose();
-         _selectBitmapData = null;
+         this._selected = true;
+         this.updateMaterialState();
       }
       
       public function deselect() : void
       {
-         if(this._hidden)
-         {
-            this.setMaterial(null);
-         }
-         else
-         {
-            this.setMaterial(this._material);
-         }
+         if (!this._selected)
+            return;
          this._selected = false;
+         this.updateMaterialState();
+      }
+
+      protected function updateMaterialState() : void
+      {
+         if (!this.visible)
+            return;
+         var material:Material = this.getCurrentMaterial();
+         this.setMaterial(material);
+      }
+      protected function getCurrentMaterial() : Material
+      {
+         if (_selected)
+         {
+            var selectBitmap:BitmapData = ConvertedBitmapsRegistry.getSelectedBitmap(this.bitmapData);
+            if (_selectMaterial != null && _selectMaterial.texture != selectBitmap)
+            {
+               MaterialsRegistry.releaseTextureMaterial(_selectMaterial);
+               _selectMaterial = null;
+            }
+            if (_selectMaterial == null)
+            {
+               _selectMaterial = MaterialsRegistry.getTextureMaterial(selectBitmap);
+            }
+            return _selectMaterial;
+         }
+         return _defaultMaterial;
       }
       
-      public function setMaterial(param1:Material) : void
+      protected function setMaterial(material:Material) : void
       {
-         //var loc2:SurfaceMaterial = param1 as SurfaceMaterial;
-         var loc2:Material = param1; //TODO
-         (this._object as Mesh).setMaterialToAllFaces(loc2);
+         var mesh:Mesh = _object as Mesh;
+         if (mesh.faceList != null && mesh.faceList.material == material)
+            return;
+         mesh.setMaterialToAllFaces(material);
+      }
+
+      public function overrideMaterial(material:Material) : void
+      {
+         this.setMaterial(material);
+         this._materialIsOverriden = true;
+      }
+      public function resetMaterial() : void
+      {
+         this.updateMaterialState();
+         this._materialIsOverriden = false;
+      }
+      public function hasOverridenMaterial() : Boolean
+      {
+         return this._materialIsOverriden;
+      }
+      public function getMaterial() : Material
+      {
+         var mesh:Mesh = _object as Mesh;
+         if (mesh == null)
+            return null;
+         if (mesh.faceList == null)
+            return null;
+         return mesh.faceList.material;
       }
       
       public function hide() : void
       {
-         this.setMaterial(null);
-         this._hidden = true;
+         this.visible = false;
       }
       
       public function show() : void
       {
-         this.setMaterial(this._material);
-         this._hidden = false;
-      }
-      
-      public function get hidden() : Boolean
-      {
-         return this._hidden;
+         if (this.visible)
+            return;
+         this.visible = true;
+         this.updateMaterialState();
       }
       
       public function get multi() : Boolean
@@ -390,16 +419,6 @@ package alternativa.editor.prop
       public function get groupName() : String
       {
          return this._groupName;
-      }
-      
-      public function get vertices() : Vector.<Vertex>
-      {
-         return (this._object as Mesh).vertices;
-      }
-      
-      public function get material() : Material
-      {
-         return this._material;
       }
       
       public function rotateCounterClockwise() : void
@@ -458,6 +477,7 @@ package alternativa.editor.prop
          }
       }
       
+      // FIXME: never called (overriden in multiple classes)
       public function onAddedToScene() : void
       {
       }

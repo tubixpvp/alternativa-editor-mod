@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" xmlns:local="*"
     xmlns:local1="alternativa.editor.*" applicationComplete="onApplicationComplete()"
-    backgroundAlpha="0" frameRate="60" backgroundFrameRate="40">
+    backgroundAlpha="0" frameRate="45" backgroundFrameRate="30">
 
     <mx:Script>
         <![CDATA[
@@ -254,7 +254,7 @@
             {
                 preview.showProp(param1.selectedItem);
                 this.workspace.setFocus();
-                this.cursorScene.object = param1.selectedItem.clone();
+                this.cursorScene.object = param1.selectedItem;//.clone();
             }
             
             private function onPropListClick(param1:MouseEvent):void
@@ -283,7 +283,7 @@
                         {
                             if (this.cursorScene.visible)
                             {
-                                loc2 = this.cursorScene.object;
+                                loc2 = this.cursorScene.prefab;
                                 if (loc2)
                                 {
                                     this.sceneContainer.addProp(loc2);

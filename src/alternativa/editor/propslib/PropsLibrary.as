@@ -16,6 +16,7 @@ package alternativa.editor.propslib
    import flash.system.LoaderContext;
    import flash.utils.Dictionary;
    import flash.net.URLLoaderDataFormat;
+   import mod.textures.TextureDiffuseMapsRegistry;
    
    public class PropsLibrary extends EventDispatcher
    {

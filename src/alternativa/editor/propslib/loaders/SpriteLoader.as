@@ -7,7 +7,7 @@ package alternativa.editor.propslib.loaders
    import flash.system.LoaderContext;
    import alternativa.engine3d.materials.TextureMaterial;
    import flash.display.BitmapData;
-   import alternativa.editor.propslib.TextureDiffuseMapsRegistry;
+   import mod.textures.TextureDiffuseMapsRegistry;
    
    public class SpriteLoader extends ObjectLoader
    {

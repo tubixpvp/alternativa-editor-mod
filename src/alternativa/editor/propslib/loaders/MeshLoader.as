@@ -18,11 +18,11 @@ package alternativa.editor.propslib.loaders
    import mx.controls.Alert;
    import flash.display.BitmapData;
    import alternativa.engine3d.materials.FillMaterial;
-   import alternativa.editor.propslib.TextureDiffuseMapsRegistry;
    import flash.utils.Dictionary;
    import alternativa.editor.propslib.ImageData;
    import mod.locale.Locale;
    import mod.locale.TextId;
+   import mod.textures.TextureDiffuseMapsRegistry;
    
    public class MeshLoader extends ObjectLoader
    {
