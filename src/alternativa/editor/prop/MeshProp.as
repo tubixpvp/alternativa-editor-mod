@@ -152,7 +152,7 @@ package alternativa.editor.prop
       {
          _textureName = textureName;
 
-         var bitmap:BitmapData;
+         var bitmap:BitmapData = null;
          if(_textureName == InvisibleTexture.TEXTURE_NAME)
          {
             bitmap = InvisibleTexture.invisibleTexture.bitmapData;
@@ -259,21 +259,21 @@ package alternativa.editor.prop
       
       protected override function getCurrentMaterial():Material
       {
-         if (!_collisionEnabled && _textureName != InvisibleTexture.TEXTURE_NAME)
+         if (_selected || _textureName == InvisibleTexture.TEXTURE_NAME || _collisionEnabled)
          {
-            var noCollisionTexture:BitmapData = ConvertedBitmapsRegistry.getNoCollisionBitmap(this.bitmapData);
-            if (_noCollisionMaterial != null && _noCollisionMaterial.texture != noCollisionTexture)
-            {
-               MaterialsRegistry.releaseTextureMaterial(_noCollisionMaterial);
-               _noCollisionMaterial = null;
-            }
-            if (_noCollisionMaterial == null)
-            {
-               _noCollisionMaterial = MaterialsRegistry.getTextureMaterial(noCollisionTexture);
-            }
-            return _noCollisionMaterial;
+            return super.getCurrentMaterial();
          }
-         return super.getCurrentMaterial();
+         var noCollisionTexture:BitmapData = ConvertedBitmapsRegistry.getNoCollisionBitmap(this.bitmapData);
+         if (_noCollisionMaterial != null && _noCollisionMaterial.texture != noCollisionTexture)
+         {
+            MaterialsRegistry.releaseTextureMaterial(_noCollisionMaterial);
+            _noCollisionMaterial = null;
+         }
+         if (_noCollisionMaterial == null)
+         {
+            _noCollisionMaterial = MaterialsRegistry.getTextureMaterial(noCollisionTexture);
+         }
+         return _noCollisionMaterial;
       }
       
    }

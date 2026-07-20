@@ -21,6 +21,7 @@ package alternativa.editor.scene
    import alternativa.engine3d.materials.Material;
    import mod.textures.MaterialsRegistry;
    import alternativa.engine3d.materials.TextureMaterial;
+   import alternativa.editor.SceneContainer;
    
    public class CursorScene
    {
@@ -62,11 +63,11 @@ package alternativa.editor.scene
 
       private var mainScene:MainScene;
       
-      public function CursorScene(param1:DisplayObject, container:Sprite, mainScene:MainScene)
+      public function CursorScene(param1:DisplayObject, container:SceneContainer)
       {
          super();
          this.eventSourceObject = param1;
-         this.mainScene = mainScene;
+         this.mainScene = container.mainScene;
          this.initControllers();
          container.addChild(this.axisIndicatorOverlay = new Shape());
 
@@ -203,10 +204,14 @@ package alternativa.editor.scene
             return;
          _selectedPropPrefab = null;
          this.mainScene.root.removeChild(_selectedProp);
-         if (_selectedProp.hasOverridenMaterial())
+         
+         var material:Material = _selectedProp.getOverridenMaterial();
+         var textureMaterial:TextureMaterial = material as TextureMaterial;
+         if(textureMaterial != null)
          {
-            MaterialsRegistry.releaseTextureMaterial(_selectedProp.getMaterial() as TextureMaterial);
+            MaterialsRegistry.releaseTextureMaterial(textureMaterial);
          }
+         
          _selectedProp.dispose();
          _selectedProp = null;
       }

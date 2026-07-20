@@ -206,8 +206,8 @@ package alternativa.editor
       {
          removeEventListener(Event.ADDED_TO_STAGE,this.onAddedToStage);
          this.keyMapper.startListening(stage);
-         this.mainScene = new MainScene();
-         this.cursorScene = new CursorScene(stage,this,this.mainScene);
+         this.mainScene = new MainScene(this);
+         this.cursorScene = new CursorScene(stage,this);
          //this.cursorScene.occupyMap = this.mainScene.occupyMap;
          addChild(this.mainScene.view);
          //addChild(this.cursorScene.view);
@@ -335,10 +335,10 @@ package alternativa.editor
                   }
                }
             }
-            this.mainScene.showPropertyPanelIsNeccessary();
          }
          this.mouseDown = false;
          this.selectionRectOverlay.graphics.clear();
+         this.mainScene.showPropertyPanelIsNeccessary();
       }
       
       private function alertConflict(param1:CloseEvent) : void
@@ -745,11 +745,14 @@ package alternativa.editor
                   break;
                }
                loc2 = this.mainScene.selectedProp;
-               loc4 = new Point3D().copyFromObject3D(loc2);
-               this.mainScene.moveByArrows(param1.keyCode);
-               loc3 = new Point3D().copyFromObject3D(loc2);
-               loc3.difference(loc3,loc4);
-               this.eventJournal.addEvent(EventJournal.MOVE,this.mainScene.selectedProps,loc3);
+               if(loc2)
+               {
+                  loc4 = new Point3D().copyFromObject3D(loc2);
+                  this.mainScene.moveByArrows(param1.keyCode);
+                  loc3 = new Point3D().copyFromObject3D(loc2);
+                  loc3.difference(loc3,loc4);
+                  this.eventJournal.addEvent(EventJournal.MOVE,this.mainScene.selectedProps,loc3);
+               }
                break;
             case KeyboardUtils.V:
                this.verticalMoving = true;
@@ -889,12 +892,6 @@ package alternativa.editor
          }
       }
       
-      public function clear() : void
-      {
-         this.mainScene.clear();
-         this.cursorScene.clear();
-      }
-      
       public function set snapMode(param1:Boolean) : void
       {
          this._snapMode = param1;
@@ -951,6 +948,11 @@ package alternativa.editor
                this.cursorScene.checkForConflicts();
             }
          }
+      }
+
+      public function clearEventJournal() : void
+      {
+         this.eventJournal.clear();
       }
    }
 }

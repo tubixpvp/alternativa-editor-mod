@@ -32,6 +32,12 @@ package alternativa.editor.eventjournal
          this.events.push(new EventJournalItem(param1,param2,param3));
          this.cancelEvents.length = 0;
       }
+
+      public function clear() : void
+      {
+         this.events.length = 0;
+         this.cancelEvents.length = 0;
+      }
       
       public function undo(param1:Boolean = false) : EventJournalItem
       {

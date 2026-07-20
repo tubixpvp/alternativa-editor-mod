@@ -65,7 +65,7 @@ package alternativa.editor.prop
       private var _defaultMaterial:TextureMaterial = null;
       private var _selectMaterial:TextureMaterial = null;
 
-      private var _materialIsOverriden:Boolean = false;
+      private var _overridenMaterial:Material = null;
       
       
       public function Prop(param1:Object3D, name:String, libraryName:String, groupName:String, param5:Boolean = true)
@@ -175,7 +175,7 @@ package alternativa.editor.prop
          var textureMaterial:TextureMaterial = mesh.faceList.material as TextureMaterial;
          if (textureMaterial == null || textureMaterial.texture == null)
             return;
-         this.changeTexture(textureMaterial.texture);
+         this.changeTexture(ConvertedBitmapsRegistry.getDefaultTextureFromModified(textureMaterial.texture));
       }
 
       protected function changeTexture(bitmap:BitmapData) : void
@@ -358,6 +358,8 @@ package alternativa.editor.prop
       
       protected function setMaterial(material:Material) : void
       {
+         if (this._overridenMaterial != null)
+            material = this._overridenMaterial;
          var mesh:Mesh = _object as Mesh;
          if (mesh.faceList != null && mesh.faceList.material == material)
             return;
@@ -366,17 +368,17 @@ package alternativa.editor.prop
 
       public function overrideMaterial(material:Material) : void
       {
+         this._overridenMaterial = material;
          this.setMaterial(material);
-         this._materialIsOverriden = true;
       }
       public function resetMaterial() : void
       {
+         this._overridenMaterial = null;
          this.updateMaterialState();
-         this._materialIsOverriden = false;
       }
-      public function hasOverridenMaterial() : Boolean
+      public function getOverridenMaterial() : Material
       {
-         return this._materialIsOverriden;
+         return this._overridenMaterial;
       }
       public function getMaterial() : Material
       {
@@ -477,7 +479,6 @@ package alternativa.editor.prop
          }
       }
       
-      // FIXME: never called (overriden in multiple classes)
       public function onAddedToScene() : void
       {
       }

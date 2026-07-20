@@ -31,6 +31,8 @@ package mod.textures
 
         private static const _cursorAcceptedBitmaps:Dictionary = new Dictionary();
         private static const _cursorConflictBitmaps:Dictionary = new Dictionary();
+        
+        private static const _modifiedTextureToNormal:Dictionary = new Dictionary();
 
         //private static const _normalBitmapsToMirrored:Dictionary = new Dictionary();
         //private static const _mirroredBitmapsToNormal:Dictionary = new Dictionary();
@@ -44,6 +46,8 @@ package mod.textures
                 selectedBitmap = _selectedBitmaps[bitmap] = bitmap.clone();
                 _matrix.a = _matrix.d = (bitmap.width / selectionMask.width);
                 selectedBitmap.draw(selectionMask, _matrix, null, BlendMode.MULTIPLY);
+
+                _modifiedTextureToNormal[selectedBitmap] = bitmap;
             }
             return selectedBitmap;
         }
@@ -57,6 +61,8 @@ package mod.textures
                 _matrix.a = bitmap.width / NO_COLLISION_TEXTURE_Bitmap.width;
                 _matrix.d = bitmap.height / NO_COLLISION_TEXTURE_Bitmap.height;
                 noCollisionBitmap.draw(NO_COLLISION_TEXTURE_Bitmap, _matrix);
+
+                _modifiedTextureToNormal[noCollisionBitmap] = bitmap;
             }
             return noCollisionBitmap;
         }
@@ -71,8 +77,18 @@ package mod.textures
                 var mask:BitmapData = (accepted ? cursorAcceptMask : cursorConflictMask);
                 _matrix.a = _matrix.d = (bitmap.width / mask.width);
                 conflictBitmap.draw(mask, _matrix, null, BlendMode.HARDLIGHT);
+
+                _modifiedTextureToNormal[conflictBitmap] = bitmap;
             }
             return conflictBitmap;
+        }
+
+        public static function getDefaultTextureFromModified(modBitmap:BitmapData) : BitmapData
+        {
+            var origBitmap:BitmapData = _modifiedTextureToNormal[modBitmap];
+            if (origBitmap == null)
+                return modBitmap;
+            return origBitmap;
         }
 
         /*public static function getMirroredBitmap(bitmap:BitmapData) : BitmapData
@@ -101,6 +117,10 @@ package mod.textures
             disposeRegistry(_noCollisionBitmaps);
             disposeRegistry(_cursorAcceptedBitmaps);
             disposeRegistry(_cursorConflictBitmaps);
+            for(var key:* in _modifiedTextureToNormal)
+            {
+                delete _modifiedTextureToNormal[key];
+            }
             /*for (key in _normalBitmapsToMirrored)
             {
                 value = _normalBitmapsToMirrored[key];

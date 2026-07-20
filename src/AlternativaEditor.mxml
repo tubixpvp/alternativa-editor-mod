@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" xmlns:local="*"
     xmlns:local1="alternativa.editor.*" applicationComplete="onApplicationComplete()"
-    backgroundAlpha="0" frameRate="45" backgroundFrameRate="30">
+    backgroundAlpha="0" frameRate="60" backgroundFrameRate="30">
 
     <mx:Script>
         <![CDATA[
@@ -463,7 +463,7 @@
                         this.mainScene.selectablePropTypes = [Sprite3DProp];
                         break;
                     case 3:
-                        this.mainScene.selectablePropTypes = [SpawnPoint, BonusRegion, CTFFlagBase, ControlPoint, FreeBonusRegion];
+                        this.mainScene.selectablePropTypes = [SpawnPoint, BonusRegion, CTFFlagBase, ControlPoint, FreeBonusRegion, KillBox];
                 }
                 this.workspace.setFocus();
             }
@@ -618,13 +618,13 @@
             private function onClearLevelClick(param1:NativeMenuItem):void
             {
                 this.mainScene.clear();
-                this.mainScene.changed = true;
-                //this.cursorScene.updateMaterial();
                 this.cursorScene.clear();
+                this.mainScene.changed = true;
             }
             
             private function onSelectAll(param1:NativeMenuItem):void
             {
+                this.cursorScene.visible = false;
                 this.mainScene.selectAll();
             }
             
@@ -857,7 +857,7 @@
                 <menuitem name="menuitem_edit_undo" keyEquivalent="z" ctrlKey="true" click="onUndoClick"/>
                 <menuitem name="menuitem_edit_redo" keyEquivalent="y" ctrlKey="true" click="onRedoClick"/>
                 <menuitem name="menuitem_edit_clear" keyEquivalent="c" ctrlKey="true" altKey="true" click="onClearLevelClick"/>
-                <menuitem name="menuitem_edit_selectall" keyEquivalent="a" ctrlKey="true" click="onSelectAll"/>
+                <menuitem name="menuitem_edit_selectall" keyEquivalent="a" shiftKey="true" click="onSelectAll"/>
             </menuitem>
             <menuitem name="menuitem_view">
                 <menuitem name="menuitem_view_geometry">
@@ -870,7 +870,7 @@
                 <menuitem name="menuitem_view_showlayers" keyEquivalent="l" click="onShowLayersWindow"/>
             </menuitem>
             <menuitem name="menuitem_library">
-                <menuitem name="menuitem_library_clear" keyEquivalent="l" ctrlKey="true" altKey="true" click="onClearLibClick"/>
+                <menuitem name="menuitem_library_clear" click="onClearLibClick"/>
                 <menuitem name="menuitem_library_clearandload" keyEquivalent="l" ctrlKey="true" altKey="true" click="onClearAndLoadLibClick"/>
                 <menuitem name="menuitem_library_load">
                     <menuitem name="menuitem_library_loadfromdir" keyEquivalent="l" ctrlKey="true" click="onLoadLibClick"/>

@@ -53,12 +53,17 @@ package alternativa.editor.scene
    import alternativa.editor.mapexport.xml.TanksXmlExporterV3;
    import alternativa.editor.mapexport.binary.MapBinaryExporter;
    import mod.ControlPointPropertiesPanel;
+   import alternativa.engine3d.alternativa3d;
+
+   use namespace alternativa3d;
    
    public class MainScene extends EditorScene
    {
 
       private static const _projectIn:Vector3D = new Vector3D();
       private static const _projectOut:Vector3D = new Vector3D();
+
+      private static const _tmpSelectionSet:Set = new Set();
 
 
       public static var collider:EllipsoidCollider;
@@ -101,9 +106,12 @@ package alternativa.editor.scene
       private var controlPointProperties:ControlPointPropertiesPanel;
 
       private var propGeneralProperties:PropGeneralPropertiesPanel;
+
+      private var sceneContainer:SceneContainer;
       
-      public function MainScene()
+      public function MainScene(scene:SceneContainer)
       {
+         this.sceneContainer = scene;
          this.hiddenProps = [];
          this.bonusTypesPanel = new BonusRegionPropertiesPanel();
          this.killZonePanel = new KillZonePropertiesPanel();
@@ -389,18 +397,23 @@ package alternativa.editor.scene
             this._selectablePropTypes.add(getQualifiedClassName(param1[loc3]));
             loc3++;
          }
-         for each(loc4 in root.children)
+         var child:Object3D = root.childrenList;
+         while (child != null)
          {
-            loc5 = loc4 as Prop;
-            if(loc5)
+            var prop:Prop = child as Prop;
+            if (prop != null)
             {
-               loc5.mouseEnabled = this.isSelectableProp(loc5);
-               for each(loc6 in loc5.children)
+               prop.mouseEnabled = this.isSelectableProp(prop);
+
+               var child2:Object3D = prop.childrenList;
+               while (child2 != null)
                {
-                  loc7 = loc6 as Object3D;
-                  loc7.mouseEnabled = loc5.mouseEnabled;
+                  child2.mouseEnabled = prop.mouseEnabled;
+                  child2 = child2.next;
                }
             }
+            
+            child = child.next;
          }
       }
       
@@ -608,9 +621,10 @@ package alternativa.editor.scene
          {
             if (!newSelection.has(propObj))
             {
+               prop = propObj;
+
                this.selectedProps.remove(prop);
 
-               prop = propObj;
                prop.deselect();
                if (prop == this._selectedProp)
                   this._selectedProp = null;
@@ -879,23 +893,30 @@ package alternativa.editor.scene
       
       public function clear() : void
       {
-         var loc1:Object3D;
-         var loc2:Prop = null;
-         for each(loc1 in root.children)
+         var cursorProp:Prop = sceneContainer.cursorScene.object;
+
+         sceneContainer.clearEventJournal();
+
+         // get a Vector<>, because we're going to modify the actual list
+         var children:Vector.<Object3D> = root.children;
+
+         _selectedProp = null;
+         selectedProps.clear();
+         occupyMap.clear();
+         layers.clear();
+         dominationPoints = new Dictionary();
+
+         for each(var child:Object3D in children)
          {
-            loc2 = loc1 as Prop;
-            if(loc2)
+            var prop:Prop = child as Prop;
+            if (prop != null && prop != cursorProp)
             {
-               root.removeChild(loc2);
-               loc2.dispose();
+               root.removeChild(prop);
+               prop.dispose();
             }
          }
-         this._selectedProp = null;
-         this.selectedProps.clear();
-         occupyMap.clear();
-         this.layers.clear();
+
          view.interactive = true;
-         this.dominationPoints = new Dictionary();
       }
       
       public function onTexturePanelSelect(param1:PropListEvent = null) : void
@@ -1209,7 +1230,26 @@ package alternativa.editor.scene
       
       public function selectAll() : void
       {
-         //TODO
+         _tmpSelectionSet.clear();
+         getAllSelectableProps(_tmpSelectionSet);
+         selectProps(_tmpSelectionSet, true);
+      }
+
+      private function getAllSelectableProps(output:Set) : void
+      {
+         var cursorProp:Prop = sceneContainer.cursorScene.object;
+
+         var child:Object3D = root.childrenList;
+         while (child != null)
+         {
+            var prop:Prop = child as Prop;
+            if (prop != null && prop != cursorProp && isSelectableProp(prop))
+            {
+               output.add(prop);
+            }
+
+            child = child.next;
+         }
       }
       
       private function onLayerContentChange(param1:LayerContentChangeEvent) : void
