@@ -9,7 +9,7 @@ This is modded version of AlternativaEditor (Tanks map editor)
 - **Other quality-of-life features** - editor has many little but significant features. For example: saves recent libraries paths; shows information about selected prop.
 
 ## Notice
-This editor still doesn't support all features that were in the original Editor, and may have some bugs. It mainly caused by 3D engine upgrade.
+This editor still doesn't support all features that were in the original Editor, and may have some bugs. It is mainly caused by 3D engine upgrade.
 
 The editor itself was originally created by [AlternativaGames](https://github.com/AlternativaPlatform) and the sources are not officialy public, so use the code only in educational purposes; commercial use is not recommended.
 
