@@ -981,7 +981,7 @@ package alternativa.engine3d.objects
                 _local_25 = (((_local_22 * _local_22) + (_local_23 * _local_23)) + (_local_24 * _local_24));
                 if (_local_25 > 0)
                 {
-                    _local_25 = (1 / Math.sqrt(length));
+                    _local_25 = (1 / Math.sqrt(_local_25));
                     _local_22 = (_local_22 * _local_25);
                     _local_23 = (_local_23 * _local_25);
                     _local_24 = (_local_24 * _local_25);

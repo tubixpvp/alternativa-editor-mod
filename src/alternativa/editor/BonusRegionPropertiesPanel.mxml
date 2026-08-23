@@ -17,6 +17,7 @@
             import mod.locale.TextId;
             import mx.controls.CheckBox;
             import alternativa.editor.events.LayerContentChangeEvent;
+            import mod.KeyboardUtil;
 
             private var inited:Boolean = false;
             
@@ -53,20 +54,6 @@
                 for (id in gameModeCheckBoxes)
                 {
                     (gameModeCheckBoxes[id] as CheckBox).label = Locale.getText("BONUSREGIONS_GAMEMODE_" + id.toUpperCase());
-                }
-            }
-
-            private static function action_keyDownHandler(event:KeyboardEvent):void
-            {
-                switch (event.keyCode)
-                {
-                    case Keyboard.ENTER:
-                    case Keyboard.ESCAPE:
-                    case Keyboard.TAB:
-                        return;
-                    default:
-                        event.stopPropagation();
-                        return;
                 }
             }
             
@@ -231,9 +218,9 @@
     <mx:VBox width="180" percentHeight="100" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
         <mx:VBox id="scalePanel">
             <mx:Label id="sizeLabel"/>
-            <mx:NumericStepper id="kbscaleX" stepSize="0.1" minimum="0.1" maximum="50" change="scaleChanged(event)" keyDown="action_keyDownHandler(event)"/>
-            <mx:NumericStepper id="kbscaleY" stepSize="0.1" minimum="0.1" maximum="50" change="scaleChanged(event)" keyDown="action_keyDownHandler(event)"/>
-            <mx:NumericStepper id="kbscaleZ" stepSize="0.1" minimum="0.1" maximum="50" change="scaleChanged(event)" keyDown="action_keyDownHandler(event)"/>
+            <mx:NumericStepper id="kbscaleX" stepSize="0.1" minimum="0.1" maximum="50" change="scaleChanged(event)" keyDown="KeyboardUtil.stopEventPropagation(event)"/>
+            <mx:NumericStepper id="kbscaleY" stepSize="0.1" minimum="0.1" maximum="50" change="scaleChanged(event)" keyDown="KeyboardUtil.stopEventPropagation(event)"/>
+            <mx:NumericStepper id="kbscaleZ" stepSize="0.1" minimum="0.1" maximum="50" change="scaleChanged(event)" keyDown="KeyboardUtil.stopEventPropagation(event)"/>
         </mx:VBox>
 
         <mx:HBox>

@@ -15,6 +15,7 @@ package alternativa.editor.prop
    import flash.geom.Vector3D;
    import mod.textures.ConvertedBitmapsRegistry;
    import mod.textures.MaterialsRegistry;
+   import mod.SceneEvents;
    
    public class Prop extends Object3DContainer
    {
@@ -482,6 +483,28 @@ package alternativa.editor.prop
       public function onAddedToScene() : void
       {
       }
+
+      public override function set x(val:Number):void
+      {
+         super.x = val;
+         SceneEvents.invoke(SceneEvents.PROP_POSITION_CHANGED, this);
+      }
+      public override function set y(val:Number):void
+      {
+         super.y = val;
+         SceneEvents.invoke(SceneEvents.PROP_POSITION_CHANGED, this);
+      }
+      public override function set z(val:Number):void
+      {
+         super.z = val;
+         SceneEvents.invoke(SceneEvents.PROP_POSITION_CHANGED, this);
+      }
+      public override function set rotationZ(val:Number):void
+      {
+         super.rotationZ = val;
+         SceneEvents.invoke(SceneEvents.PROP_POSITION_CHANGED, this);
+      }
+
    }
 }
 

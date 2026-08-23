@@ -2,7 +2,7 @@
 <mx:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
     xmlns:s="library://ns.adobe.com/flex/spark"
     xmlns:mx="library://ns.adobe.com/flex/mx"
-    percentWidth="15" percentHeight="100">
+    width="200" percentHeight="100">
 
     <fx:Script>
         <![CDATA[
@@ -12,20 +12,37 @@
             import alternativa.editor.prop.Prop;
             import mod.locale.Locale;
             import mod.locale.TextId;
-
-            private var _inited:Boolean = false;
+            import mx.controls.NumericStepper;
+            import alternativa.utils.MathUtils;
+            import mod.SceneEvents;
 
             private const _selectedPropsWithCollisionParam:Vector.<MeshProp> = new Vector.<MeshProp>();
 
             private var _mainSelectedProp:Prop = null;
 
-            private function init():void
+            private var _listenerEnabled:Boolean = true;
+
+            public function init():void
             {
-                if (_inited)
-                    return;
-                _inited = true;
-                
                 Locale.addListener(applyLocalization);
+
+                setupStepperLimits();
+
+                SceneEvents.addListener(SceneEvents.PROP_POSITION_CHANGED, updateTransformInputs);
+
+                unselect();
+            }
+
+            private function setupStepperLimits() : void
+            {
+                var pos:Array = [posX,posY,posZ];
+                for each(var stepper:NumericStepper in pos)
+                {
+                    stepper.minimum = int.MIN_VALUE;
+                    stepper.maximum = int.MAX_VALUE;
+                }
+                rotZ.minimum = 0;
+                rotZ.maximum = 360;
             }
 
             private function applyLocalization() : void
@@ -50,29 +67,32 @@
 
             public function setSelection(mainSelectedProp:Prop, selectedProps:Set) : void
             {
-                init();
-                
+                unselect();
+
                 initCollisionParameter(mainSelectedProp, selectedProps);
 
-                if(selectedProps.length == 1)
-                {
-                    _mainSelectedProp = mainSelectedProp;
+                if(selectedProps.length != 1)
+                    return;
 
-                    propName.visible = true;
-                    groupName.visible = true;
-                    libName.visible = true;
+                _mainSelectedProp = mainSelectedProp;
 
-                    updateLabelsForSelection();
-                }
-                else
-                {
-                    _mainSelectedProp = null;
+                libView.visible = true;
+                updateLabelsForSelection();
 
-                    propName.visible = false;
-                    groupName.visible = false;
-                    libName.visible = false;
-                }
+                transformView.visible = true;
+                updateTransformInputs(mainSelectedProp);
+
+                SceneEvents.listeningProp = mainSelectedProp;
             }
+            public function unselect() : void
+            {
+                libView.visible = false;
+                transformView.visible = false;
+                collision.visible = false;
+                _mainSelectedProp = null;
+                SceneEvents.listeningProp = null;
+            }
+
             private function updateLabelsForSelection() : void
             {
                 propName.text = Locale.getText(TextId.PROPPARAMS_LABEL_NAME) + " " + _mainSelectedProp.name;
@@ -80,48 +100,104 @@
                 libName.text = Locale.getText(TextId.PROPPARAMS_LABEL_LIBRARY) + " " + _mainSelectedProp.libraryName;
             }
 
+            public function updateTransformInputs(prop:Prop) : void
+            {
+                if (!_listenerEnabled)
+                    return;
+                if (_mainSelectedProp != prop)
+                    return;
+                posX.value = prop.x;
+                posY.value = prop.y;
+                posZ.value = prop.z;
+                rotZ.value = MathUtils.toDegree(prop.rotationZ) % 360;
+            }
+
+            private function onPositionChanged() : void
+            {
+                if (_mainSelectedProp == null)
+                    return;
+                _listenerEnabled = false;
+                try
+                {
+                    _mainSelectedProp.x = posX.value;
+                    _mainSelectedProp.y = posY.value;
+                    _mainSelectedProp.z = posZ.value;
+                }
+                finally
+                {
+                    _listenerEnabled = true;
+                }
+            }
+            private function onRotationChanged() : void
+            {
+                if (_mainSelectedProp == null)
+                    return;
+                _listenerEnabled = false;
+                try
+                {
+                    _mainSelectedProp.rotationZ = MathUtils.toRadian(rotZ.value);
+                }
+                finally
+                {
+                    _listenerEnabled = true;
+                }
+            }
+
             private function initCollisionParameter(selectedProp:Prop, selectedProps:Set) : void
             {
                 collision.visible = false;
 
-                if(selectedProp is Sprite3DProp)
+                if(!hasCollisionParam(selectedProp))
                     return;
 
                 var collisionEnabled:Boolean = (selectedProp as MeshProp).collisionEnabled;
 
+                _selectedPropsWithCollisionParam.length = 0;
+
                 for(var item:* in selectedProps)
                 {
-                    if(item is Sprite3DProp)
+                    var prop:Prop = item;
+                    if(!hasCollisionParam(prop))
                         continue;
-                    if(collisionEnabled != (item as MeshProp).collisionEnabled)
+                    if(collisionEnabled != (prop as MeshProp).collisionEnabled)
                     {
                         return;
                     }
-                }
-
-                _selectedPropsWithCollisionParam.length = 0;
-                for(var prop:* in selectedProps)
-                {
-                    if(!(prop is Sprite3DProp))
-                    {
-                        _selectedPropsWithCollisionParam.push(prop);
-                    }
+                    _selectedPropsWithCollisionParam.push(prop);
                 }
 
                 collision.selected = collisionEnabled;
                 collision.visible = true;
             }
 
+            private function hasCollisionParam(prop:Prop) : Boolean
+            {
+                return (prop is MeshProp) && !(prop is Sprite3DProp);
+            }
+
         ]]>
     </fx:Script>
 
-    <mx:VBox paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+    <mx:VBox id="infoPanel" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
 
-        <mx:Label id="propName" text=""/>
-        <mx:Label id="groupName" text=""/>
-        <mx:Label id="libName" text=""/>
+        <mx:VBox id="libView" paddingTop="5">
+            <mx:Label id="propName" text=""/>
+            <mx:Label id="groupName" text=""/>
+            <mx:Label id="libName" text=""/>
+        </mx:VBox>
 
         <mx:CheckBox id="collision" change="onCollisionChanged(event)"/>
+
+        <mx:VBox id="transformView">
+            <mx:Label text="Position:" id="positionLabel"/>
+            <mx:NumericStepper id="posX" stepSize="1" change="onPositionChanged()" keyDown="KeyboardUtil.stopEventPropagation(event)"/>
+            <mx:NumericStepper id="posY" stepSize="1" change="onPositionChanged()" keyDown="KeyboardUtil.stopEventPropagation(event)"/>
+            <mx:NumericStepper id="posZ" stepSize="1" change="onPositionChanged()" keyDown="KeyboardUtil.stopEventPropagation(event)"/>
+
+            <mx:Label text="Rotation:" id="rotationLabel"/>
+            <mx:NumericStepper id="rotZ" stepSize="0.1" change="onRotationChanged()" keyDown="KeyboardUtil.stopEventPropagation(event)"/>
+        </mx:VBox>
+
     </mx:VBox>
 
 </mx:Panel>

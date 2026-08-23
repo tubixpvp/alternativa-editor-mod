@@ -54,6 +54,7 @@ package alternativa.editor.scene
    import alternativa.editor.mapexport.binary.MapBinaryExporter;
    import mod.ControlPointPropertiesPanel;
    import alternativa.engine3d.alternativa3d;
+   import mx.core.Container;
 
    use namespace alternativa3d;
    
@@ -422,9 +423,11 @@ package alternativa.editor.scene
          return this.propertyPanel.contains(this.texturePanel) && this.texturePanel.selectedItem;
       }
       
-      public function setPropertyPanel(param1:Panel) : void
+      public function initGui(propertiesContainer:Panel, propParamsContainer:Container) : void
       {
-         param1.addChild(this.propertyPanel);
+         propertiesContainer.addChild(this.propertyPanel);
+         propParamsContainer.addChildAt(this.propGeneralProperties, 0);
+         this.propGeneralProperties.init();
          this.texturePanel = new TexturePanel();
          this.texturePanel.addEventListener(PropListEvent.SELECT,this.onTexturePanelSelect);
       }
@@ -946,6 +949,8 @@ package alternativa.editor.scene
          var loc1:Map = null;
          this.hideAllPropertyPanelItems();
 
+         this.propGeneralProperties.setSelection(this._selectedProp,this.selectedProps);
+
          if(this.selectedProps.length == 1 && this._selectedProp is ControlPoint)
          {
             this.showPropertyPanelItem(this.controlPointProperties);
@@ -1004,8 +1009,8 @@ package alternativa.editor.scene
 
          this.showTexturePanel();
             
-         this.showPropertyPanelItem(this.propGeneralProperties);
-         this.propGeneralProperties.setSelection(this._selectedProp,this.selectedProps);
+         //this.showPropertyPanelItem(this.propGeneralProperties);
+         //this.propGeneralProperties.setSelection(this._selectedProp,this.selectedProps);
          
          return true;
       }
@@ -1016,8 +1021,8 @@ package alternativa.editor.scene
          if(!loc1)
             return;
 
-         //this.texturePanel.percentWidth = 100;
-         this.texturePanel.percentWidth = 100 - this.propGeneralProperties.percentWidth;
+         this.texturePanel.percentWidth = 100;
+         //this.texturePanel.percentWidth = 100 - this.propGeneralProperties.percentWidth;
 
          if(loc1 != this.currentBitmaps)
          {
@@ -1167,6 +1172,7 @@ package alternativa.editor.scene
       private function hideAllPropertyPanelItems() : void
       {
          this.propertyPanel.removeAllChildren();
+         this.propGeneralProperties.unselect();
       }
       
       private function onPropMouseOut(param1:MouseEvent3D) : void

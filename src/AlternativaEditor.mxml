@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" xmlns:local="*"
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:mod="mod.*" layout="absolute" xmlns:local="*"
     xmlns:local1="alternativa.editor.*" applicationComplete="onApplicationComplete()"
     backgroundAlpha="0" frameRate="60" backgroundFrameRate="30">
 
@@ -127,6 +127,7 @@
                 this.initPropList();
                 this.mainScene = this.sceneContainer.mainScene;
                 this.createPropertyPanel();
+                this.mainScene.initGui(this.propertyPanel, this.centerHDBox);
                 this.cursorScene = this.sceneContainer.cursorScene;
                 stage.addEventListener(KeyboardEvent.KEY_DOWN, this.onKeyDown);
                 this.createLibraryManager();
@@ -702,7 +703,6 @@
                 //this.propertyPanel.title = "Properties";
                 this.propertyPanel.percentWidth = 100;
                 this.propertyPanel.height = 200;
-                this.mainScene.setPropertyPanel(this.propertyPanel);
             }
             
             private function createLibraryManager():void
@@ -947,7 +947,7 @@
     <mx:HDividedBox percentWidth="100" percentHeight="100" y="26" backgroundAlpha="0">
         <!-- Left Section -->
         <mx:VBox id="vbox" percentWidth="100" percentHeight="100" backgroundAlpha="0">
-            <mx:HDividedBox percentWidth="100" percentHeight="100" backgroundAlpha="0">
+            <mx:HDividedBox id="centerHDBox" percentWidth="100" percentHeight="100" backgroundAlpha="0">
                 <mx:Panel id="workspace" percentWidth="100" percentHeight="100" layout="absolute" horizontalScrollPolicy="off" backgroundAlpha="0">
                     <local1:SceneContainer id="sceneContainer" percentWidth="100" percentHeight="100"/>
                 </mx:Panel>
