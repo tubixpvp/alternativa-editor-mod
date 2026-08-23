@@ -18,19 +18,34 @@
 
             private const _selectedPropsWithCollisionParam:Vector.<MeshProp> = new Vector.<MeshProp>();
 
+            private var _selectedProps:Set = null;
             private var _mainSelectedProp:Prop = null;
 
-            private var _listenerEnabled:Boolean = true;
+            private var _listenerEnabled:Boolean = false;
+
+            private var _inited:Boolean = false;
 
             public function init():void
             {
+                if (_inited)
+                    return;
+                _inited = true;
+                _listenerEnabled = true;
+                
                 Locale.addListener(applyLocalization);
 
                 setupStepperLimits();
 
                 SceneEvents.addListener(SceneEvents.PROP_POSITION_CHANGED, updateTransformInputs);
 
-                unselect();
+                if (_selectedProps != null)
+                {
+                    setSelection(_mainSelectedProp, _selectedProps);
+                }
+                else
+                {
+                    unselect();
+                }
             }
 
             private function setupStepperLimits() : void
@@ -41,7 +56,7 @@
                     stepper.minimum = int.MIN_VALUE;
                     stepper.maximum = int.MAX_VALUE;
                 }
-                rotZ.minimum = 0;
+                rotZ.minimum = -360;
                 rotZ.maximum = 360;
             }
 
@@ -67,6 +82,13 @@
 
             public function setSelection(mainSelectedProp:Prop, selectedProps:Set) : void
             {
+                if (!_inited)
+                {
+                    _selectedProps = selectedProps;
+                    _mainSelectedProp = mainSelectedProp;
+                    return;
+                }
+
                 unselect();
 
                 initCollisionParameter(mainSelectedProp, selectedProps);
@@ -84,12 +106,16 @@
 
                 SceneEvents.listeningProp = mainSelectedProp;
             }
+
             public function unselect() : void
             {
+                if (!_inited)
+                    return;
                 libView.visible = false;
                 transformView.visible = false;
                 collision.visible = false;
                 _mainSelectedProp = null;
+                _selectedProps = null;
                 SceneEvents.listeningProp = null;
             }
 

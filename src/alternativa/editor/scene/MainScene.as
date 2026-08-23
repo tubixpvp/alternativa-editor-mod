@@ -106,7 +106,7 @@ package alternativa.editor.scene
       
       private var controlPointProperties:ControlPointPropertiesPanel;
 
-      private var propGeneralProperties:PropGeneralPropertiesPanel;
+      public const propGeneralProperties:PropGeneralPropertiesPanel = new PropGeneralPropertiesPanel();
 
       private var sceneContainer:SceneContainer;
       
@@ -116,7 +116,6 @@ package alternativa.editor.scene
          this.hiddenProps = [];
          this.bonusTypesPanel = new BonusRegionPropertiesPanel();
          this.killZonePanel = new KillZonePropertiesPanel();
-         this.propGeneralProperties = new PropGeneralPropertiesPanel();
          this.controlPointProperties = new ControlPointPropertiesPanel();
          this._selectablePropTypes = new Set();
          this.exporters = {};
@@ -423,11 +422,9 @@ package alternativa.editor.scene
          return this.propertyPanel.contains(this.texturePanel) && this.texturePanel.selectedItem;
       }
       
-      public function initGui(propertiesContainer:Panel, propParamsContainer:Container) : void
+      public function initGui(propertiesContainer:Panel) : void
       {
          propertiesContainer.addChild(this.propertyPanel);
-         propParamsContainer.addChildAt(this.propGeneralProperties, 0);
-         this.propGeneralProperties.init();
          this.texturePanel = new TexturePanel();
          this.texturePanel.addEventListener(PropListEvent.SELECT,this.onTexturePanelSelect);
       }

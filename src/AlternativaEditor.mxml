@@ -127,7 +127,7 @@
                 this.initPropList();
                 this.mainScene = this.sceneContainer.mainScene;
                 this.createPropertyPanel();
-                this.mainScene.initGui(this.propertyPanel, this.centerHDBox);
+                this.mainScene.initGui(this.propertyPanel);
                 this.cursorScene = this.sceneContainer.cursorScene;
                 stage.addEventListener(KeyboardEvent.KEY_DOWN, this.onKeyDown);
                 this.createLibraryManager();
@@ -366,10 +366,13 @@
                 if (this.showPropertyButton.down)
                 {
                     this.vbox.addChild(this.propertyPanel);
+                    this.centerHDBox.addChildAt(this.mainScene.propGeneralProperties, 0);
+                    this.mainScene.propGeneralProperties.init();
                 }
                 else
                 {
                     this.vbox.removeChild(this.propertyPanel);
+                    this.centerHDBox.removeChild(this.mainScene.propGeneralProperties);
                 }
             }
 

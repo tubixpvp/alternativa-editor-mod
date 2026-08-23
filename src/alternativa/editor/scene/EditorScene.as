@@ -197,7 +197,8 @@ package alternativa.editor.scene
       
       public function rotatePropsCounterClockwise(param1:Set) : void
       {
-         var loc3:* = undefined;
+         rotateProps(param1, snapByHalf ? Math.PI/4 : Math.PI/2);
+         /*var loc3:* = undefined;
          var loc4:Prop = null;
          var loc5:Number = NaN;
          var loc6:Number = NaN;
@@ -210,12 +211,13 @@ package alternativa.editor.scene
             loc4.x = -loc6 + loc2.x + loc2.y;
             loc4.y = loc5 + loc2.y - loc2.x;
             loc4.rotateCounterClockwise();
-         }
+         }*/
       }
       
       public function rotatePropsClockwise(param1:Set) : void
       {
-         var loc3:* = undefined;
+         rotateProps(param1, snapByHalf ? -Math.PI/4 : -Math.PI/2);
+         /*var loc3:* = undefined;
          var loc4:Prop = null;
          var loc5:Number = NaN;
          var loc6:Number = NaN;
@@ -228,8 +230,39 @@ package alternativa.editor.scene
             loc4.x = loc6 + loc2.x - loc2.y;
             loc4.y = -loc5 + loc2.y + loc2.x;
             loc4.rotateClockwise();
+         }*/
+      }
+
+      private function rotateProps(props:Set, angle:Number) : void
+      {
+         var cosAngle:Number = Math.cos(angle);
+         var sinAngle:Number = Math.sin(angle);
+
+         var origin:Point = getPropsGroupCenter(props);
+
+         for (var obj:* in props)
+         {
+            var prop:Prop = obj;
+
+            var dx:Number = prop.x - origin.x;
+            var dy:Number = prop.y - origin.y;
+
+            prop.x = dx * cosAngle - dy * sinAngle + origin.x;
+            prop.y = dx * sinAngle + dy * cosAngle + origin.y;
+
+            /**point.x = x * cosAngle - y * sinAngle;
+               point.y = x * sinAngle + y * cosAngle; */
+
+            prop.distancesX.x = prop.distancesX.x * cosAngle - prop.distancesX.y * sinAngle;
+            prop.distancesX.y = prop.distancesX.y * sinAngle + prop.distancesX.y * cosAngle;
+
+            prop.distancesY.x = prop.distancesY.x * cosAngle - prop.distancesY.y * sinAngle;
+            prop.distancesY.y = prop.distancesY.y * sinAngle + prop.distancesY.y * cosAngle;
+
+            prop.rotationZ += angle;
          }
       }
+
    }
 }
 
