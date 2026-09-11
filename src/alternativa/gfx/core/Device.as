@@ -32,8 +32,8 @@ package alternativa.gfx.core{
         private var _available:Boolean = true;
         private var _renderState:RenderState = new RenderState();
         private var configured:Boolean = false;
-        private var backBufferWidth:int = -1;
-        private var backBufferHeight:int = -1;
+        public var backBufferWidth:int = -1;
+        public var backBufferHeight:int = -1;
         private var backBufferAntiAlias:int = -1;
         private var backBufferEnableDepthAndStencil:Boolean = false;
         private var resourcesToUpload:Dictionary = new Dictionary();

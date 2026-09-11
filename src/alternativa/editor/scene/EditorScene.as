@@ -58,7 +58,7 @@ package alternativa.editor.scene
       {
          this.view.width = param1;
          this.view.height = param2;
-         calculate();
+         //calculate();
       }
       
       protected function initScene() : void

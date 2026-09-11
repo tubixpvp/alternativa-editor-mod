@@ -54,7 +54,7 @@ package alternativa.engine3d.core{
         private var globalCoords:Point;
         alternativa3d var rect:Rectangle = new Rectangle();
         alternativa3d var correction:Boolean = false;
-        alternativa3d var device:Device;
+        public var device:Device;
         alternativa3d var quality:Boolean;
         alternativa3d var constrained:Boolean;
         alternativa3d var camera:Camera3D;
@@ -407,7 +407,7 @@ package alternativa.engine3d.core{
             };
         }
 
-        alternativa3d function present():void{
+        public function present(force:Boolean = false):void{
             var _local_1:int;
             var _local_2:View;
             this.presented = true;
@@ -420,7 +420,7 @@ package alternativa.engine3d.core{
                 if ((!(_local_2.presented))) break;
                 _local_1++;
             };
-            if (_local_1 == views.length)
+            if (_local_1 == views.length || force)
             {
                 this.device.present();
                 configured = false;

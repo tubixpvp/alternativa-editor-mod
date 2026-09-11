@@ -21,6 +21,7 @@ package alternativa.editor
    import alternativa.engine3d.materials.Material;
    import alternativa.engine3d.materials.TextureMaterial;
    import flash.display.Stage;
+   import alternativa.gfx.core.Device;
    
    public class Preview extends UIComponent
    {
@@ -36,9 +37,9 @@ package alternativa.editor
       
       private var propDistance:Map;
 
-      private var _renderingBlocked:Boolean = false;
-
       private var _stage3dBitmapData:BitmapData = null;
+
+      private var _previewRendered:Boolean = false;
       
       public function Preview()
       {
@@ -75,12 +76,12 @@ package alternativa.editor
       
       private function onEnterFrame(param1:Event) : void
       {
-         if(_renderingBlocked)
-         {
-            return;
-         }
          this.cameraContainer.rotationZ += MathUtils.DEG1;
-         this.scene.calculate();
+         _previewRendered = !_previewRendered;
+         if (_previewRendered) //render every 2 frames
+         {
+            this.scene.calculate();
+         }
       }
       
       private function calculateOptimalCameraPosition(param1:Prop) : void
@@ -170,35 +171,18 @@ package alternativa.editor
       
       public function getPropIcon(param1:Prop) : Bitmap
       {
-         _renderingBlocked = true;
-         
          //setup scene
          this.clearScene();
          this.calculateOptimalCameraPosition(param1);
          this.setCameraCoords(param1);
          this.scene.root.addChild(param1);
 
-         this.cameraContainer.rotationZ = 0; //TODO adjust angle
+         this.cameraContainer.rotationZ = Math.PI/2 + Math.PI/4;
 
-         //draw to bitmap
-         var stage:Stage = this.stage;
-         if(_stage3dBitmapData != null && 
-            (_stage3dBitmapData.width != stage.width || _stage3dBitmapData.height != stage.height))
-         {
-            _stage3dBitmapData.dispose();
-            _stage3dBitmapData = null;
-         }
-         if(_stage3dBitmapData == null)
-         {
-            _stage3dBitmapData = new BitmapData(stage.width, stage.height, true, 0xff000000);
-         }
-
-         View.getStaticDevice().clear(1,1,1); //clear buffers to avoid context3d error
-         
+         //render
+         view.clear();
          this.scene.calculate(false);
 
-         view.getContext3D().drawToBitmapData(_stage3dBitmapData);
-         
          //clean up
          var mesh:Mesh = (param1.object as Mesh);
          if(mesh != null)
@@ -214,12 +198,28 @@ package alternativa.editor
          
          this.scene.root.removeChild(param1);
 
-         _renderingBlocked = false;
+         //draw to bitmap
+         var device:Device = view.device;
+         if(_stage3dBitmapData != null && 
+            (_stage3dBitmapData.width != device.backBufferWidth || _stage3dBitmapData.height != device.backBufferHeight))
+         {
+            _stage3dBitmapData.dispose();
+            _stage3dBitmapData = null;
+         }
+         if(_stage3dBitmapData == null)
+         {
+            _stage3dBitmapData = new BitmapData(device.backBufferWidth, device.backBufferHeight, true, stage.color);
+         }
+
+         view.getContext3D().drawToBitmapData(_stage3dBitmapData);
+         view.present(true);
 
          //draw icon
 			var imagePos:Point = this.view.localToGlobal(new Point(0,0));
+         imagePos.x -= device.x;
+         imagePos.y -= device.y;
 
-			var bitmapData:BitmapData = new BitmapData(ICON_SIZE,ICON_SIZE,false,0x0);
+			var bitmapData:BitmapData = new BitmapData(ICON_SIZE,ICON_SIZE,false,stage.color);
 
 			var scale:Number = ICON_SIZE/this.view.width;
 
@@ -277,11 +277,6 @@ package alternativa.editor
       {
          this.view.width = parent.width;
          this.view.height = parent.height;
-         if(_renderingBlocked)
-         {
-            return;
-         }
-         this.scene.calculate();
       }
    }
 }

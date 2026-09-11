@@ -39,11 +39,11 @@ package alternativa.editor.prop
       {
          this._typeNames = new Set();
          this._gameModes = new Set();
+         for each(var gameMode:String in GameModes.modes)
+         {
+            this._gameModes.add(gameMode);
+         }
          this._typeNames.add(BonusTypes.types[0]);
-         this._gameModes.add(GameModes.modes[0]);
-         this._gameModes.add(GameModes.modes[1]);
-         this._gameModes.add(GameModes.modes[2]);
-         this._gameModes.add(GameModes.modes[3]);
          //_material = new TextureMaterial(texture,0.5,true,false,BlendMode.MULTIPLY);
          super(BOX_TEMPLATE.clone(),param1,param2,param3,param4);
          type = Prop.BONUS;
