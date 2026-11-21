@@ -1,17 +1,19 @@
 ## What is this project about?
-This is modded version of AlternativaEditor (Tanks map editor)
+This is a modded AlternativaEditor (Tanki map editor)
 
 **New features**:
 - **Hardware acceleration support** - this editor uses Alternativa3D 7.11 which provides much better performance because of GPU rendering.
+- **Prop transformation panel** - new prop transform panel, where you can manually set position and rotation of the selected prop.
 - **Disabling collision for props** - you can easily disable collision of any prop on the scene, so tanks can go through it.
-- **Exporting to HTML5 Tanki map format (.bin)** - test feature, still in development.
 - **Localization** - editor has multi-language system. Currently, only English and Russian are implemented, but you can pull-request your own translations (see file [localization.json](https://github.com/tubixpvp/alternativa-editor-mod/blob/master/src/mod/locale/localization.json)).
-- **Other quality-of-life features** - editor has many little but significant features. For example: saves recent libraries paths; shows information about selected prop.
+- **45-degree rotation** - with half-snapping enabled, you can rotate the selected group of props by 45 degrees.
+- **Exporting to HTML5 Tanki map format (.bin)** - experimental feature; Update: these maps don't load in the game anymore.
+- **Other quality-of-life features** - editor has many little but significant features. For example, it saves recent libraries paths.
 
 ## Notice
-This editor still doesn't support all features that were in the original Editor, and may have some bugs. It is mainly caused by 3D engine upgrade.
+The editor was originally created by and belongs to [AlternativaGames](https://github.com/AlternativaPlatform). This mod uses decompiled and restored code of their editor. Even though it has been discontinued by the owners, I suggest to only use the contents of this respository in educational purposes. **I do not own it, use at your own risk.**
 
-The editor itself was originally created by [AlternativaGames](https://github.com/AlternativaPlatform) and the sources are not officialy public, so use the code only in educational purposes; commercial use is not recommended.
+All code that is written by me as a part of modification is licensed under [MIT](LICENCE).
 
 ## How to run
 To run the editor you need to install [Adobe/Harman AIR](https://airsdk.harman.com/runtime) of version 51 or higher.
